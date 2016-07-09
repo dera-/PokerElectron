@@ -1,0 +1,19 @@
+{
+  "name": "PokerElectron",
+  "version": "0.0.0",
+  "homepage": "https://github.com/dera-/PokerElectron",
+  "authors": [
+    "dera- <alchemy.and.fairy@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "enchant.js-builds": "~0.8.3"
+  }
+}
