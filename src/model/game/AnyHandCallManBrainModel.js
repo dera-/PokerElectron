@@ -1,25 +1,20 @@
-import Player from './Player';
-import PlayerBrain from './PlayerBrain';
+import AiPlayerModel from './AiPlayerModel';
 import ActionModel from './ActionModel';
-import {ALLIN, RAISE, CALL, CHECK, FOLD} from '../const/ActionName';
+import * as TexasHoldemAction from '../../const/game/TexasHoldemAction';
 
-export default class AnyHandCallManBrain extends PlayerBrain {
-  constructor(player) {
-    super(player);
-  }
-
+export default class AnyHandCallPlayerModel extends AiPlayerModel {
   // override
-  decideAction(actionPhase, enemyBrain, board, callValue) {
+  decideAction(actionPhase, enemyPlayerModel, boardModel, callValue) {
     if (this.action === null) {
-      this.action = new ActionModel(CHECK, 0);
+      this.action = new ActionModel(TexasHoldemAction.ACTION_CHECK, 0);
     } else if (this.action.value === callValue) {
-      this.action = new ActionModel(CHECK, callValue);
+      this.action = new ActionModel(TexasHoldemAction.ACTION_CHECK, callValue);
     } else {
-      this.action = new ActionModel(CALL, callValue);
+      this.action = new ActionModel(TexasHoldemAction.ACTION_CALL, callValue);
     }
 
-    if (this.action.value >= this.player.getStack()) {
-      this.action = new ActionModel(ALLIN, this.player.getStack());
+    if (this.action.value >= this.stack) {
+      this.action = new ActionModel(TexasHoldemAction.ACTION_ALLIN, this.stack);
     }
   }
 }

@@ -1,35 +1,25 @@
-import Card from './Card';
+import CardModel from './CardModel';
+import ActionModel from './ActionModel';
 import RankUtil from '../util/RankUtil';
 
-export default class Player {
+export default class PlayerModel {
   constructor(id, money) {
     this.id = id;
     this.stack = money;
     this.hand = [];
+    this.action = null;
   }
 
-  setStack(money) {
-      this.stack = money;
+  setAction(name, value) {
+    this.action = new ActionModel(name, value);
   }
 
-  hasHand() {
-    return this.hand.length > 0
+  getAction() {
+    return this.action;
   }
 
-  isAlive() {
-    return this.stack > 0;
-  }
-
-  isActive() {
-    return this.hand.length > 0 && this.stack > 0;
-  }
-
-  setCards(cards) {
-    this.hand = cards;
-  }
-
-  clear() {
-    this.hand = [];
+  resetAction() {
+    this.action = null;
   }
 
   pay(value) {
@@ -44,24 +34,35 @@ export default class Player {
     return this.stack;
   }
 
-  getRank(openedCards) {
-    return RankUtil.getRank(this.hand, openedCards);
+  setStack(money) {
+    this.stack = money;
   }
 
-  getHand() {
+  hasHand() {
+    return this.hand.length > 0
+  }
+
+  hasChip() {
+    return this.stack > 0;
+  }
+
+  isActive() {
+    return this.hasHand() && this.hasChip();
+  }
+
+  getCards() {
     return this.hand;
   }
 
-  printHand() {
-    console.log('id'+this.id+'のハンド：'+this.hand[0].number+this.hand[0].suit+','+this.hand[1].number+this.hand[1].suit);
+  setCards(cards) {
+    this.hand = cards;
   }
 
-  printStack() {
-    console.log('id'+this.id+'の残りスタック：'+this.stack);
+  dumpCards() {
+    this.hand = [];
   }
 
-  printRank(openedCards) {
-    let rank = this.getRank(openedCards);
-    console.log('id'+this.id+'の役：'+ rank.strength);
+  getRank(openedCards) {
+    return RankUtil.getRank(this.hand, openedCards);
   }
 }

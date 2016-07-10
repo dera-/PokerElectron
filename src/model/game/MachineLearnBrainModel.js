@@ -1,15 +1,15 @@
-import PlayerBrain from './PlayerBrain';
+import PlayerBrain from './AiPlayerModel';
 import PokerLearnModel from './learn/PokerLearnModel';
 
-export default class MachineLearnBrain extends PlayerBrain {
-  constructor(player) {
-    super(player);
-    this.pokerLearnModel = new PokerLearnModel(player.getStack());
+export default class MachineLearnPlayerModel extends AiPlayerModel {
+  constructor(id, stack) {
+    super(id, stack);
+    this.pokerLearnModel = new PokerLearnModel(this.stack);
   }
 
   // override
-  decideAction(actionPhase, enemyBrain, board, callValue) {
-    this.action = this.pokerLearnModel.getAction(actionPhase, this, enemyBrain, board, callValue);
+  decideAction(actionPhase, enemyPlayerModel, boardModel, callValue) {
+    this.action = this.pokerLearnModel.getAction(actionPhase, this, enemyPlayerModel, boardModel, callValue);
   }
 
   learn(chip, isLoose) {

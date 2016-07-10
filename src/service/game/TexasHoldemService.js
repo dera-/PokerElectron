@@ -1,28 +1,32 @@
 import BaseService from '../BaseService';
-import {*} from '../../const/game/TexasHoldemStatus';
-import {*} from '../../const/game/TexasHoldemPhase';
+import * as TexasHoldemPhase from '../../const/game/TexasHoldemPhase';
+import * as TexasHoldemAction from '../../const/game/TexasHoldemAction';
+import PlayerModel from '../../model/game/PlayerModel';
+import AiPlayerModel from '../../model/game/AiPlayerModel';
+import DealerModel from '../../model/game/DealerModel';
+import BoardModel from '../../model/game/BoardModel';
+
+const NON_EXIST_PLAYER_INDEX = -1;
 
 export default class TexasHoldemService extends BaseService {
   constructor(players, initialBlind) {
     this.players = players;
-    this.dealerModel = new DealerModel((new CardsFactory()).generate());
-    this.boardModel = new BoardModel();
+    this.dealer = new DealerModel((new CardsFactory()).generate());
+    this.board = new BoardModel();
 
-    this.phase = 'aaa';
-    this.status =
+    this.phase = TexasHoldemPhase.PHASE_PRE_FLOP;
     this.bigBlind = initialBigBlind;
-    this.utgIndex = 0;
-  }
-
-  getStatus() {
-
+    this.bbIndex = 0;
+    this.currentPlayerIndex = 0;
+    this.originalRaiserIndex = NON_EXIST_PLAYER_INDEX;
+    this.currentCallValue = 0;
   }
 
   /**
    * ゲームが終了したかどうかの判定
    */
   isFinished() {
-    return this.playerBrains.length <= 1;
+    return this.players.length <= 1;
   }
 
   /**
@@ -30,101 +34,154 @@ export default class TexasHoldemService extends BaseService {
    * TODO: ヘッズアップならこれでいいけど、３人以上のゲームだと次にアクションが始まる位置がおかしなことになるので要修正
    */
   deleteDeadPlayer() {
-    this.playerBrains = this.playerBrains.filter((brain) => {
-      return brain.getPlayer().isAlive();
+    this.players = this.players.filter((player) => {
+      return player.isAlive();
     });
   }
 
-  isExistPlayer(id) {
-    return this.playerBrains.some(brain => id === brain.getPlayer().id);
+  reset() {
+    this.resetPlayersAction();
+    this.board.clear();
+  }
+
+  resetPlayersAction(){
+    this.players.forEach((player) => {
+      player.resetAction();
+    });
+  }
+
+  initializeGame() {
+    const playerNum = this.players.length;
+    this.bbIndex = (this.bbIndex + 1) % this.players.length;
+    this.players[this.bbIndex].setAction(NONE, this.bigBlind);
+    this.players[(this.bbIndex + playerNum - 1) % playerNum].setAction(NONE, this.bigBlind/2);
   }
 
   dealCards() {
-    let playerNum = this.playerBrains.length;
-    this.resetPlayersAction();
-    this.board.clear();
     this.dealer.shuffleCards();
-    this.utgIndex = (this.utgIndex + 1) % this.playerBrains.length;
-    if (playerNum === 2) {
-      this.playerBrains[(this.utgIndex + playerNum - 1) % playerNum].setAction(NONE, this.bigBlind);
-      this.playerBrains[this.utgIndex].setAction(NONE, this.bigBlind/2);
-    } else {
-      this.playerBrains[(this.utgIndex + playerNum - 2) % playerNum].setAction(NONE, this.bigBlind);
-      this.playerBrains[(this.utgIndex + playerNum - 1) % playerNum].setAction(NONE, this.bigBlind/2);
-    }
-
     // 変な配り方しているけど、ロジック部分なので。。
-    this.playerBrains.forEach((brain)=>{
+    this.players.forEach((player) => {
       for (let i = 0; i < HAND_CARDS_NUM; i++) {
         let cards = [this.dealer.getNextCard(), this.dealer.getNextCard()];
-        brain.getPlayer().setCards(cards);
+        player.setCards(cards);
       }
-      //brain.getPlayer().printStack();
-      //brain.getPlayer().printHand();
     });
   }
 
-  actionPhase(actionPhase) {
-    let playerNum = this.playerBrains.length,
-      currentCallValue = 0,
-      originalRaiserIndex = NON_EXIST_PLAYER_INDEX,
-      initialPlayerIndex,
-      currentPlayerIndex;
-    if (actionPhase === PRE_FLOP) {
-      initialPlayerIndex = this.utgIndex;
-      currentCallValue = this.bigBlind;
-    } else if (playerNum === 2) {
-      initialPlayerIndex = ((this.utgIndex + playerNum - 1) % playerNum);
+  startPhase() {
+    //ボードにカードを公開する
+    if (this.actionPhase === TexasHoldemPhase.PHASE_FLOP) {
+      // とりあえず、バーンカードは無しで。。
+      for (let i = 0; i < FROP_CARDS_NUM; i++) {
+        this.board.setCard(this.dealer.getNextCard());
+      }
+    } else if (this.actionPhase === TexasHoldemPhase.PHASE_TURN || this.actionPhase === TexasHoldemPhase.PHASE_RIVER) {
+      this.board.setCard(this.dealer.getNextCard());
+    }
+    // メンバ変数リセット
+    this.currentPlayerIndex = this.getInitialPlayerIndex();
+    this.originalRaiserIndex = NON_EXIST_PLAYER_INDEX;
+    if (this.actionPhase === TexasHoldemPhase.PHASE_PRE_FLOP) {
+      this.currentCallValue = this.bigBlind;
     } else {
-      initialPlayerIndex = ((this.utgIndex + playerNum - 2) % playerNum);
+      this.currentCallValue = 0;
     }
-    currentPlayerIndex = initialPlayerIndex;
-    while ((currentPlayerIndex = this.searchNextPlayerIndex(currentPlayerIndex, originalRaiserIndex, currentCallValue)) !== NON_EXIST_PLAYER_INDEX) {
-      let brain = this.playerBrains[currentPlayerIndex],
-        currentPlayerAction,
-        survivor;
-      brain.decideAction(actionPhase, this.playerBrains[(currentPlayerIndex + 1) % playerNum], this.board, currentCallValue);
-      // 1人以外全員フォールドしたかどうか
-      survivor = this.getOneSurvivor();
-      if (survivor !== null) {
-        this.collectChipsToPod();
-        return END;
-      }
-      // オリジナルレイザーが変わった場合
-      currentPlayerAction = brain.getAction();
-      if (currentPlayerAction.name === RAISE || (currentPlayerAction.name === ALLIN && currentPlayerAction.value > currentCallValue)) {
-        originalRaiserIndex = currentPlayerIndex;
-        currentCallValue = currentPlayerAction.value;
-      }
-      //console.log(currentPlayerIndex+":"+brain.getAction().name);
-      // 最後までCHECKで回ったかどうか
-      if (currentPlayerIndex === ((initialPlayerIndex + playerNum - 1) % playerNum) && brain.getAction().name === CHECK) {
-        break;
-      }
-      currentPlayerIndex = (currentPlayerIndex + 1) % playerNum;
+  }
+
+  getInitialPlayerIndex() {
+    const playerNum = this.players.length;
+    if (this.actionPhase === TexasHoldemPhase.PHASE_PRE_FLOP) {
+      return (this.bbIndex + 1) % playerNum;
+    } else if (playerNum === 2) {
+      return this.bbIndex;
+    } else {
+      return (this.bbIndex + playerNum -1) % playerNum;
     }
+  }
+
+  decideCurrentPlayer() {
+    this.currentPlayerIndex = this.searchNextPlayerIndex(this.currentPlayerIndex, this.originalRaiserIndex, this.currentCallValue);
+  }
+
+  getCurrentPlayer() {
+    return this.players[this.currentPlayerIndex];
+  }
+
+  decideCurrentPlayerAction() {
+    const currentPlayer = this.players[this.currentPlayerIndex];
+    if (currentPlayer instanceof AiPlayerModel) {
+      currentPlayer.decideAction(this.actionPhase, this.players[(currentPlayerIndex + 1) % this.players.length], this.board, this.currentCallValue);
+      return true
+    }
+    return false;
+  }
+
+  getCurrentPlayerAction() {
+    const action = this.players[this.currentPlayerIndex].getAction();
+    if (action !== null && action.name === TexasHoldemAction.ACTION_FOLD) {
+      player.dumpCards();
+    }
+    return action;
+  }
+
+  isEndCurrentPhase() {
+    const lastActionPlayerIndex = (this.getInitialPlayerIndex() + this.players.length - 1) % this.players.length;
+    return this.currentPlayerIndex === NON_EXIST_PLAYER_INDEX ||
+      this.existOnlyOneSurvivor() ||
+      this.players[lastActionPlayerIndex].getAction().name === TexasHoldemAction.ACTION_CHECK;
+  }
+
+  nextActionPlayer() {
+    // オリジナルレイザーが変わった場合
+    currentPlayerAction = this.players[this.currentPlayerIndex].getAction();
+    if (currentPlayerAction.name === TexasHoldemAction.ACTION_RAISE ||
+      (currentPlayerAction.name === TexasHoldemAction.ACTION_ALLIN && currentPlayerAction.value > currentCallValue)) {
+      this.originalRaiserIndex = currentPlayerIndex;
+      this.currentCallValue = currentPlayerAction.value;
+    }
+    this.currentPlayerIndex++;
+  }
+
+  moveNextPhase() {
     this.collectChipsToPod();
-    // コンソール表示
-    //this.playerBrains.forEach((brain)=>{brain.printAction()});
-    return this.isExistMultiActivePlayers() ? NEXT : SHOWDOWN;
+    this.actionPhase++;
+  }
+
+  existOnlyOneSurvivor() {
+    const survivors = this.players.filter((player) => {
+      const action = player.getAction();
+      return action === null || action.name !== TexasHoldemAction.ACTION_FOLD;
+    });
+    return survivors.length === 1;
+  }
+
+  isContinueGame() {
+    if (this.actionPhase === TexasHoldemPhase.PHASE_RIVER) {
+      return false;
+    }
+    const players = this.players.filter((player) => {
+      const action = player.getAction();
+      return (action === null || (action.name !== TexasHoldemAction.ACTION_FOLD && action.name !== TexasHoldemAction.ACTION_ALLIN));
+    });
+    return players.length >= 2;
   }
 
   searchNextPlayerIndex(initialPlayerIndex, originalRaiserIndex, currentCallValue) {
-    let playerNum = this.playerBrains.length;
+    const playerNum = this.players.length;
     for (let i = 0; i < playerNum; i++) {
-      let currentPlayerIndex = (initialPlayerIndex + i) % playerNum,
-        currentPlayerAction = this.playerBrains[currentPlayerIndex].getAction(),
-        player = this.playerBrains[currentPlayerIndex].getPlayer();
+      const currentPlayerIndex = (initialPlayerIndex + i) % playerNum;
+      const currentPlayer = this.players[currentPlayerIndex];
+      const currentPlayerAction = currentPlayer.getAction();
       // オリジナルレイザーまで回ってきたら終了
       if (currentPlayerIndex === originalRaiserIndex) {
         return NON_EXIST_PLAYER_INDEX;
       }
-      if (false === player.isActive()) {
+      if (false === currentPlayer.isActive()) {
         continue;
       }
       if (
-        currentPlayerAction === null || currentPlayerAction.name === NONE ||
-        (currentPlayerAction.name !== ALLIN && currentPlayerAction.name !== FOLD && currentPlayerAction.value < currentCallValue)
+        currentPlayerAction === null || currentPlayerAction.name === TexasHoldemAction.ACTION_NONE ||
+        (currentPlayerAction.name !== TexasHoldemAction.ACTION_ALLIN && currentPlayerAction.name !== TexasHoldemAction.ACTION_FOLD && currentPlayerAction.value < currentCallValue)
       ) {
         return currentPlayerIndex;
       }
@@ -132,105 +189,53 @@ export default class TexasHoldemService extends BaseService {
     return NON_EXIST_PLAYER_INDEX;
   }
 
-  getOneSurvivor() {
-    let survivors = this.playerBrains.filter((brain)=>{
-      let action = brain.getAction();
-      return action === null || action.name !== FOLD;
-    });
-    return (survivors.length === 1) ? survivors[0] : null;
-  }
-
-  isExistMultiActivePlayers() {
-    let players = this.playerBrains.filter((brain)=>{
-      let action = brain.getAction();
-      return (action === null || (action.name !== FOLD && action.name !== ALLIN));
-    });
-    return players.length >= 2;
-  }
-
   collectChipsToPod() {
-    this.playerBrains.forEach((brain)=>{
-      let action = brain.getAction(),
-        player = brain.getPlayer(),
+    this.players.forEach((player)=>{
+      let action = player.getAction(),
         value = action === null ? 0 : action.value;
       this.board.addChip(player.id, value);
       player.pay(value);
-      if (action !== null && action.name === FOLD) {
-        player.clear();
-      }
     });
-  }
-
-  /**
-   * フロップ時にカードをオープン
-   */
-  startFrop() {
-    // とりあえず、バーンカードは無しで。。
-    for (let i = 0; i < FROP_CARDS_NUM; i++) {
-      this.board.setCard(this.dealer.getNextCard());
-    }
-  }
-
-  /**
-   * ターン、リバー時にカードをオープン
-   */
-  openCard() {
-    this.board.setCard(this.dealer.getNextCard());
   }
 
   getWinners() {
     let boardCards = this.board.getOpenedCards(),
       bestRank = RankUtil.getWeakestRank(),
-      candidates = this.playerBrains.filter(brain => brain.getPlayer().hasHand()),
+      candidates = this.players.filter(player => player.hasHand()),
       winners = [];
-    //console.log(boardCards);
-    candidates.forEach((brain)=>{
-      let rank = brain.getPlayer().getRank(boardCards);
-      //console.log(brain.getPlayer());
-      //console.log(rank);
+    candidates.forEach((player)=>{
+      let rank = player.getRank(boardCards);
       let comparedResult = RankUtil.compareRanks(rank, bestRank);
       if (comparedResult === 1) {
         bestRank = rank;
-        winners = [brain];
+        winners = [player];
       } else if (comparedResult === 0) {
-        winners.push(brain);
+        winners.push(player);
       }
     });
     return winners;
   }
 
-  getChipsInPod() {
-    return this.board.getPotValue();
-  }
-
-  sharePodToWinners(winnerBrains) {
-    let ids = winnerBrains.map(brain => brain.getPlayer().id),
+  sharePodToWinners(winners) {
+    let ids = winners.map(player => player.id),
       pots;
-    if (winnerBrains.length === 1) {
+    if (winners.length === 1) {
       pots = this.board.getPotForOne(ids[0]);
     } else {
       pots = this.board.getPotForMulti(ids);
     }
     pots.forEach((pot) => {
-      //console.log(pot);
       this.getPlayer(pot.id).addStack(pot.chip);
     });
   }
 
   getPlayer(id) {
-    let brains = this.playerBrains.filter(brain => id === brain.getPlayer().id);
-    return brains[0].getPlayer();
-  }
-
-  resetPlayersAction(){
-    this.playerBrains.forEach((brain) => {
-      brain.resetAction();
-    });
+    let targetPlayers = this.players.filter(player => id === player.id);
+    return targetPlayers[0].getPlayer();
   }
 
   isWin(playerHand, targetHand) {
     let boardCards = this.board.getOpenedCards();
     return RankUtil.compareRanks(RankUtil.getRank(playerHand, boardCards), RankUtil.getRank(targetHand, boardCards)) !== -1;
   }
-
 }

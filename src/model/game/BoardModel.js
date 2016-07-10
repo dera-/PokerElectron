@@ -1,4 +1,4 @@
-export default class Board {
+export default class BoardModel {
   constructor() {
     this.openedCards = [];
     this.chipPots = [];

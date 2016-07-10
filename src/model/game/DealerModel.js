@@ -1,4 +1,4 @@
-export default class Dealer {
+export default class DealerModel {
   constructor(cards) {
     this.cards = cards;
     this.index = 0;
