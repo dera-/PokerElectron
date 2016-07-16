@@ -6,6 +6,7 @@ import AiPlayerModel from '../../model/game/AiPlayerModel';
 import DealerModel from '../../model/game/DealerModel';
 import BoardModel from '../../model/game/BoardModel';
 import RanlUtil from '../../util/RankUtil'
+import CardsFactory from '../../factory/game/CardsFactory';
 
 const NON_EXIST_PLAYER_INDEX = -1;
 

@@ -9,6 +9,11 @@ export default class ImageRepository {
     });
   }
 
+  static getImage(imagePath) {
+    const game = GameRepository.get();
+    return game.assets[imagePath];
+  }
+
   static isLoaded(imagePath) {
     return loadedImagePathSets.has(imagePath);
   }
