@@ -1,11 +1,34 @@
 import BaseService from '../service/BaseService';
+import BaseView from '../view/BaseView';
+import * as BaseStatus from '../const/BaseStatus';
 
 export default class BaseScene {
   constructor(object = {}) {
-    this.status = 'none';
+    this.statusQueue = [];
     this.service = this.generateService(object);
     this.view = this.generateView(object);
     this.scene = this.generateScene(object);
+  }
+
+  getCurrentStatus() {
+    return this.statusQueue.length === 0 ? BaseStatus.STATUS_NONE : this.statusQueue[this.statusQueue.length-1];
+  }
+
+  popStatus() {
+    return this.statusQueue.length === 0 ? BaseStatus.STATUS_NONE : this.statusQueue.pop();
+  }
+
+  pushStatus(status) {
+    if (status === BaseStatus.STATUS_NONE) {
+      return;
+    }
+    this.statusQueue.push(status);
+  }
+
+  pushStatuses(statuses) {
+    statuses.forEach(status => {
+      this.pushStatus(status);
+    });
   }
 
   getScene() {
@@ -22,17 +45,18 @@ export default class BaseScene {
 
   generateScene(object = {}) {
     const scene = new Scene();
+    const status
     // シーン開始時の処理
     scene.addEventListener('enter', () => {
-      this.status = this.start(this.status);
+      this.start();
     });
     // 毎フレーム行われる処理
     scene.addEventListener('enterframe', () => {
-      this.run(this.status);
+      this.run(this.getScene());
     });
     // シーン終了時の処理
     scene.addEventListener('exit', () => {
-      this.end(this.status);
+      this.end();
     });
     // 以下、タップ時の処理
     scene.addEventListener('touchstart', (event) => {
@@ -47,22 +71,10 @@ export default class BaseScene {
     return scene;
   }
 
-  start(status) {
-    return this.status;
-  }
-  run(status) {
-    return this.status;
-  }
-  end(status) {
-    return this.status;
-  }
-  touchStartEvent(action) {
-    return this.status;
-  }
-  touchMoveEvent(action) {
-    return this.status;
-  }
-  touchEndEvent(action) {
-    return this.status;
-  }
+  start() {}
+  run(status) {}
+  end() {}
+  touchStartEvent(action) {}
+  touchMoveEvent(action) {}
+  touchEndEvent(action) {}
 }

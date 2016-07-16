@@ -5,6 +5,7 @@ import PlayerModel from '../../model/game/PlayerModel';
 import AiPlayerModel from '../../model/game/AiPlayerModel';
 import DealerModel from '../../model/game/DealerModel';
 import BoardModel from '../../model/game/BoardModel';
+import RanlUtil from '../../util/RankUtil'
 
 const NON_EXIST_PLAYER_INDEX = -1;
 
@@ -50,9 +51,13 @@ export default class TexasHoldemService extends BaseService {
     });
   }
 
-  initializeGame() {
+  initializeGame(next = true) {
     const playerNum = this.players.length;
-    this.bbIndex = (this.bbIndex + 1) % this.players.length;
+    if (next) {
+      this.bbIndex = (this.bbIndex + 1) % playerNum;
+    } else {
+      this.bbIndex = Math.floor(playerNum * Math.round());
+    }
     this.players[this.bbIndex].setAction(NONE, this.bigBlind);
     this.players[(this.bbIndex + playerNum - 1) % playerNum].setAction(NONE, this.bigBlind/2);
   }
@@ -107,13 +112,14 @@ export default class TexasHoldemService extends BaseService {
     return this.players[this.currentPlayerIndex];
   }
 
+  isAiAction() {
+    return this.players[this.currentPlayerIndex] instanceof AiPlayerModel;
+  }
+
   decideCurrentPlayerAction() {
     const currentPlayer = this.players[this.currentPlayerIndex];
-    if (currentPlayer instanceof AiPlayerModel) {
-      currentPlayer.decideAction(this.actionPhase, this.players[(currentPlayerIndex + 1) % this.players.length], this.board, this.currentCallValue);
-      return true
-    }
-    return false;
+    const enemyPlayer = this.players[(this.currentPlayerIndex + 1) % this.players.length];
+    currentPlayer.decideAction(this.actionPhase, enemyPlayer, this.board, this.currentCallValue);
   }
 
   getCurrentPlayerAction() {
@@ -133,18 +139,25 @@ export default class TexasHoldemService extends BaseService {
 
   nextActionPlayer() {
     // オリジナルレイザーが変わった場合
-    currentPlayerAction = this.players[this.currentPlayerIndex].getAction();
+    const currentPlayerAction = this.getCurrentPlayerAction();
     if (currentPlayerAction.name === TexasHoldemAction.ACTION_RAISE ||
       (currentPlayerAction.name === TexasHoldemAction.ACTION_ALLIN && currentPlayerAction.value > currentCallValue)) {
-      this.originalRaiserIndex = currentPlayerIndex;
+      this.originalRaiserIndex = this.currentPlayerIndex;
       this.currentCallValue = currentPlayerAction.value;
     }
-    this.currentPlayerIndex++;
+    this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
   }
 
   moveNextPhase() {
     this.collectChipsToPod();
     this.actionPhase++;
+  }
+
+  showdown() {
+    while (this.actionPhase < TexasHoldemPhase.PHASE_RIVER) {
+      this.actionPhase++;
+      startPhase();
+    }
   }
 
   existOnlyOneSurvivor() {
