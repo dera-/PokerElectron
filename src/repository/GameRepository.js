@@ -1,3 +1,6 @@
+import Conf from '../config/conf.json';
+import ImageRepository from './ImageRepository';
+
 let gameObject = null;
 export default class GameRepository {
   static get() {
@@ -8,9 +11,8 @@ export default class GameRepository {
   }
 
   static initialize() {
-    const game = new Game(320, 320);
+    const game = new Game(Conf.main.width, Conf.main.height);
     game.onload = function () {
-      //game.preload(GameConfig.MAP_CHIPS_IMAGE_PATH);
       // TODO 初期化処理
       console.log('hello world');
     };

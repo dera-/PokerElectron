@@ -11,10 +11,10 @@ export default class SceneRepository {
   }
 
   static addSpriteToCurrentScene(sprite) {
-      gameObject.currentScene.addChild(sprite);
+    gameObject.currentScene.addChild(sprite);
   }
 
   static removeSpriteFromCurrentScene(sprite) {
-      gameObject.currentScene.removeChild(sprite);
+    gameObject.currentScene.removeChild(sprite);
   }
 }
