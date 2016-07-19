@@ -10,6 +10,8 @@ export default class TexasHoldemView extends BaseView {
     this.bigBlind = initialBlind;
     this.playerId = Conf.data.player.id;
     this.boardCardSprites = [];
+    this.handCards = {};
+    this.betChips = {};
     this.labels = [];
     this.betValue = 0;
     this.callValue = 0;
@@ -26,7 +28,7 @@ export default class TexasHoldemView extends BaseView {
     const cenetrY = this.sprites['poker_table'].y + shortRadius;
     for (let index = 0; index < playersNum; index++) {
       const player = players[index];
-      const cardSprite = this.sprites['player_card'];
+      const cardSprite = SpriteFactory.getClone(this.sprites['player_card']);
       const angle = (90 + interval * index) % 360;
       let xPlace = centerX + longRadius * Math.cos(angle * Math.PI / 180);
       if (xPlace < centerX) {
@@ -102,11 +104,12 @@ export default class TexasHoldemView extends BaseView {
         if (player.id === this.playerId) {
           sprite = this.sprites['crad_' + cards[index].getCardImageName()];
         } else {
-          sprite = this.sprites['crad_z01.png'];
+          sprite = SpriteFactory.getClone(this.sprites['crad_z01.png']);
         }
         this.sprites['crad_' + cards[index].getCardImageName()];
         sprite.x = this.sprites['player_card_' + player.id].x + index * sprite.width;
         sprite.y = this.sprites['player_card_' + player.id].y;
+        this.handCards['player_id_' + player.id + '_num' + index] = sprite;
         cardSprites.push(sprite);
       }
     });
