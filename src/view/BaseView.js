@@ -7,6 +7,7 @@ import ImageRepository from '../../repository/ImageRepository';
 export default class BaseView {
   constructor(imagesData) {
     this.sprites = this.generateSprites(imagesData);
+    this.visibleSpriteKeys = this.getVisibleSpriteKeys(imagesData);
     this.currentAction = BaseAction.ACTION_NONE;
   }
 
@@ -42,6 +43,14 @@ export default class BaseView {
       }
       return sprites;
     });
+  }
+
+  getVisibleSpriteKeys(imagesData) {
+    return imagesData.filter(data => data.show).map(data => data.name);
+  }
+
+  getVisibleSprites() {
+    return this.visibleSpriteKeys.map(key => this.getSprite(key));
   }
 
   getAction() {

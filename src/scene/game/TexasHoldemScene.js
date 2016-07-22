@@ -19,6 +19,7 @@ export default class TexasHoldemScene extends BaseScene {
 
   start(status) {
     this.service.initialize(true);
+    this.addSprites(this.view.getVisibleSprites());
   }
 
   run(status) {

@@ -1,5 +1,6 @@
 import BaseService from '../service/BaseService';
 import BaseView from '../view/BaseView';
+import SceneRepository from '../repository/SceneRepository';
 import * as BaseStatus from '../const/BaseStatus';
 
 export default class BaseScene {
@@ -77,4 +78,16 @@ export default class BaseScene {
   touchStartEvent(action) {}
   touchMoveEvent(action) {}
   touchEndEvent(action) {}
+
+  addSprites(sprites) {
+    sprites.forEach(sprite => {
+      SceneRepository.addSpriteToCurrentScene(sprite);
+    });
+  }
+
+  removeSprites(sprites) {
+    sprites.forEach(sprite => {
+      SceneRepository.removeSpriteFromCurrentScene(sprite);
+    });
+  }
 }
