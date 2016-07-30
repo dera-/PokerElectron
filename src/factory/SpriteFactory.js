@@ -2,12 +2,14 @@ import GameRepository from '../repository/GameRepository';
 import ImageRepository from '../repository/ImageRepository';
 
 export default class SpriteFactory {
-  static generateWithPromise(x, y, width, height, imagePath) {
+  static generateWithPromise(x, y, imagePath) {
     return ImageRepository.getImageWithPromise(imagePath).then((image) => {
-      const sprite = new Sprite(width, height);
+      const sprite = new Sprite(image.width, image.height);
       sprite.x = x;
       sprite.y = y;
       sprite.image = image;
+      //sprite.scale(1.0 * width / image.width, 1.0 * height / image.height);
+      //console.log(imagePath + ": x:" + sprite.x + ", y:" + sprite.y + ', originalX:' + x +', originalY:' + y);
       return sprite;
     });
   }

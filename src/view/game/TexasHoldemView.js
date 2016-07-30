@@ -91,6 +91,7 @@ export default class TexasHoldemView extends BaseView {
   initializeSpriteEvents() {
     return new Promise((resolve, reject) => {
       this.sprites['bet_slider'].addEventListener('touchmove', (event) => {
+        console.log('EVENT:bet_slider');
         const minX = this.sprites['bet_bar'].x;
         const maxX = minX + this.sprites['bet_bar'].width;
         this.sprites['bet_slider'].x = event.x;
@@ -103,15 +104,18 @@ export default class TexasHoldemView extends BaseView {
         this.currentAction = TexasHoldemAction.ACTION_FOLD;
       });
       this.sprites['raise'].addEventListener('touchend', () => {
+        console.log('EVENT:raise');
         if (this.betValue >= 2 * this.callValue) {
           return ;
         }
         this.currentAction = TexasHoldemAction.ACTION_RAISE;
       });
       this.sprites['call'].addEventListener('touchend', () => {
+        console.log('EVENT:call');
         this.currentAction = TexasHoldemAction.ACTION_CALL;
       });
       this.sprites['fold'].addEventListener('touchend', () => {
+        console.log('EVENT:fold');
         this.currentAction = TexasHoldemAction.ACTION_FOLD;
       });
       resolve();
@@ -160,11 +164,11 @@ export default class TexasHoldemView extends BaseView {
   // ボードにカードをオープンする描画
   setCardsDraw(cards) {
     const cardSprites = [];
-    const startX = this.labels['poker_table'].x + 0.12 * Conf.main.width;
-    const startY = this.labels['poker_table'].y + 0.25 * Conf.main.height;
+    const startX = this.sprites['poker_table'].x + 0.12 * Conf.main.width;
+    const startY = this.sprites['poker_table'].y + 0.25 * Conf.main.height;
     const interval = 0.03 * Conf.main.width;
     cards.forEach(card => {
-      const cardSprite = this.sprites['card_' + card.getCardImageName()];
+      const cardSprite = this.sprites['card_trump/' + card.getCardImageName()];
       cardSprite.x = startX + (this.boardCardSprites.length - 1) * (cardSprite.width + interval);
       cardSprite.y = startY;
       cardSprites.push(cardSprite);
@@ -182,10 +186,10 @@ export default class TexasHoldemView extends BaseView {
         let sprite;
         if (player.id === this.playerId) {
           console.log('player');
-          sprite = this.sprites['card_' + cards[index].getCardImageName()];
+          sprite = this.sprites['card_trump/' + cards[index].getCardImageName()];
         } else {
           console.log('enemy');
-          sprite = SpriteFactory.getClone(this.sprites['card_z01.png']);
+          sprite = SpriteFactory.getClone(this.sprites['card_trump/z01.png']);
         }
         console.log(sprite);
         sprite.x = this.sprites['player_card_' + player.id].x + index * sprite.width;
@@ -219,7 +223,7 @@ export default class TexasHoldemView extends BaseView {
   }
 
   potDraw(potValue) {
-    this.labels['pot'].text = '合計賭けチップ：' + potValue;
+    this.labels['pot_value'].text = '合計賭けチップ：' + potValue;
     return [];
   }
 
@@ -243,7 +247,7 @@ export default class TexasHoldemView extends BaseView {
   }
 
   shareChips() {
-    this.labels['pot'].text = '合計賭けチップ：' + 0;
+    this.labels['pot_value'].text = '合計賭けチップ：' + 0;
     this.players.forEach(player => {
       this.labels['player_stack_' + player.id].text = '残り：' + player.getStack();
       this.labels['player_bet_chip_' + player.id].text = '';

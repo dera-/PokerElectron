@@ -33,24 +33,20 @@ export default class BaseView {
     return new Promise((resolve, reject) => {
       let datas = [];
       imagesData.forEach(data => {
-        if ('image_dir' in data) {
-          datas = datas.concat(ImageRepository.getImageNames(data.image_dir).map(fileName => {
+        if (data.image_path instanceof Array) {
+          datas = datas.concat(data.image_path.map(fileName => {
             return {
               name: data.name + '_' + fileName,
               x: Conf.main.width * data.x,
               y: Conf.main.height * data.y,
-              width: Conf.main.width * data.width,
-              height: Conf.main.width * data.height,
-              fileName: data.image_dir + '/' + fileName
+              fileName: fileName
             }
           }));
-        } else if ('image_path' in data) {
+        } else {
           datas.push({
             name: data.name,
             x: Conf.main.width * data.x,
             y: Conf.main.height * data.y,
-            width: Conf.main.width * data.width,
-            height: Conf.main.width * data.height,
             fileName: data.image_path
           });
         }
@@ -59,8 +55,6 @@ export default class BaseView {
     }).then(datas => Promise.all(datas.map(data => SpriteFactory.generateWithPromise(
         data.x,
         data.y,
-        data.width,
-        data.height,
         data.fileName
       ).then(sprite =>{
         console.log(data.name);
