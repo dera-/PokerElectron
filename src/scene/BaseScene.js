@@ -66,6 +66,7 @@ export default class BaseScene {
       });
       // 毎フレーム行われる処理
       scene.addEventListener('enterframe', () => {
+        //console.log(this.getCurrentStatus());
         this.run(this.getCurrentStatus());
       });
       // シーン終了時の処理
@@ -73,14 +74,14 @@ export default class BaseScene {
         this.end();
       });
       // 以下、タップ時の処理
-      scene.addEventListener('touchstart', (event) => {
-        this.touchStartEvent(this.view.getAction(event));
+      scene.addEventListener('touchstart', () => {
+        this.touchStartEvent(this.view.getAction());
       });
-      scene.addEventListener('touchmove', (event) => {
-        this.touchMoveEvent(this.view.getAction(event));
+      scene.addEventListener('touchmove', () => {
+        this.touchMoveEvent(this.view.getAction());
       });
-      scene.addEventListener('touchend', (event) => {
-        this.touchEndEvent(this.view.getAction(event));
+      scene.addEventListener('touchend', () => {
+        this.touchEndEvent(this.view.getAction());
       });
       resolve(scene);
     }).then(scene =>{

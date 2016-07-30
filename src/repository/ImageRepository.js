@@ -22,6 +22,13 @@ export default class ImageRepository {
     }
   }
 
+  static getImage(imagePath) {
+    if (loadedImagePathSets.has(imagePath)) {
+      return GameRepository.get().assets[IMAGE_DIRECTORY_PATH + imagePath];
+    }
+    return null;
+  }
+
   static getImageNames(dir) {
     return FileUtil.getFileNameList(IMAGE_DIRECTORY_PATH + dir);
   }

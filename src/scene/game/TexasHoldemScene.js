@@ -34,9 +34,10 @@ export default class TexasHoldemScene extends BaseScene {
   }
 
   run(status) {
-    if (status === BaseStatus.STATUS_DRAWING) {
+    if (status === TexasHoldemStatus.STATUS_PLAYER_THINKING || status === BaseStatus.STATUS_DRAWING || status === BaseStatus.STATUS_NONE) {
       return;
     }
+    console.log('status:' + status);
     // シーン毎の行動+遷移
     this.popStatus();
     if (status === TexasHoldemStatus.STATUS_GAME_START || status === TexasHoldemStatus.STATUS_GAME_CONTINUE) {
@@ -60,6 +61,7 @@ export default class TexasHoldemScene extends BaseScene {
         this.removeSprites(this.view.foldDraw(player.id));
       }
       this.service.nextActionPlayer();
+      this.view.resetOneAction();
       this.pushStatuses([TexasHoldemStatus.STATUS_NEXT_PLAYER/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_AI_THINKING) {
       // AIアクション時
@@ -70,6 +72,8 @@ export default class TexasHoldemScene extends BaseScene {
         this.addSprites(this.view.actionDraw(player.id, action));
         if (action.name === TexasHoldemAction.FOLD) {
           this.removeSprites(this.view.foldDraw(player.id));
+        } else {
+          this.view.setCallValue(action.value);
         }
         this.service.nextActionPlayer();
       }, 0);
@@ -87,6 +91,7 @@ export default class TexasHoldemScene extends BaseScene {
     } else if (status === TexasHoldemStatus.STATUS_NEXT_PHASE) {
       // 次のフェーズへ移行
       this.service.moveNextPhase();
+      this.service.resetPlayersAction();
       this.removeSprites(this.view.actionDrawErase());
       this.view.potDraw(this.service.board.getPotValue());
       this.view.resetOnePhase();
@@ -116,6 +121,7 @@ export default class TexasHoldemScene extends BaseScene {
       if (this.service.isFinished()) {
         this.pushStatus(TexasHoldemStatus.STATUS_GAME_END);
       } else {
+        this.servie.reset();
         this.pushStatus(TexasHoldemStatus.STATUS_GAME_CONTINUE);
       }
     } else if (status === TexasHoldemStatus.STATUS_GAME_END) {
@@ -126,9 +132,10 @@ export default class TexasHoldemScene extends BaseScene {
   }
 
   touchEndEvent(action) {
+    console.log('action:' + action);
     const status = this.getCurrentStatus();
     if (status === TexasHoldemStatus.STATUS_PLAYER_THINKING && action !== BaseAction.ACTION_NONE) {
-      this.service.setCurrentPlayerAction(this.view.getCurrentAction(), this.view.getCurrentBetValue());
+      this.service.setCurrentPlayerAction(action, this.view.getCurrentBetValue());
       this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_DESIDE);
     }
   }

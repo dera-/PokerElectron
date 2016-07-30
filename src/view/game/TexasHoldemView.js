@@ -2,6 +2,8 @@ import BaseView from '../BaseView';
 import Conf from '../../config/conf.json';
 import SpritesConf from '../../config/game/sprites.json';
 import SpriteFactory from '../../factory/SpriteFactory';
+import ImageRepository from '../../repository/ImageRepository';
+import * as BaseAction from '../../const/BaseAction';
 import * as TexasHoldemAction from '../../const/game/TexasHoldemAction';
 
 export default class TexasHoldemView extends BaseView {
@@ -15,7 +17,7 @@ export default class TexasHoldemView extends BaseView {
       this.handCards = {};
       this.betChipSprites = [];
       this.betValue = 0;
-      this.callValue = 0;
+      this.callValue = initialBlind;
       return Promise.resolve();
     }).then(()=>{
       return this.setSpritePlaces(players, initialBlind);
@@ -24,19 +26,13 @@ export default class TexasHoldemView extends BaseView {
     });
   }
 
-
-
-  getCurrentAction() {
-    return this.currentAction;
-  }
-
   getCurrentBetValue() {
     return this.betValue;
   }
 
   // TODO: できればベースクラスのメソッドにしたいやつ
   getLabels() {
-    return this.labels;
+    return Object.keys(this.labels).map(key => this.labels[key]);
   }
 
   setSpritePlaces(players, initialBlind) {
@@ -73,8 +69,8 @@ export default class TexasHoldemView extends BaseView {
         this.labels['player_stack_' + player.id].moveTo(xPlace, yPlace + cardSprite.height / 2);
         this.labels['player_bet_chip_' + player.id] = new Label('');
         this.labels['player_bet_chip_' + player.id].moveTo(
-          centerX + 0.85 * longRadius * Math.cos(angle * Math.PI / 180),
-          centerY + 0.85 * shortRadius * Math.sin(angle * Math.PI / 180)
+          centerX + 0.7 * longRadius * Math.cos((angle+10) * Math.PI / 180),
+          centerY + 0.7 * shortRadius * Math.sin((angle+10) * Math.PI / 180)
         );
         this.labels['pot_value'] = new Label('合計掛け金：' + 0);
         this.labels['pot_value'].moveTo(centerX - 0.5 * longRadius, centerY - 0.5 * shortRadius);
@@ -91,7 +87,6 @@ export default class TexasHoldemView extends BaseView {
   initializeSpriteEvents() {
     return new Promise((resolve, reject) => {
       this.sprites['bet_slider'].addEventListener('touchmove', (event) => {
-        console.log('EVENT:bet_slider');
         const minX = this.sprites['bet_bar'].x;
         const maxX = minX + this.sprites['bet_bar'].width;
         this.sprites['bet_slider'].x = event.x;
@@ -100,22 +95,24 @@ export default class TexasHoldemView extends BaseView {
         } else if(this.sprites['bet_slider'].x > maxX) {
           this.sprites['bet_slider'].x = maxX;
         }
-        this.labels['bet_value'].text = Math.round(this.players[this.playerId].getStack() * (this.sprites['bet_slider'].x - minX) / minX) + ' Bet';
-        this.currentAction = TexasHoldemAction.ACTION_FOLD;
+        const betValue = Math.round(this.players[this.playerId].getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
+        this.labels['bet_value'].text = betValue + ' Bet';
       });
       this.sprites['raise'].addEventListener('touchend', () => {
-        console.log('EVENT:raise');
-        if (this.betValue >= 2 * this.callValue) {
+        const minX = this.sprites['bet_bar'].x;
+        const maxX = minX + this.sprites['bet_bar'].width;
+        const betValue = Math.round(this.players[this.playerId].getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
+        if (betValue < 2 * this.callValue || betValue < this.betValue) {
           return ;
         }
+        this.betValue = betValue;
         this.currentAction = TexasHoldemAction.ACTION_RAISE;
       });
       this.sprites['call'].addEventListener('touchend', () => {
-        console.log('EVENT:call');
+        this.betValue = this.callValue;
         this.currentAction = TexasHoldemAction.ACTION_CALL;
       });
       this.sprites['fold'].addEventListener('touchend', () => {
-        console.log('EVENT:fold');
         this.currentAction = TexasHoldemAction.ACTION_FOLD;
       });
       resolve();
@@ -164,8 +161,8 @@ export default class TexasHoldemView extends BaseView {
   // ボードにカードをオープンする描画
   setCardsDraw(cards) {
     const cardSprites = [];
-    const startX = this.sprites['poker_table'].x + 0.12 * Conf.main.width;
-    const startY = this.sprites['poker_table'].y + 0.25 * Conf.main.height;
+    const startX = this.sprites['poker_table'].x + 0.25 * Conf.main.width;
+    const startY = this.sprites['poker_table'].y + 0.14 * Conf.main.height;
     const interval = 0.03 * Conf.main.width;
     cards.forEach(card => {
       const cardSprite = this.sprites['card_trump/' + card.getCardImageName()];
@@ -185,13 +182,10 @@ export default class TexasHoldemView extends BaseView {
       for (let index = 0; index < cards.length; index++) {
         let sprite;
         if (player.id === this.playerId) {
-          console.log('player');
           sprite = this.sprites['card_trump/' + cards[index].getCardImageName()];
         } else {
-          console.log('enemy');
           sprite = SpriteFactory.getClone(this.sprites['card_trump/z01.png']);
         }
-        console.log(sprite);
         sprite.x = this.sprites['player_card_' + player.id].x + index * sprite.width;
         sprite.y = this.sprites['player_card_' + player.id].y;
         this.handCards['player_id_' + player.id + '_num' + index] = sprite;
@@ -262,7 +256,20 @@ export default class TexasHoldemView extends BaseView {
     return this.betChipSprites;
   }
 
+  setCallValue(callValue) {
+    if (callValue > this.callValue) {
+      this.callValue = callValue;
+    }
+  }
+
+  resetOneAction() {
+    this.currentAction = BaseAction.ACTION_NONE;
+    this.sprites['bet_slider'].x = this.sprites['bet_bar'].x;
+    this.labels['bet_value'].text = '0 Bet';
+  }
+
   resetOnePhase() {
+    this.currentAction = BaseAction.ACTION_NONE;
     this.betChipSprites = [];
     this.betValue = 0;
     this.callValue = 0;
@@ -272,5 +279,4 @@ export default class TexasHoldemView extends BaseView {
     this.boardCardSprites = [];
     this.handCards = {};
   }
-
 }

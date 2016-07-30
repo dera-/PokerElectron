@@ -57,7 +57,6 @@ export default class BaseView {
         data.y,
         data.fileName
       ).then(sprite =>{
-        console.log(data.name);
         return {
           name: data.name,
           sprite: sprite
@@ -81,8 +80,6 @@ export default class BaseView {
   }
 
   getVisibleSprites() {
-    console.log("getVisibleSprites");
-    console.log(this.visibleSpriteKeys);
     return this.visibleSpriteKeys.map(key => this.getSprite(key));
   }
 

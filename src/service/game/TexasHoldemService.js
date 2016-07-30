@@ -5,7 +5,7 @@ import PlayerModel from '../../model/game/PlayerModel';
 import AiPlayerModel from '../../model/game/AiPlayerModel';
 import DealerModel from '../../model/game/DealerModel';
 import BoardModel from '../../model/game/BoardModel';
-import RanlUtil from '../../util/game/RankUtil'
+import RankUtil from '../../util/game/RankUtil'
 import CardsFactory from '../../factory/game/CardsFactory';
 
 const NON_EXIST_PLAYER_INDEX = -1;
@@ -26,6 +26,7 @@ export default class TexasHoldemService extends BaseService {
       this.currentPlayerIndex = 0;
       this.originalRaiserIndex = NON_EXIST_PLAYER_INDEX;
       this.currentCallValue = 0;
+      this.actionPhase = TexasHoldemPhase.PHASE_PRE_FLOP;
       resolve();
     });
   }
@@ -43,7 +44,7 @@ export default class TexasHoldemService extends BaseService {
    */
   deleteDeadPlayer() {
     this.players = this.players.filter((player) => {
-      return player.isAlive();
+      return player.hasChip();
     });
   }
 
@@ -60,13 +61,14 @@ export default class TexasHoldemService extends BaseService {
 
   initializeGame(next = true) {
     const playerNum = this.players.length;
+    this.actionPhase = TexasHoldemPhase.PHASE_PRE_FLOP;
     if (next) {
       this.bbIndex = (this.bbIndex + 1) % playerNum;
     } else {
       this.bbIndex = Math.floor(playerNum * Math.round());
     }
-    this.players[this.bbIndex].setAction(TexasHoldemAction.NONE, this.bigBlind);
-    this.players[(this.bbIndex + playerNum - 1) % playerNum].setAction(TexasHoldemAction.NONE, this.bigBlind/2);
+    this.players[this.bbIndex].setAction(TexasHoldemAction.ACTION_NONE, this.bigBlind);
+    this.players[(this.bbIndex + playerNum - 1) % playerNum].setAction(TexasHoldemAction.ACTION_NONE, this.bigBlind/2);
   }
 
   dealCards() {
@@ -82,6 +84,7 @@ export default class TexasHoldemService extends BaseService {
 
   startPhase() {
     const openedCards = [];
+    console.log("actionPhase:" + this.actionPhase);
     //ボードにカードを公開する
     if (this.actionPhase === TexasHoldemPhase.PHASE_FLOP) {
       // とりあえず、バーンカードは無しで。。
@@ -149,18 +152,21 @@ export default class TexasHoldemService extends BaseService {
 
   isEndCurrentPhase() {
     const lastActionPlayerIndex = (this.getInitialPlayerIndex() + this.players.length - 1) % this.players.length;
+    const lastPlayerAction = this.players[lastActionPlayerIndex].getAction();
     return this.currentPlayerIndex === NON_EXIST_PLAYER_INDEX ||
       this.existOnlyOneSurvivor() ||
-      this.players[lastActionPlayerIndex].getAction().name === TexasHoldemAction.ACTION_CHECK;
+      (lastPlayerAction!==null && lastPlayerAction.name === TexasHoldemAction.ACTION_CHECK);
   }
 
   nextActionPlayer() {
     // オリジナルレイザーが変わった場合
     const currentPlayerAction = this.getCurrentPlayerAction();
+    console.log(currentPlayerAction);
     if (currentPlayerAction.name === TexasHoldemAction.ACTION_RAISE ||
-      (currentPlayerAction.name === TexasHoldemAction.ACTION_ALLIN && currentPlayerAction.value > currentCallValue)) {
+      (currentPlayerAction.name === TexasHoldemAction.ACTION_ALLIN && currentPlayerAction.value > this.currentCallValue)) {
       this.originalRaiserIndex = this.currentPlayerIndex;
       this.currentCallValue = currentPlayerAction.value;
+      console.log('raise_value:' + this.currentCallValue);
     }
     this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
   }
@@ -186,7 +192,7 @@ export default class TexasHoldemService extends BaseService {
   }
 
   isContinueGame() {
-    if (this.actionPhase === TexasHoldemPhase.PHASE_RIVER) {
+    if (this.actionPhase > TexasHoldemPhase.PHASE_RIVER) {
       return false;
     }
     const players = this.players.filter((player) => {
@@ -209,8 +215,7 @@ export default class TexasHoldemService extends BaseService {
       if (false === currentPlayer.isActive()) {
         continue;
       }
-      if (
-        currentPlayerAction === null || currentPlayerAction.name === TexasHoldemAction.ACTION_NONE ||
+      if (currentPlayerAction === null || currentPlayerAction.name === TexasHoldemAction.ACTION_NONE ||
         (currentPlayerAction.name !== TexasHoldemAction.ACTION_ALLIN && currentPlayerAction.name !== TexasHoldemAction.ACTION_FOLD && currentPlayerAction.value < currentCallValue)
       ) {
         return currentPlayerIndex;
@@ -261,7 +266,7 @@ export default class TexasHoldemService extends BaseService {
 
   getPlayer(id) {
     let targetPlayers = this.players.filter(player => id === player.id);
-    return targetPlayers[0].getPlayer();
+    return targetPlayers[0];
   }
 
   isWin(playerHand, targetHand) {
