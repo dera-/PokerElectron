@@ -5,23 +5,29 @@ import PlayerModel from '../../model/game/PlayerModel';
 import AiPlayerModel from '../../model/game/AiPlayerModel';
 import DealerModel from '../../model/game/DealerModel';
 import BoardModel from '../../model/game/BoardModel';
-import RanlUtil from '../../util/RankUtil'
+import RanlUtil from '../../util/game/RankUtil'
 import CardsFactory from '../../factory/game/CardsFactory';
 
 const NON_EXIST_PLAYER_INDEX = -1;
+const HAND_CARDS_NUM = 2;
+const FROP_CARDS_NUM = 3;
 
 export default class TexasHoldemService extends BaseService {
-  constructor(players, initialBlind) {
-    this.players = players;
-    this.dealer = new DealerModel((new CardsFactory()).generate());
-    this.board = new BoardModel();
 
-    this.phase = TexasHoldemPhase.PHASE_PRE_FLOP;
-    this.bigBlind = initialBigBlind;
-    this.bbIndex = 0;
-    this.currentPlayerIndex = 0;
-    this.originalRaiserIndex = NON_EXIST_PLAYER_INDEX;
-    this.currentCallValue = 0;
+  initializeTexasHoldemService(players, initialBlind) {
+    return new Promise((resolve, reject)=>{
+      this.players = players;
+      this.dealer = new DealerModel(CardsFactory.generate());
+      this.board = new BoardModel();
+
+      this.phase = TexasHoldemPhase.PHASE_PRE_FLOP;
+      this.bigBlind = initialBlind;
+      this.bbIndex = 0;
+      this.currentPlayerIndex = 0;
+      this.originalRaiserIndex = NON_EXIST_PLAYER_INDEX;
+      this.currentCallValue = 0;
+      resolve();
+    });
   }
 
   /**
@@ -59,8 +65,8 @@ export default class TexasHoldemService extends BaseService {
     } else {
       this.bbIndex = Math.floor(playerNum * Math.round());
     }
-    this.players[this.bbIndex].setAction(NONE, this.bigBlind);
-    this.players[(this.bbIndex + playerNum - 1) % playerNum].setAction(NONE, this.bigBlind/2);
+    this.players[this.bbIndex].setAction(TexasHoldemAction.NONE, this.bigBlind);
+    this.players[(this.bbIndex + playerNum - 1) % playerNum].setAction(TexasHoldemAction.NONE, this.bigBlind/2);
   }
 
   dealCards() {
@@ -75,14 +81,19 @@ export default class TexasHoldemService extends BaseService {
   }
 
   startPhase() {
+    const openedCards = [];
     //ボードにカードを公開する
     if (this.actionPhase === TexasHoldemPhase.PHASE_FLOP) {
       // とりあえず、バーンカードは無しで。。
       for (let i = 0; i < FROP_CARDS_NUM; i++) {
-        this.board.setCard(this.dealer.getNextCard());
+        let card = this.dealer.getNextCard();
+        openedCards.push(card);
+        this.board.setCard(card);
       }
     } else if (this.actionPhase === TexasHoldemPhase.PHASE_TURN || this.actionPhase === TexasHoldemPhase.PHASE_RIVER) {
-      this.board.setCard(this.dealer.getNextCard());
+      let card = this.dealer.getNextCard();
+      openedCards.push(card);
+      this.board.setCard(card);
     }
     // メンバ変数リセット
     this.currentPlayerIndex = this.getInitialPlayerIndex();
@@ -92,6 +103,7 @@ export default class TexasHoldemService extends BaseService {
     } else {
       this.currentCallValue = 0;
     }
+    return openedCards;
   }
 
   getInitialPlayerIndex() {
@@ -129,6 +141,10 @@ export default class TexasHoldemService extends BaseService {
       player.dumpCards();
     }
     return action;
+  }
+
+  setCurrentPlayerAction(actionName, value) {
+     this.players[this.currentPlayerIndex].setAction(actionName, value);
   }
 
   isEndCurrentPhase() {
@@ -252,4 +268,13 @@ export default class TexasHoldemService extends BaseService {
     let boardCards = this.board.getOpenedCards();
     return RankUtil.compareRanks(RankUtil.getRank(playerHand, boardCards), RankUtil.getRank(targetHand, boardCards)) !== -1;
   }
+
+  getBigBlindValue() {
+    return this.bigBlind;
+  }
+
+  getBigBlindIndex() {
+    return this.bbIndex;
+  }
+
 }

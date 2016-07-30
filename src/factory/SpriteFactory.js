@@ -2,15 +2,14 @@ import GameRepository from '../repository/GameRepository';
 import ImageRepository from '../repository/ImageRepository';
 
 export default class SpriteFactory {
-  static generate(x, y, width, height, imagePath) {
-    const sprite = new Sprite(width, height);
-    sprite.x = x;
-    sprite.y = y;
-    if (false === ImageRepository.isLoaded()) {
-      ImageRepository.setImage(imagePath);
-    }
-    sprite.image = ImageRepository.getImage(imagePath);
-    return sprite;
+  static generateWithPromise(x, y, width, height, imagePath) {
+    return ImageRepository.getImageWithPromise(imagePath).then((image) => {
+      const sprite = new Sprite(width, height);
+      sprite.x = x;
+      sprite.y = y;
+      sprite.image = image;
+      return sprite;
+    });
   }
 
   static getClone(sprite) {

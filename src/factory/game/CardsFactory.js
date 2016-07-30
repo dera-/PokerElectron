@@ -2,7 +2,7 @@ import {SPADE, HEART, DIAMOND, CLOVER} from '../../const/game/CardSuit';
 import CardModel from '../../model/game/CardModel';
 
 export default class CardsFactory {
-  generate() {
+  static generate() {
     let minNum = 2,
       maxNum = 14,
       suits = [SPADE, HEART, DIAMOND, CLOVER],

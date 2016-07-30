@@ -3,22 +3,23 @@ import FileUtil from '../util/FileUtil';
 import Conf from '../config/conf.json';
 
 const loadedImagePathSets = new Set();
-const IMAGE_DIRECTORY_PATH = Conf.main.image_dir + '/';
+const IMAGE_DIRECTORY_PATH = 'image/';
 
 export default class ImageRepository {
-  static setImage(imagePath) {
-    GameRepository.get().load(IMAGE_DIRECTORY_PATH + imagePath, () => {
-      loadedImagePathSets.add(imagePath);
-    });
-  }
-
-  static getImage(imagePath) {
+  static getImageWithPromise(imagePath) {
     const game = GameRepository.get();
-    return game.assets[IMAGE_DIRECTORY_PATH + imagePath];
-  }
-
-  static isLoaded(imagePath) {
-    return loadedImagePathSets.has(imagePath);
+    if (!loadedImagePathSets.has(imagePath)) {
+      return new Promise((resolve, reject)=>{
+        game.load(IMAGE_DIRECTORY_PATH + imagePath, () => {
+          loadedImagePathSets.add(imagePath);
+          resolve(imagePath);
+        });
+      }).then((path)=>{
+        return game.assets[IMAGE_DIRECTORY_PATH + path];
+      });
+    } else {
+      return Promise.resolve(game.assets[IMAGE_DIRECTORY_PATH + imagePath]);
+    }
   }
 
   static getImageNames(dir) {

@@ -1,5 +1,6 @@
 import Conf from '../config/conf.json';
-import ImageRepository from './ImageRepository';
+import SceneRepository from './SceneRepository';
+import TexasHoldemSceneFactory from '../factory/game/TexasHoldemSceneFactory';
 
 let gameObject = null;
 export default class GameRepository {
@@ -12,9 +13,12 @@ export default class GameRepository {
 
   static initialize() {
     const game = new Game(Conf.main.width, Conf.main.height);
-    game.onload = function () {
-      // TODO 初期化処理
-      console.log('hello world');
+    game.onload =  () => {
+      TexasHoldemSceneFactory.generateWithPromise({id: Conf.data.player.id, stack: 5000}, {id: 22, stack: 5000}, 50)
+        .then(sceneObject => {
+          SceneRepository.setGameObject(game);
+          SceneRepository.pushScene(sceneObject.getScene())
+        });
     };
     game.start();
     gameObject = game;

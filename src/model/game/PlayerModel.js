@@ -1,6 +1,6 @@
 import CardModel from './CardModel';
 import ActionModel from './ActionModel';
-import RankUtil from '../util/RankUtil';
+import RankUtil from '../../util/game/RankUtil';
 
 export default class PlayerModel {
   constructor(id, money) {

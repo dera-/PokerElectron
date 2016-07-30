@@ -4,11 +4,17 @@ import SceneRepository from '../repository/SceneRepository';
 import * as BaseStatus from '../const/BaseStatus';
 
 export default class BaseScene {
-  constructor(object = {}) {
-    this.statusQueue = [];
-    this.service = this.generateService(object);
-    this.view = this.generateView(object);
-    this.scene = this.generateScene(object);
+  initialize(object = {}) {
+    return new Promise((resolve, reject) => {
+      this.statusQueue = [];
+      resolve();
+    }).then(()=>{
+      return this.generateViewWithPromise(object);
+    }).then(()=>{
+      return this.generateService(object);
+    }).then(()=>{
+      return this.generateScene(object);
+    });
   }
 
   getCurrentStatus() {
@@ -38,38 +44,49 @@ export default class BaseScene {
 
   generateService(object = {}) {
     return new BaseService();
+    return Promise.resolve(new BaseService()).then(service => {
+      this.service = service;
+      return Promise.resolve();
+    });
   }
 
-  generateView(object = {}) {
-    return new BaseView();
+  generateViewWithPromise(object = {}) {
+    return Promise.resolve(new BaseView()).then(view => {
+      this.view = view;
+      return this.view.initialize();
+    });
   }
 
   generateScene(object = {}) {
-    const scene = new Scene();
-    const status
-    // シーン開始時の処理
-    scene.addEventListener('enter', () => {
-      this.start();
-    });
-    // 毎フレーム行われる処理
-    scene.addEventListener('enterframe', () => {
-      this.run(this.getScene());
-    });
-    // シーン終了時の処理
-    scene.addEventListener('exit', () => {
-      this.end();
-    });
-    // 以下、タップ時の処理
-    scene.addEventListener('touchstart', (event) => {
-      this.touchStartEvent(this.view.getAction(event));
-    });
-    scene.addEventListener('touchmove', (event) => {
-      this.touchMoveEvent(this.view.getAction(event));
-    });
-    scene.addEventListener('touchend', (event) => {
-      this.touchEndEvent(this.view.getAction(event));
-    });
-    return scene;
+    return new Promise((resolve, reject)=>{
+      const scene = new Scene();
+      // シーン開始時の処理
+      scene.addEventListener('enter', () => {
+        this.start();
+      });
+      // 毎フレーム行われる処理
+      scene.addEventListener('enterframe', () => {
+        this.run(this.getCurrentStatus());
+      });
+      // シーン終了時の処理
+      scene.addEventListener('exit', () => {
+        this.end();
+      });
+      // 以下、タップ時の処理
+      scene.addEventListener('touchstart', (event) => {
+        this.touchStartEvent(this.view.getAction(event));
+      });
+      scene.addEventListener('touchmove', (event) => {
+        this.touchMoveEvent(this.view.getAction(event));
+      });
+      scene.addEventListener('touchend', (event) => {
+        this.touchEndEvent(this.view.getAction(event));
+      });
+      resolve(scene);
+    }).then(scene =>{
+      this.scene = scene;
+      return Promise.resolve();
+    })
   }
 
   start() {}
