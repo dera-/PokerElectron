@@ -9,7 +9,6 @@ import RankUtil from '../../util/game/RankUtil'
 import CardsFactory from '../../factory/game/CardsFactory';
 
 const NON_EXIST_PLAYER_INDEX = -1;
-const HAND_CARDS_NUM = 2;
 const FROP_CARDS_NUM = 3;
 
 export default class TexasHoldemService extends BaseService {
@@ -65,7 +64,7 @@ export default class TexasHoldemService extends BaseService {
     if (next) {
       this.bbIndex = (this.bbIndex + 1) % playerNum;
     } else {
-      this.bbIndex = Math.floor(playerNum * Math.round());
+      this.bbIndex = Math.floor(playerNum * Math.random());
     }
     this.players[this.bbIndex].setAction(TexasHoldemAction.ACTION_NONE, this.bigBlind);
     this.players[(this.bbIndex + playerNum - 1) % playerNum].setAction(TexasHoldemAction.ACTION_NONE, this.bigBlind/2);
@@ -75,10 +74,8 @@ export default class TexasHoldemService extends BaseService {
     this.dealer.shuffleCards();
     // 変な配り方しているけど、ロジック部分なので。。
     this.players.forEach((player) => {
-      for (let i = 0; i < HAND_CARDS_NUM; i++) {
         let cards = [this.dealer.getNextCard(), this.dealer.getNextCard()];
         player.setCards(cards);
-      }
     });
   }
 
@@ -141,7 +138,7 @@ export default class TexasHoldemService extends BaseService {
   getCurrentPlayerAction() {
     const action = this.players[this.currentPlayerIndex].getAction();
     if (action !== null && action.name === TexasHoldemAction.ACTION_FOLD) {
-      player.dumpCards();
+      this.players[this.currentPlayerIndex].dumpCards();
     }
     return action;
   }

@@ -5,6 +5,7 @@ import SpriteFactory from '../../factory/SpriteFactory';
 import ImageRepository from '../../repository/ImageRepository';
 import * as BaseAction from '../../const/BaseAction';
 import * as TexasHoldemAction from '../../const/game/TexasHoldemAction';
+import SceneRepository from '../../repository/SceneRepository';
 
 export default class TexasHoldemView extends BaseView {
   initializeTexasHoldemView(players, initialBlind) {
@@ -13,9 +14,9 @@ export default class TexasHoldemView extends BaseView {
       this.bigBlind = initialBlind;
       this.playerId = Conf.data.player.id;
       this.labels = [];
-      this.boardCardSprites = [];
+      this.boardCardSprites = {};
       this.handCards = {};
-      this.betChipSprites = [];
+      this.betChipSprites = {};
       this.betValue = 0;
       this.callValue = initialBlind;
       return Promise.resolve();
@@ -28,11 +29,6 @@ export default class TexasHoldemView extends BaseView {
 
   getCurrentBetValue() {
     return this.betValue;
-  }
-
-  // TODO: できればベースクラスのメソッドにしたいやつ
-  getLabels() {
-    return Object.keys(this.labels).map(key => this.labels[key]);
   }
 
   setSpritePlaces(players, initialBlind) {
@@ -52,7 +48,7 @@ export default class TexasHoldemView extends BaseView {
         if (xPlace < centerX) {
           xPlace -= cardSprite.width;
         }
-        yPlace = centerY + shortRadius * Math.sin(angle * Math.PI / 180);
+        yPlace = centerY + 0.95 * shortRadius * Math.sin(angle * Math.PI / 180);
         if (yPlace < centerY) {
           yPlace -= cardSprite.height;
         }
@@ -67,8 +63,8 @@ export default class TexasHoldemView extends BaseView {
         this.labels['player_name_' + player.id].moveTo(xPlace, yPlace);
         this.labels['player_stack_' + player.id] = new Label('残り：' + player.getStack());
         this.labels['player_stack_' + player.id].moveTo(xPlace, yPlace + cardSprite.height / 2);
-        this.labels['player_bet_chip_' + player.id] = new Label('');
-        this.labels['player_bet_chip_' + player.id].moveTo(
+        this.labels['player_bet_chip_value_' + player.id] = new Label('');
+        this.labels['player_bet_chip_value_' + player.id].moveTo(
           centerX + 0.7 * longRadius * Math.cos((angle+10) * Math.PI / 180),
           centerY + 0.7 * shortRadius * Math.sin((angle+10) * Math.PI / 180)
         );
@@ -119,9 +115,15 @@ export default class TexasHoldemView extends BaseView {
     });
   }
 
+    // TODO: できればベースクラスのメソッドにしたいやつ
+  labelsDraw() {
+    Object.keys(this.labels).forEach(key => {
+      SceneRepository.addEntityToCurrentScene(key, this.labels[key]);
+    });
+  }
+
   // ディーラーポジションを決める描画
   decidePositionDraw(bigBlindIndex, callValue) {
-    const sprites = [];
     const playersNum = this.players.length;
     this.callValue = callValue;
     let deelerIndex, smallBlindIndex, bigBlindId, smallBlindId, bigBlindAction, smallBlindAction, bigBlindStack, smallBlindStack;
@@ -139,9 +141,9 @@ export default class TexasHoldemView extends BaseView {
     smallBlindAction = this.players[smallBlindIndex].getAction();
     smallBlindStack = this.players[smallBlindIndex].getStack();
     this.labels['player_stack_' + bigBlindId].text = '残り：' + (bigBlindStack - bigBlindAction.value);
-    this.labels['player_bet_chip_' + bigBlindId].text = bigBlindAction.name + '：' + bigBlindAction.value;
+    this.labels['player_bet_chip_value_' + bigBlindId].text = bigBlindAction.name + '：' + bigBlindAction.value;
     this.labels['player_stack_' + smallBlindId].text = '残り：' + (smallBlindStack - smallBlindAction.value);
-    this.labels['player_bet_chip_' + smallBlindId].text = smallBlindAction.name + '：' + smallBlindAction.value;
+    this.labels['player_bet_chip_value_' + smallBlindId].text = smallBlindAction.name + '：' + smallBlindAction.value;
 
     const interval = Math.round(360 / playersNum);
     const shortRadius = Math.round(this.sprites['poker_table'].height / 2);
@@ -151,32 +153,29 @@ export default class TexasHoldemView extends BaseView {
     const angle = (90 + interval * deelerIndex) % 360;
     this.sprites['deeler_button'].x = centerX + 0.9 * longRadius * Math.cos((angle + interval / 4)  * Math.PI / 180);
     this.sprites['deeler_button'].y = centerY + 0.9 * shortRadius * Math.sin((angle + interval / 4) * Math.PI / 180);
-    this.betChipSprites.push(this.sprites['player_bet_chip_' + bigBlindId]);
-    this.betChipSprites.push(this.sprites['player_bet_chip_' + smallBlindId]);
-    sprites.push(this.sprites['player_bet_chip_' + bigBlindId]);
-    sprites.push(this.sprites['player_bet_chip_' + smallBlindId]);
-    return sprites;
+    this.betChipSprites['player_bet_chip_' + bigBlindId] = this.sprites['player_bet_chip_' + bigBlindId];
+    this.betChipSprites['player_bet_chip_' + smallBlindId] = this.sprites['player_bet_chip_' + smallBlindId];
+    SceneRepository.addEntityToCurrentScene('player_bet_chip_' + bigBlindId, this.sprites['player_bet_chip_' + bigBlindId]);
+    SceneRepository.addEntityToCurrentScene('player_bet_chip_' + smallBlindId, this.sprites['player_bet_chip_' + smallBlindId]);
   }
 
   // ボードにカードをオープンする描画
   setCardsDraw(cards) {
-    const cardSprites = [];
     const startX = this.sprites['poker_table'].x + 0.25 * Conf.main.width;
     const startY = this.sprites['poker_table'].y + 0.14 * Conf.main.height;
     const interval = 0.03 * Conf.main.width;
     cards.forEach(card => {
       const cardSprite = this.sprites['card_trump/' + card.getCardImageName()];
-      cardSprite.x = startX + (this.boardCardSprites.length - 1) * (cardSprite.width + interval);
+      const cardNums = Object.keys(this.boardCardSprites).length;
+      cardSprite.x = startX + (cardNums - 1) * (cardSprite.width + interval);
       cardSprite.y = startY;
-      cardSprites.push(cardSprite);
-      this.boardCardSprites.push(cardSprite)
+      this.boardCardSprites['board_cards_' + cardNums] = cardSprite;
+      SceneRepository.addEntityToCurrentScene('board_cards_' + cardNums, cardSprite);
     });
-    return cardSprites;
   }
 
   // カード配る部分の描画
   dealCardsDraw() {
-    const cardSprites = [];
     this.players.forEach(player => {
       const cards = player.getCards();
       for (let index = 0; index < cards.length; index++) {
@@ -186,48 +185,43 @@ export default class TexasHoldemView extends BaseView {
         } else {
           sprite = SpriteFactory.getClone(this.sprites['card_trump/z01.png']);
         }
-        sprite.x = this.sprites['player_card_' + player.id].x + index * sprite.width;
+        sprite.x = this.sprites['player_card_' + player.id].x + this.sprites['player_card_' + player.id].width + index * sprite.width;
         sprite.y = this.sprites['player_card_' + player.id].y;
         this.handCards['player_id_' + player.id + '_num' + index] = sprite;
-        cardSprites.push(sprite);
+        SceneRepository.addEntityToCurrentScene('player_id_' + player.id + '_num' + index, sprite);
       }
     });
-    return cardSprites;
   }
 
   actionDraw(id, action) {
-    const sprites = [];
     this.players.forEach(player => {
       if (player.id === id) {
         const restStack = player.getStack() - action.value;
         this.labels['player_stack_' + id].text = '残り：' + restStack;
         if (action.value > 0) {
-          const chipSprite = this.sprites['player_bet_chip_' + id];
-          this.labels['player_bet_chip_' + id].text = action.name + '：' + action.value;
-          if (false === this.betChipSprites.some(sprite => sprite === chipSprite)) {
-            this.betChipSprites.push(chipSprite);
-            sprites.push(chipSprite);
+          const chipSpriteKey = 'player_bet_chip_' + id;
+          const chipSprite = this.sprites[chipSpriteKey];
+          this.labels['player_bet_chip_value_' + id].text = action.name + '：' + action.value;
+          if (false === Object.keys(this.betChipSprites).some(key => key === chipSpriteKey)) {
+            this.betChipSprites[chipSpriteKey] = chipSprite;
+            SceneRepository.addEntityToCurrentScene(chipSpriteKey, chipSprite);
           }
         } else {
-          this.labels['player_bet_chip_' + id].text = action.name;
+          this.labels['player_bet_chip_value_' + id].text = action.name;
         }
       }
     });
-    return sprites;
   }
 
   potDraw(potValue) {
     this.labels['pot_value'].text = '合計賭けチップ：' + potValue;
-    return [];
   }
 
   foldDraw(id) {
-    const cardSprites = [];
-    cardSprites.push(this.handCards['player_id_' + id + '_num0']);
-    cardSprites.push(this.handCards['player_id_' + id + '_num1']);
+    SceneRepository.removeEntityFromCurrentScene('player_id_' + id + '_num0');
+    SceneRepository.removeEntityFromCurrentScene('player_id_' + id + '_num1');
     delete this.handCards['player_id_' + id + '_num0'];
     delete this.handCards['player_id_' + id + '_num1'];
-    return cardSprites;
   }
 
   showDown() {
@@ -244,16 +238,27 @@ export default class TexasHoldemView extends BaseView {
     this.labels['pot_value'].text = '合計賭けチップ：' + 0;
     this.players.forEach(player => {
       this.labels['player_stack_' + player.id].text = '残り：' + player.getStack();
-      this.labels['player_bet_chip_' + player.id].text = '';
+      this.labels['player_bet_chip_value_' + player.id].text = '';
     });
   }
 
   actionDrawErase() {
     this.players.forEach(player => {
       this.labels['player_stack_' + player.id].text = '残り：' + player.getStack();
-      this.labels['player_bet_chip_' + player.id].text = '';
+      this.labels['player_bet_chip_value_' + player.id].text = '';
     });
-    return this.betChipSprites;
+    Object.keys(this.betChipSprites).forEach(key => {
+      SceneRepository.removeEntityFromCurrentScene(key);
+    });
+  }
+
+  oneGameDrawErase() {
+    Object.keys(this.boardCardSprites).forEach(key => {
+      SceneRepository.removeEntityFromCurrentScene(key);
+    });
+    Object.keys(this.handCards).forEach(key => {
+      SceneRepository.removeEntityFromCurrentScene(key);
+    });
   }
 
   setCallValue(callValue) {
@@ -270,13 +275,13 @@ export default class TexasHoldemView extends BaseView {
 
   resetOnePhase() {
     this.currentAction = BaseAction.ACTION_NONE;
-    this.betChipSprites = [];
+    this.betChipSprites = {};
     this.betValue = 0;
     this.callValue = 0;
   }
 
   resetOneGame() {
-    this.boardCardSprites = [];
+    this.boardCardSprites = {};
     this.handCards = {};
   }
 }

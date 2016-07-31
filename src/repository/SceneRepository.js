@@ -1,6 +1,7 @@
 import GameRepository from './GameRepository';
 
 let gameObject = null;
+const drawedEntities = {};
 
 export default class SceneRepository {
   static setGameObject(game) {
@@ -16,13 +17,21 @@ export default class SceneRepository {
     gameObject.pushScene(scene);
   }
 
-  static addSpriteToCurrentScene(sprite) {
-    if (gameObject === null) return;
-    gameObject.currentScene.addChild(sprite);
+  static addEntityToCurrentScene(key, entity) {
+    if (gameObject === null || drawedEntities.hasOwnProperty(key)) {
+      return;
+    }
+    drawedEntities[key] = entity;
+    gameObject.currentScene.addChild(entity);
   }
 
-  static removeSpriteFromCurrentScene(sprite) {
-    if (gameObject === null) return;
-    gameObject.currentScene.removeChild(sprite);
+  static removeEntityFromCurrentScene(key) {
+    if (gameObject === null || false === drawedEntities.hasOwnProperty(key)) {
+      return;
+    }
+    gameObject.currentScene.removeChild(drawedEntities[key]);
+    delete drawedEntities[key];
   }
+
+
 }

@@ -2,6 +2,7 @@ import Conf from '../config/conf.json';
 import * as BaseAction from '../const/BaseAction';
 import SpriteFactory from '../factory/SpriteFactory';
 import ImageRepository from '../repository/ImageRepository';
+import SceneRepository from '../repository/SceneRepository';
 
 // viewクラスのインターフェース的なサムシング
 export default class BaseView {
@@ -79,8 +80,10 @@ export default class BaseView {
     });
   }
 
-  getVisibleSprites() {
-    return this.visibleSpriteKeys.map(key => this.getSprite(key));
+  visibleSpritesDraw() {
+    this.visibleSpriteKeys.forEach(key => {
+      SceneRepository.addEntityToCurrentScene(key, this.getSprite(key));
+    });
   }
 
   getAction() {
