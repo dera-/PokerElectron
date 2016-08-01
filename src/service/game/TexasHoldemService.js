@@ -66,6 +66,7 @@ export default class TexasHoldemService extends BaseService {
     } else {
       this.bbIndex = Math.floor(playerNum * Math.random());
     }
+    console.log('service_bbIndex:'+this.bbIndex);
     this.players[this.bbIndex].setAction(TexasHoldemAction.ACTION_NONE, this.bigBlind);
     this.players[(this.bbIndex + playerNum - 1) % playerNum].setAction(TexasHoldemAction.ACTION_NONE, this.bigBlind/2);
   }
@@ -169,15 +170,16 @@ export default class TexasHoldemService extends BaseService {
   }
 
   moveNextPhase() {
-    this.collectChipsToPod();
     this.actionPhase++;
   }
 
   showdown() {
+    let cards = [];
     while (this.actionPhase < TexasHoldemPhase.PHASE_RIVER) {
       this.actionPhase++;
-      startPhase();
+      cards = cards.concat(this.startPhase());
     }
+    return cards;
   }
 
   existOnlyOneSurvivor() {
@@ -189,7 +191,7 @@ export default class TexasHoldemService extends BaseService {
   }
 
   isContinueGame() {
-    if (this.actionPhase > TexasHoldemPhase.PHASE_RIVER) {
+    if (this.actionPhase === TexasHoldemPhase.PHASE_RIVER) {
       return false;
     }
     const players = this.players.filter((player) => {
@@ -225,6 +227,8 @@ export default class TexasHoldemService extends BaseService {
     this.players.forEach((player)=>{
       let action = player.getAction(),
         value = action === null ? 0 : action.value;
+      console.log(player.id + ':' + value);
+      console.log(player.id + ':' + (action === null));
       this.board.addChip(player.id, value);
       player.pay(value);
     });

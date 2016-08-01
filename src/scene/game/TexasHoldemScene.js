@@ -42,17 +42,12 @@ export default class TexasHoldemScene extends BaseScene {
     this.popStatus();
     if (status === TexasHoldemStatus.STATUS_GAME_START || status === TexasHoldemStatus.STATUS_GAME_CONTINUE) {
       // ゲーム開始時
-      console.log('ゲーム開始');
       this.service.initializeGame(status === TexasHoldemStatus.STATUS_GAME_CONTINUE);
-      console.log('initializeGame');
       this.service.dealCards();
-      console.log('dealCards');
+      this.view.setPlayerBetValue();
       this.view.decidePositionDraw(this.service.getBigBlindIndex(), this.service.getBigBlindValue());
-      console.log('decidePositionDraw');
       this.view.dealCardsDraw();
-      console.log('dealCardsDraw');
       this.pushStatuses([TexasHoldemStatus.STATUS_START_PHASE/*, BaseStatus.STATUS_DRAWING*/]);
-      console.log('pushStatuses');
     } else if (status === TexasHoldemStatus.STATUS_START_PHASE) {
       // フェーズ開始
       const openedCards = this.service.startPhase();
@@ -96,8 +91,7 @@ export default class TexasHoldemScene extends BaseScene {
       }
     } else if (status === TexasHoldemStatus.STATUS_NEXT_PHASE) {
       // 次のフェーズへ移行
-      this.service.moveNextPhase();
-      this.service.resetPlayersAction();
+      this.service.collectChipsToPod()
       this.view.actionDrawErase();
       this.view.potDraw(this.service.board.getPotValue());
       this.view.resetOnePhase();
@@ -106,18 +100,23 @@ export default class TexasHoldemScene extends BaseScene {
       } else if (false === this.service.isContinueGame()) {
         this.pushStatuses([TexasHoldemStatus.STATUS_SHOWDOWN]);
       } else {
+        this.service.moveNextPhase();
+        this.service.resetPlayersAction();
         this.pushStatuses([TexasHoldemStatus.STATUS_START_PHASE/*, BaseStatus.STATUS_DRAWING*/]);
       }
     } else if (status === TexasHoldemStatus.STATUS_SHOWDOWN) {
       // リバーまで行ってショーダウンする場合
-      this.service.showdown();
+      const openedCards = this.service.showdown();
       this.service.sharePodToWinners(this.service.getWinners());
-      this.view.showDown();
+      this.service.resetPlayersAction();
+      this.view.showDownDraw();
+      this.view.setCardsDraw(openedCards);
       this.view.shareChips();
       this.pushStatuses([TexasHoldemStatus.STATUS_JUDGE_CONTINUE_GAME/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_FOLD_END) {
       // ショーダウンせずに勝負が決まる場合
       this.service.sharePodToWinners(this.service.getWinners());
+      this.service.resetPlayersAction();
       this.view.shareChips();
       this.pushStatuses([TexasHoldemStatus.STATUS_JUDGE_CONTINUE_GAME/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_JUDGE_CONTINUE_GAME) {

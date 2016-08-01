@@ -91,13 +91,13 @@ export default class TexasHoldemView extends BaseView {
         } else if(this.sprites['bet_slider'].x > maxX) {
           this.sprites['bet_slider'].x = maxX;
         }
-        const betValue = Math.round(this.players[this.playerId].getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
+        const betValue = Math.round(this.getPlayer().getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
         this.labels['bet_value'].text = betValue + ' Bet';
       });
       this.sprites['raise'].addEventListener('touchend', () => {
         const minX = this.sprites['bet_bar'].x;
         const maxX = minX + this.sprites['bet_bar'].width;
-        const betValue = Math.round(this.players[this.playerId].getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
+        const betValue = Math.round(this.getPlayer().getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
         if (betValue < 2 * this.callValue || betValue < this.betValue) {
           return ;
         }
@@ -134,6 +134,9 @@ export default class TexasHoldemView extends BaseView {
       smallBlindIndex = (bigBlindIndex + playersNum - 1) % playersNum;
       deelerIndex = smallBlindIndex;
     }
+    console.log("view_bigBlindIndex:"+bigBlindIndex);
+    console.log("view_smallBlindIndex:"+smallBlindIndex);
+    console.log("view_deelerIndex:"+deelerIndex);
     bigBlindId = this.players[bigBlindIndex].id;
     bigBlindAction = this.players[bigBlindIndex].getAction();
     bigBlindStack = this.players[bigBlindIndex].getStack();
@@ -224,7 +227,7 @@ export default class TexasHoldemView extends BaseView {
     delete this.handCards['player_id_' + id + '_num1'];
   }
 
-  showDown() {
+  showDownDraw() {
     this.players.forEach(player => {
       const cards = player.getCards();
       if (player.id !== this.playerId && cards.length === 2) {
@@ -265,6 +268,18 @@ export default class TexasHoldemView extends BaseView {
     if (callValue > this.callValue) {
       this.callValue = callValue;
     }
+  }
+
+  setPlayerBetValue() {
+    const playerAction = this.getPlayer().getAction();
+    if (playerAction !== null) {
+      this.betValue = playerAction.value;
+    }
+  }
+
+  getPlayer() {
+    const players = this.players.filter(player => player.id === this.playerId);
+    return players[0];
   }
 
   resetOneAction() {
