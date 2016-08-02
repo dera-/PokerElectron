@@ -52,6 +52,7 @@ export default class TexasHoldemView extends BaseView {
         if (yPlace < centerY) {
           yPlace -= cardSprite.height;
         }
+        this.sprites['bet_slider'].x = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2
         this.sprites['player_card_' + player.id] = cardSprite;
         this.sprites['player_card_' + player.id].x = xPlace;
         this.sprites['player_card_' + player.id].y = yPlace;
@@ -59,46 +60,50 @@ export default class TexasHoldemView extends BaseView {
         this.sprites['player_bet_chip_' + player.id] = SpriteFactory.getClone(this.sprites['chip']);
         this.sprites['player_bet_chip_' + player.id].x = centerX + 0.9 * longRadius * Math.cos(angle * Math.PI / 180);
         this.sprites['player_bet_chip_' + player.id].y = centerY + 0.9 * shortRadius * Math.sin(angle * Math.PI / 180);
+        if (centerY < this.sprites['player_bet_chip_' + player.id].y) {
+          this.sprites['player_bet_chip_' + player.id].y -= this.sprites['player_bet_chip_' + player.id].height;
+        }
         this.labels['player_name_' + player.id] = new Label('ID：' + player.id);
-        this.labels['player_name_' + player.id].moveTo(xPlace, yPlace);
+        this.labels['player_name_' + player.id].moveTo(xPlace + 0.05 * cardSprite.width, yPlace + 0.1 * cardSprite.height);
+        this.labels['player_name_' + player.id].font = '16px sans-serif';
         this.labels['player_stack_' + player.id] = new Label('残り：' + player.getStack());
-        this.labels['player_stack_' + player.id].moveTo(xPlace, yPlace + cardSprite.height / 2);
+        this.labels['player_stack_' + player.id].moveTo(xPlace + 0.05 * cardSprite.width, yPlace + 0.6 * cardSprite.height);
+        this.labels['player_stack_' + player.id].font = '16px sans-serif';
         this.labels['player_bet_chip_value_' + player.id] = new Label('');
         this.labels['player_bet_chip_value_' + player.id].moveTo(
           centerX + 0.7 * longRadius * Math.cos((angle+10) * Math.PI / 180),
           centerY + 0.7 * shortRadius * Math.sin((angle+10) * Math.PI / 180)
         );
+        this.labels['player_bet_chip_value_' + player.id].color = 'white';
+        this.labels['player_bet_chip_value_' + player.id].font = '14px sans-serif';
         this.labels['pot_value'] = new Label('合計掛け金：' + 0);
         this.labels['pot_value'].moveTo(centerX - 0.5 * longRadius, centerY - 0.5 * shortRadius);
+        this.labels['pot_value'].color = 'white';
+        this.labels['pot_value'].font = '24px sans-serif';
       }
       this.labels['bet_value'] = new Label('0 Bet');
       this.labels['bet_value'].moveTo(
-        this.sprites['bet_bar'].x + this.sprites['bet_bar'].width / 2,
-        this.sprites['bet_bar'].y + this.sprites['bet_bar'].height + Conf.main.height * 0.02
+        this.sprites['bet_bar'].x + 0.4 * this.sprites['bet_bar'].width,
+        this.sprites['fold'].y + 0.5 * this.sprites['fold'].height
       );
+      this.labels['bet_value'].font = '20px sans-serif';
       resolve();
     });
   }
 
   initializeSpriteEvents() {
     return new Promise((resolve, reject) => {
-      this.sprites['bet_slider'].addEventListener('touchmove', (event) => {
-        const minX = this.sprites['bet_bar'].x;
-        const maxX = minX + this.sprites['bet_bar'].width;
-        this.sprites['bet_slider'].x = event.x;
-        if (this.sprites['bet_slider'].x < minX) {
-          this.sprites['bet_slider'].x = minX;
-        } else if(this.sprites['bet_slider'].x > maxX) {
-          this.sprites['bet_slider'].x = maxX;
-        }
-        const betValue = Math.round(this.getPlayer().getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
-        this.labels['bet_value'].text = betValue + ' Bet';
+      this.sprites['bet_slider'].addEventListener('touchmove', event => {
+        this.moveBetSlider(event);
+      });
+      this.sprites['bet_bar'].addEventListener('touchstart', event =>{
+        this.moveBetSlider(event);
       });
       this.sprites['raise'].addEventListener('touchend', () => {
-        const minX = this.sprites['bet_bar'].x;
+        const minX = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
         const maxX = minX + this.sprites['bet_bar'].width;
         const betValue = Math.round(this.getPlayer().getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
-        if (betValue < 2 * this.callValue || betValue < this.betValue) {
+        if (betValue < this.bigBlind || betValue < 2 * this.callValue || betValue < this.betValue) {
           return ;
         }
         this.betValue = betValue;
@@ -113,6 +118,19 @@ export default class TexasHoldemView extends BaseView {
       });
       resolve();
     });
+  }
+
+  moveBetSlider(event) {
+    const minX = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
+    const maxX = minX + this.sprites['bet_bar'].width;
+    this.sprites['bet_slider'].x = event.x - this.sprites['bet_slider'].width / 2;
+    if (this.sprites['bet_slider'].x < minX) {
+      this.sprites['bet_slider'].x = minX;
+    } else if(this.sprites['bet_slider'].x > maxX) {
+      this.sprites['bet_slider'].x = maxX;
+    }
+    const betValue = Math.round(this.getPlayer().getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
+    this.labels['bet_value'].text = betValue + ' Bet';
   }
 
     // TODO: できればベースクラスのメソッドにしたいやつ
@@ -154,8 +172,8 @@ export default class TexasHoldemView extends BaseView {
     const centerX = this.sprites['poker_table'].x + longRadius;
     const centerY = this.sprites['poker_table'].y + shortRadius;
     const angle = (90 + interval * deelerIndex) % 360;
-    this.sprites['deeler_button'].x = centerX + 0.9 * longRadius * Math.cos((angle + interval / 4)  * Math.PI / 180);
-    this.sprites['deeler_button'].y = centerY + 0.9 * shortRadius * Math.sin((angle + interval / 4) * Math.PI / 180);
+    this.sprites['deeler_button'].x = centerX + 0.9 * longRadius * Math.cos((angle + interval / 10)  * Math.PI / 180);
+    this.sprites['deeler_button'].y = centerY + 0.9 * shortRadius * Math.sin((angle + interval / 10) * Math.PI / 180);
     this.betChipSprites['player_bet_chip_' + bigBlindId] = this.sprites['player_bet_chip_' + bigBlindId];
     this.betChipSprites['player_bet_chip_' + smallBlindId] = this.sprites['player_bet_chip_' + smallBlindId];
     SceneRepository.addEntityToCurrentScene('player_bet_chip_' + bigBlindId, this.sprites['player_bet_chip_' + bigBlindId]);
@@ -188,7 +206,7 @@ export default class TexasHoldemView extends BaseView {
         } else {
           sprite = SpriteFactory.getClone(this.sprites['card_trump/z01.png']);
         }
-        sprite.x = this.sprites['player_card_' + player.id].x + this.sprites['player_card_' + player.id].width + index * sprite.width;
+        sprite.x = this.sprites['player_card_' + player.id].x + this.sprites['player_card_' + player.id].width + (index - 2) * sprite.width;
         sprite.y = this.sprites['player_card_' + player.id].y;
         this.handCards['player_id_' + player.id + '_num' + index] = sprite;
         SceneRepository.addEntityToCurrentScene('player_id_' + player.id + '_num' + index, sprite);
@@ -284,7 +302,7 @@ export default class TexasHoldemView extends BaseView {
 
   resetOneAction() {
     this.currentAction = BaseAction.ACTION_NONE;
-    this.sprites['bet_slider'].x = this.sprites['bet_bar'].x;
+    this.sprites['bet_slider'].x = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
     this.labels['bet_value'].text = '0 Bet';
   }
 

@@ -87,6 +87,7 @@ export default class TexasHoldemScene extends BaseScene {
       } else if (this.service.isAiAction()) {
         this.pushStatus(TexasHoldemStatus.STATUS_AI_THINKING);
       } else {
+        this.view.resetAction();
         this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_THINKING);
       }
     } else if (status === TexasHoldemStatus.STATUS_NEXT_PHASE) {

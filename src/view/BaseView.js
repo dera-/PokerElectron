@@ -89,4 +89,8 @@ export default class BaseView {
   getAction() {
     return this.currentAction;
   }
+
+  resetAction() {
+    this.currentAction = BaseAction.ACTION_NONE;
+  }
 }

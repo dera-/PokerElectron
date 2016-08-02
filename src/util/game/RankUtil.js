@@ -49,12 +49,12 @@ export default class RankUtil {
       let number = index + 2,
         cardNum = sameCardNums[index];
       if (cardNum === 4) {
-        fourCards.push(number);
+        fourCards.unshift(number);
       } else if (cardNum > 0) {
         others.unshift(number);
       }
     }
-    return fourCards.length === 0 ? null : new Rank(FOUR_CARD, fourCards[0], 0, others);
+    return fourCards.length === 0 ? null : new Rank(FOUR_CARD, fourCards[0], 0, [others[0]]);
   }
 
   static getFullHouseRank(cards) {
@@ -91,7 +91,7 @@ export default class RankUtil {
         others.push(number);
       }
     }
-    return threeCards.length === 0 ? null : new Rank(THREE_CARD, threeCards[0], 0, others);
+    return threeCards.length === 0 ? null : new Rank(THREE_CARD, threeCards[0], 0, [others[0], others[1]]);
   }
 
   static getPairRank(cards) {
@@ -104,15 +104,17 @@ export default class RankUtil {
       if (cardNum === 2 && pairs.length < 2) {
         pairs.push(number);
       } else if (cardNum > 0) {
-        others.push(number);
+        for (let i = 0; i < cardNum; i++) {
+          others.push(number);
+        }
       }
     }
     if (pairs.length === 2) {
-      return new Rank(TWO_PAIR, pairs[0], pairs[1], others);
+      return new Rank(TWO_PAIR, pairs[0], pairs[1], [others[0]]);
     } else if(pairs.length === 1) {
-      return new Rank(ONE_PAIR, pairs[0], 0, others);
+      return new Rank(ONE_PAIR, pairs[0], 0, others.slice(0, 3));
     }
-    return new Rank(NO_PAIR, 0, 0, others);
+    return new Rank(NO_PAIR, 0, 0, others.slice(0, 5));
   }
 
   static getStraightRank(cards, necessaryCardNum = 5) {
@@ -228,7 +230,7 @@ export default class RankUtil {
     } else if (rank1.bottom < rank2.bottom) {
       return rank2.bottom < rank1.bottom ? 1 : -1;
     }
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < rank1.length; i++) {
       if (rank1.kickers[i] !== rank2.kickers[i]) {
         return rank2.kickers[i] < rank1.kickers[i] ? 1 : -1;
       }
