@@ -1,5 +1,4 @@
 import GameRepository from './GameRepository';
-import FileUtil from '../util/FileUtil';
 import Conf from '../config/conf.json';
 
 const loadedImagePathSets = new Set();
@@ -27,9 +26,5 @@ export default class ImageRepository {
       return GameRepository.get().assets[IMAGE_DIRECTORY_PATH + imagePath];
     }
     return null;
-  }
-
-  static getImageNames(dir) {
-    return FileUtil.getFileNameList(IMAGE_DIRECTORY_PATH + dir);
   }
 }

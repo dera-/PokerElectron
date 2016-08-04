@@ -1,12 +1,11 @@
-import RankStrength from '../../const/game/RankStrength';
+import * as RankStrength from '../../const/game/RankStrength';
 
 export default class RankModel {
-  constructor(strength, top, bottom = 0, kickers = [0, 0, 0], cards = {}) {
+  constructor(strength, top, bottom = 0, kickers = []) {
     this.strength = strength;
     this.top   = top;
     this.bottom = bottom;
     this.kickers = kickers;
-    this.cards = cards;
   }
 
   getRankName() {

@@ -1,15 +1,15 @@
-import PlayerBrain from './AiPlayerModel';
+import AiPlayerModel from './AiPlayerModel';
 import PokerLearnModel from './learn/PokerLearnModel';
 
 export default class MachineLearnPlayerModel extends AiPlayerModel {
-  constructor(id, stack) {
-    super(id, stack);
-    this.pokerLearnModel = new PokerLearnModel(this.stack);
+  constructor(id, money) {
+    super(id, money);
+    this.pokerLearnModel = new PokerLearnModel(money);
   }
 
   // override
-  decideAction(actionPhase, enemyPlayerModel, boardModel, callValue) {
-    this.action = this.pokerLearnModel.getAction(actionPhase, this, enemyPlayerModel, boardModel, callValue);
+  decideAction(actionPhase, enemy, board, callValue) {
+    this.action = this.pokerLearnModel.getAction(actionPhase, this, enemy, board, callValue);
   }
 
   learn(chip, isLoose) {
@@ -20,5 +20,9 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
   learnWhenFold(actionPhase, chip, isLoose) {
     this.pokerLearnModel.updateQValue(actionPhase, chip, isLoose);
     this.pokerLearnModel.deleteHistories();
+  }
+
+  save() {
+    this.pokerLearnModel.saveQvaluesData();
   }
 }

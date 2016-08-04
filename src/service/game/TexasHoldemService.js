@@ -270,6 +270,13 @@ export default class TexasHoldemService extends BaseService {
     return targetPlayers[0];
   }
 
+  getPlayerRanks() {
+    const boardCards = this.board.getOpenedCards();
+    return this.players.map(player => {
+      return {id: player.id, rank: player.getRank(boardCards)};
+    });
+  }
+
   isWin(playerHand, targetHand) {
     let boardCards = this.board.getOpenedCards();
     return RankUtil.compareRanks(RankUtil.getRank(playerHand, boardCards), RankUtil.getRank(targetHand, boardCards)) !== -1;

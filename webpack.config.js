@@ -7,7 +7,7 @@ module.exports = {
     path: __dirname + "/htdocs/js/",
     filename: "[name].js"
   },
-  devtool: '#inline-source-map',
+  devtool: '#source-map',
   resolve: {
     extensions: ['', '.js','json'],
     modulesDirectories: ["node_modules"]

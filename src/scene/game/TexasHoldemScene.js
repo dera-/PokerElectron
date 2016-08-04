@@ -5,6 +5,7 @@ import * as TexasHoldemAction from '../../const/game/TexasHoldemAction';
 import * as BaseAction from '../../const/BaseAction';
 import TexasHoldemService from '../../service/game/TexasHoldemService';
 import TexasHoldemView from '../../view/game/TexasHoldemView';
+import FileModel from '../../model/FileModel';
 
 export default class TexasHoldemScene extends BaseScene {
   initializeTexasHoldemScene(players, initialBlind) {
@@ -110,6 +111,7 @@ export default class TexasHoldemScene extends BaseScene {
       const openedCards = this.service.showdown();
       this.service.sharePodToWinners(this.service.getWinners());
       this.service.resetPlayersAction();
+      this.view.ranksDraw(this.service.getPlayerRanks());
       this.view.showDownDraw();
       this.view.setCardsDraw(openedCards);
       this.view.shareChips();
@@ -130,6 +132,10 @@ export default class TexasHoldemScene extends BaseScene {
     } else if (status === TexasHoldemStatus.STATUS_GAME_END) {
       // 勝負が決まった時
       // TODO: 後で実装する
+      //const fileModel = new FileModel('sample.txt');
+      //fileModel.open();
+      //fileModel.writeOneLine("test_desu");
+      //fileModel.close();
       console.log('game_end');
     }
   }

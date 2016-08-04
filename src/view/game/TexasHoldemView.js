@@ -14,6 +14,7 @@ export default class TexasHoldemView extends BaseView {
       this.bigBlind = initialBlind;
       this.playerId = Conf.data.player.id;
       this.labels = [];
+      this.tmpLabels = [];
       this.boardCardSprites = {};
       this.handCards = {};
       this.betChipSprites = {};
@@ -43,6 +44,7 @@ export default class TexasHoldemView extends BaseView {
         let xPlace, yPlace;
         const player = players[index];
         const cardSprite = SpriteFactory.getClone(this.sprites['player_card']);
+        const rank_card = SpriteFactory.getClone(this.sprites['rank_card']);
         const angle = (90 + interval * index) % 360;
         xPlace = centerX + longRadius * Math.cos(angle * Math.PI / 180);
         if (xPlace < centerX) {
@@ -63,6 +65,10 @@ export default class TexasHoldemView extends BaseView {
         if (centerY < this.sprites['player_bet_chip_' + player.id].y) {
           this.sprites['player_bet_chip_' + player.id].y -= this.sprites['player_bet_chip_' + player.id].height;
         }
+        this.sprites['rank_card' + player.id] = rank_card;
+        this.sprites['rank_card' + player.id].x = this.sprites['player_card_' + player.id].x + 1.05 * this.sprites['player_card_' + player.id].width;
+        this.sprites['rank_card' + player.id].y = this.sprites['player_card_' + player.id].y + 0.15 * this.sprites['player_card_' + player.id].height;
+
         this.labels['player_name_' + player.id] = new Label('ID：' + player.id);
         this.labels['player_name_' + player.id].moveTo(xPlace + 0.05 * cardSprite.width, yPlace + 0.1 * cardSprite.height);
         this.labels['player_name_' + player.id].font = '16px sans-serif';
@@ -76,6 +82,13 @@ export default class TexasHoldemView extends BaseView {
         );
         this.labels['player_bet_chip_value_' + player.id].color = 'white';
         this.labels['player_bet_chip_value_' + player.id].font = '14px sans-serif';
+        this.tmpLabels['result_rank' + player.id] = new Label('');
+        this.tmpLabels['result_rank' + player.id].moveTo(
+          this.sprites['rank_card' + player.id].x + 0.2 * this.sprites['rank_card' + player.id].width,
+          this.sprites['rank_card' + player.id].y + 0.3 * this.sprites['rank_card' + player.id].height
+        );
+        this.tmpLabels['result_rank' + player.id].color = 'black';
+        this.tmpLabels['result_rank' + player.id].font = '36px sans-serif';
         this.labels['pot_value'] = new Label('合計掛け金：' + 0);
         this.labels['pot_value'].moveTo(centerX - 0.5 * longRadius, centerY - 0.5 * shortRadius);
         this.labels['pot_value'].color = 'white';
@@ -255,6 +268,14 @@ export default class TexasHoldemView extends BaseView {
     });
   }
 
+  ranksDraw(ranks) {
+    ranks.forEach(data => {
+      SceneRepository.addEntityToCurrentScene('rank_card' + data.id, this.sprites['rank_card' + data.id]);
+      this.tmpLabels['result_rank' + data.id].text = data.rank.getRankName();
+      SceneRepository.addEntityToCurrentScene('result_rank' + data.id, this.tmpLabels['result_rank' + data.id]);
+    });
+  }
+
   shareChips() {
     this.labels['pot_value'].text = '合計賭けチップ：' + 0;
     this.players.forEach(player => {
@@ -279,6 +300,10 @@ export default class TexasHoldemView extends BaseView {
     });
     Object.keys(this.handCards).forEach(key => {
       SceneRepository.removeEntityFromCurrentScene(key);
+    });
+    this.players.forEach(player => {
+      SceneRepository.removeEntityFromCurrentScene('rank_card' + player.id);
+      SceneRepository.removeEntityFromCurrentScene('result_rank' + player.id);
     });
   }
 
