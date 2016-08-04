@@ -127,6 +127,10 @@ export default class RankUtil {
         necessaryNumber++;
       } else if (sortedCards[i].number === necessaryNumber - 1) {
         continue;
+      } else if (sortedCards.length - i >= necessaryCardNum) {
+        startCardNum = sortedCards[i].number;
+        goalCardNum = startCardNum + necessaryCardNum - 1,
+        necessaryNumber = startCardNum + 1;
       } else {
         break;
       }
