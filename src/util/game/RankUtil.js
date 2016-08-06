@@ -231,10 +231,10 @@ export default class RankUtil {
       return rank2.strength < rank1.strength ? 1 : -1;
     } else if (rank1.top !== rank2.top) {
       return rank2.top < rank1.top ? 1 : -1;
-    } else if (rank1.bottom < rank2.bottom) {
+    } else if (rank1.bottom !== rank2.bottom) {
       return rank2.bottom < rank1.bottom ? 1 : -1;
     }
-    for (let i = 0; i < rank1.length; i++) {
+    for (let i = 0; i < rank1.kickers.length; i++) {
       if (rank1.kickers[i] !== rank2.kickers[i]) {
         return rank2.kickers[i] < rank1.kickers[i] ? 1 : -1;
       }

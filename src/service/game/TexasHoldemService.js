@@ -228,7 +228,6 @@ export default class TexasHoldemService extends BaseService {
       let action = player.getAction(),
         value = action === null ? 0 : action.value;
       console.log(player.id + ':' + value);
-      console.log(player.id + ':' + (action === null));
       this.board.addChip(player.id, value);
       player.pay(value);
     });
@@ -239,6 +238,9 @@ export default class TexasHoldemService extends BaseService {
       bestRank = RankUtil.getWeakestRank(),
       candidates = this.players.filter(player => player.hasHand()),
       winners = [];
+    if (candidates.length === 1) {
+      return candidates;
+    }
     candidates.forEach((player)=>{
       let rank = player.getRank(boardCards);
       let comparedResult = RankUtil.compareRanks(rank, bestRank);
@@ -290,4 +292,7 @@ export default class TexasHoldemService extends BaseService {
     return this.bbIndex;
   }
 
+  getChipPots() {
+    return this.board.getChipPots();
+  }
 }

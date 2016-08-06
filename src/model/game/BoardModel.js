@@ -64,6 +64,10 @@ export default class BoardModel {
     return pots[0];
   }
 
+  getChipPots() {
+    return this.chipPots;
+  }
+
   getPotValue() {
     let totalValue = 0;
     this.chipPots.forEach((pot) => {

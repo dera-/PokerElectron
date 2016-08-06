@@ -123,6 +123,7 @@ export default class TexasHoldemScene extends BaseScene {
       this.view.shareChips();
       this.pushStatuses([TexasHoldemStatus.STATUS_JUDGE_CONTINUE_GAME/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_JUDGE_CONTINUE_GAME) {
+      this.view.resultDraw(this.service.getChipPots());
       this.service.deleteDeadPlayer();
       if (this.service.isFinished()) {
         this.pushStatus(TexasHoldemStatus.STATUS_GAME_END);

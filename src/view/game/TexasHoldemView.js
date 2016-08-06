@@ -82,6 +82,12 @@ export default class TexasHoldemView extends BaseView {
         );
         this.labels['player_bet_chip_value_' + player.id].color = 'white';
         this.labels['player_bet_chip_value_' + player.id].font = '14px sans-serif';
+        this.labels['pot_get_message_' + player.id] = new Label('');
+        this.labels['pot_get_message_' + player.id].moveTo(
+          this.sprites['player_card_' + player.id].x,
+          this.sprites['player_bet_chip_' + player.id].y
+        );
+        this.labels['pot_get_message_' + player.id].font = '32px sans-serif';
         this.tmpLabels['result_rank' + player.id] = new Label('');
         this.tmpLabels['result_rank' + player.id].moveTo(
           this.sprites['rank_card' + player.id].x + 0.2 * this.sprites['rank_card' + player.id].width,
@@ -89,11 +95,11 @@ export default class TexasHoldemView extends BaseView {
         );
         this.tmpLabels['result_rank' + player.id].color = 'black';
         this.tmpLabels['result_rank' + player.id].font = '36px sans-serif';
-        this.labels['pot_value'] = new Label('合計掛け金：' + 0);
-        this.labels['pot_value'].moveTo(centerX - 0.5 * longRadius, centerY - 0.5 * shortRadius);
-        this.labels['pot_value'].color = 'white';
-        this.labels['pot_value'].font = '24px sans-serif';
       }
+      this.labels['pot_value'] = new Label('合計掛け金：' + 0);
+      this.labels['pot_value'].moveTo(centerX - 0.5 * longRadius, centerY - 0.5 * shortRadius);
+      this.labels['pot_value'].color = 'white';
+      this.labels['pot_value'].font = '24px sans-serif';
       this.labels['bet_value'] = new Label('0 Bet');
       this.labels['bet_value'].moveTo(
         this.sprites['bet_bar'].x + 0.4 * this.sprites['bet_bar'].width,
@@ -116,6 +122,11 @@ export default class TexasHoldemView extends BaseView {
         const minX = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
         const maxX = minX + this.sprites['bet_bar'].width;
         const betValue = Math.round(this.getPlayer().getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
+        if (betValue === this.getPlayer().getStack()) {
+          this.betValue = betValue;
+          this.currentAction = TexasHoldemAction.ACTION_ALLIN;
+          return;
+        }
         if (betValue < this.bigBlind || betValue < 2 * this.callValue || betValue < this.betValue) {
           return ;
         }
@@ -165,9 +176,6 @@ export default class TexasHoldemView extends BaseView {
       smallBlindIndex = (bigBlindIndex + playersNum - 1) % playersNum;
       deelerIndex = smallBlindIndex;
     }
-    console.log("view_bigBlindIndex:"+bigBlindIndex);
-    console.log("view_smallBlindIndex:"+smallBlindIndex);
-    console.log("view_deelerIndex:"+deelerIndex);
     bigBlindId = this.players[bigBlindIndex].id;
     bigBlindAction = this.players[bigBlindIndex].getAction();
     bigBlindStack = this.players[bigBlindIndex].getStack();
@@ -276,6 +284,19 @@ export default class TexasHoldemView extends BaseView {
     });
   }
 
+  resultDraw(pots) {
+    pots.forEach(pot => {
+      let message = 'ポッド獲得できず。。。',
+        messageColor = 'black';
+      if (pot.chip > 0) {
+        message = pot.chip + '獲得！！';
+        messageColor = 'orange';
+      }
+      this.labels['pot_get_message_' + pot.id].text = message;
+      this.labels['pot_get_message_' + pot.id].color = messageColor;
+    });
+  }
+
   shareChips() {
     this.labels['pot_value'].text = '合計賭けチップ：' + 0;
     this.players.forEach(player => {
@@ -304,6 +325,7 @@ export default class TexasHoldemView extends BaseView {
     this.players.forEach(player => {
       SceneRepository.removeEntityFromCurrentScene('rank_card' + player.id);
       SceneRepository.removeEntityFromCurrentScene('result_rank' + player.id);
+      this.labels['pot_get_message_' + player.id].text = '';
     });
   }
 
