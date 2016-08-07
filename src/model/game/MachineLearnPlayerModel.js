@@ -3,7 +3,7 @@ import PokerLearnModel from './learn/PokerLearnModel';
 
 export default class MachineLearnPlayerModel extends AiPlayerModel {
   constructor(id, money, seatNumber) {
-    super(id, money);
+    super(id, money, seatNumber);
     this.pokerLearnModel = new PokerLearnModel(money);
   }
 

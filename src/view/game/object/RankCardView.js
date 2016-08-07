@@ -1,30 +1,30 @@
-import RankCardView from '../../ObjectView';
+import ObjectView from '../../ObjectView';
 
 export default class RankCardView extends ObjectView {
   initializeElements(elements) {
     return new Promise((resolve, reject) => {
-      const playerId = elements.player.id;
-      this.sprites['rank_card' + playerId].x = elements.x_place + 1.05 * this.sprites['player_card_' + playerId].width;
-      this.sprites['rank_card' + playerId].y = elements.y_place + 0.15 * this.sprites['player_card_' + playerId].height;
-      this.labels['result_rank' + playerId].moveTo(
-        this.sprites['rank_card' + playerId].x + 0.2 * this.sprites['rank_card' + playerId].width,
-        this.sprites['rank_card' + playerId].y + 0.3 * this.sprites['rank_card' + playerId].height
+      this.playerId = elements.player.id;
+      this.sprites['rank_card' + this.playerId].x = elements.x_place + 1.05 * elements.player_card_width;
+      this.sprites['rank_card' + this.playerId].y = elements.y_place + 0.15 * elements.player_card_height;
+      this.labels['result_rank' + this.playerId].moveTo(
+        this.sprites['rank_card' + this.playerId].x + 0.2 * this.sprites['rank_card' + this.playerId].width,
+        this.sprites['rank_card' + this.playerId].y + 0.3 * this.sprites['rank_card' + this.playerId].height
       );
-      this.labels['result_rank' + playerId].color = 'black';
-      this.labels['result_rank' + playerId].font = '36px sans-serif';
+      this.labels['result_rank' + this.playerId].color = 'black';
+      this.labels['result_rank' + this.playerId].font = '36px sans-serif';
       resolve();
     });
   }
 
-  showRank(rank) {
-    this.showSprite('rank_card' + rank.id);
-    this.labels['result_rank' + rank.id].text = data.rank.getRankName();
-    this.showLabel('result_rank' + rank.id);
+  showRank(data) {
+    this.showSprite('rank_card' + this.playerId);
+    this.labels['result_rank' + this.playerId].text = data.rank.getRankName();
+    this.showLabel('result_rank' + this.playerId);
   }
 
-  hideRank(id) {
-    this.hideSprite('rank_card' + id);
-    this.labels['result_rank' + id].text = '';
-    this.hideLabel('result_rank' + id);
+  hideRank() {
+    this.hideSprite('rank_card' + this.playerId);
+    this.labels['result_rank' + this.playerId].text = '';
+    this.hideLabel('result_rank' + this.playerId);
   }
 }

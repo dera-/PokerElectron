@@ -26,10 +26,10 @@ export default class BoardView extends ObjectView {
 
   // ボードにカードをオープンする描画
   setCardsDraw(cardSprites) {
-    const startX = this.sprites['poker_table'].x + 0.25 * Conf.main.width;
+    const startX = this.sprites['poker_table'].x + 0.15 * Conf.main.width;
     const startY = this.sprites['poker_table'].y + 0.14 * Conf.main.height;
     const interval = 0.03 * Conf.main.width;
-    cards.forEach(cardSprite => {
+    cardSprites.forEach(cardSprite => {
       cardSprite.x = startX + this.boardCardNums * (cardSprite.width + interval);
       cardSprite.y = startY;
       this.addSprite('board_cards_' + this.boardCardNums, cardSprite);
@@ -39,7 +39,9 @@ export default class BoardView extends ObjectView {
   }
 
   decidePositionDraw(dealerIndex) {
-    const angle = (90 + this.angleInterval * deelerIndex) % 360;
+    console.log('angle:'+this.angleInterval);
+    console.log('dealerIndex:'+dealerIndex);
+    const angle = (90 + this.angleInterval * dealerIndex) % 360;
     this.sprites['deeler_button'].x = this.centerX + 0.9 * this.longRadius * Math.cos((angle + this.angleInterval / 10)  * Math.PI / 180);
     this.sprites['deeler_button'].y = this.centerY + 0.9 * this.shortRadius * Math.sin((angle + this.angleInterval / 10) * Math.PI / 180);
   }
@@ -50,7 +52,7 @@ export default class BoardView extends ObjectView {
 
   cardsDrawErace() {
     for (let i = 0; i < this.boardCardNums; i++) {
-      this.hideSprite('board_cards_' + this.boardCardNums);
+      this.hideSprite('board_cards_' + i);
     }
   }
 

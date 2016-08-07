@@ -1,6 +1,5 @@
 import PlayerView from './PlayerView';
-import * as BaseAction from '../../const/BaseAction';
-import * as TexasHoldemAction from '../../const/game/TexasHoldemAction';
+import * as TexasHoldemAction from '../../../const/game/TexasHoldemAction';
 
 export default class MyPlayerView extends PlayerView {
   initializeElements(elements) {
@@ -28,8 +27,8 @@ export default class MyPlayerView extends PlayerView {
     this.sprites['raise'].addEventListener('touchend', () => {
       const minX = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
       const maxX = minX + this.sprites['bet_bar'].width;
-      const betValue = Math.round(player.getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
-      if (betValue === player.getStack()) {
+      const betValue = Math.round(this.player.getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
+      if (betValue === this.player.getStack()) {
         this.betValue = betValue;
         this.currentAction = TexasHoldemAction.ACTION_ALLIN;
         return;
@@ -41,7 +40,12 @@ export default class MyPlayerView extends PlayerView {
       this.currentAction = TexasHoldemAction.ACTION_RAISE;
     });
     this.sprites['call'].addEventListener('touchend', () => {
-      this.betValue = this.callValue;
+      const currentStack = this.player.getStack();
+      if (currentStack < this.callValue) {
+        this.betValue = currentStack;
+      } else {
+        this.betValue = this.callValue;
+      }
       this.currentAction = TexasHoldemAction.ACTION_CALL;
     });
     this.sprites['fold'].addEventListener('touchend', () => {
@@ -58,7 +62,7 @@ export default class MyPlayerView extends PlayerView {
     } else if(this.sprites['bet_slider'].x > maxX) {
       this.sprites['bet_slider'].x = maxX;
     }
-    const betValue = Math.round(this.getPlayer().getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
+    const betValue = Math.round(this.player.getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
     this.labels['bet_value'].text = betValue + ' Bet';
   }
 
@@ -77,6 +81,10 @@ export default class MyPlayerView extends PlayerView {
     if (playerAction !== null) {
       this.betValue = playerAction.value;
     }
+  }
+
+  getCurrentAction() {
+    return this.currentAction;
   }
 
   resetAction() {

@@ -28,10 +28,12 @@ export default class TexasHoldemView extends BaseView {
         'initial_blind': initialBlind,
         'angle_interval': Math.round(360 / playersNum),
         'short_radius': Math.round(this.sprites['poker_table'].height / 2),
-        'long_radius': Math.round(this.sprites['poker_table'].width / 2),
-        'center_x': this.sprites['poker_table'].x + this.longRadius,
-        'center_y': this.sprites['poker_table'].y + this.shortRadius
+        'long_radius': Math.round(this.sprites['poker_table'].width / 2)
       }
+      info['center_x'] = this.sprites['poker_table'].x + info['long_radius'];
+      info['center_y'] = this.sprites['poker_table'].y + info['short_radius'];
+      console.log('initializeProperties');
+      console.log(info);
       resolve(info);
     });
   }
@@ -52,14 +54,19 @@ export default class TexasHoldemView extends BaseView {
         'center_x': initialInformation.center_x,
         'center_y': initialInformation.center_y,
       };
-      this.boardView = new BoardView(sprites, labels, properties);
-      resolve(initialInformation);
-    });
+      this.boardView = new BoardView();
+      console.log('initializeBordView');
+      console.log(properties);
+      resolve(this.boardView.initialize(sprites, labels, properties));
+    }).then(()=>{
+      return Promise.resolve(initialInformation);
+    })
   }
 
   initializePlayerViews(initialInformation) {
     return new Promise((resolve, reject) => {
       this.playerViews = [];
+      const promises = [];
       let index = 0;
       initialInformation.players.forEach(player =>{
         let xPlace, yPlace;
@@ -75,18 +82,16 @@ export default class TexasHoldemView extends BaseView {
         if (yPlace < initialInformation.center_y) {
           yPlace -= cardSprite.height;
         }
-        const sprites = {
-          'player_card_' + player.id: cardSprite,
-          'player_bet_chip_' + player.id: chipSprite,
-          'rank_card' + player.id: rankCardSprite,
-        };
-        const labels = {
-          'player_name_' + player.id: new Label('ID：' + player.id),
-          'player_stack_' + player.id: new Label('残り：' + player.getStack()),
-          'player_bet_chip_value_' + player.id: new Label(''),
-          'pot_get_message_' + player.id: new Label(''),
-          'result_rank' + player.id: new Label('')
-        };
+        const sprites = {};
+        sprites['player_card_' + player.id] = cardSprite;
+        sprites['player_bet_chip_' + player.id] = chipSprite;
+        sprites['rank_card' + player.id] = rankCardSprite;
+        const labels = {};
+        labels['player_name_' + player.id] = new Label('ID：' + player.id);
+        labels['player_stack_' + player.id] = new Label('残り：' + player.getStack());
+        labels['player_bet_chip_value_' + player.id] = new Label('');
+        labels['pot_get_message_' + player.id] = new Label('');
+        labels['result_rank' + player.id] = new Label('');
         const properties = {
           'player': player,
           'initial_blind': initialInformation.initial_blind,
@@ -98,23 +103,30 @@ export default class TexasHoldemView extends BaseView {
           'center_x': initialInformation.center_x,
           'center_y': initialInformation.center_y,
         };
+        console.log('initializePlayerViews');
+        console.log(properties);
         let playerView;
         if (player.id === Conf.data.player.id) {
-          playerView = new MyPlayerView(sprites, labels, properties);
-          sprites['bet_slider'] = this.sprites['bet_slider'];
           sprites['bet_bar'] = this.sprites['bet_bar'];
+          sprites['bet_slider'] = this.sprites['bet_slider'];
           sprites['fold'] = this.sprites['fold'];
           sprites['call'] = this.sprites['call'];
           sprites['raise'] = this.sprites['raise'];
           labels['bet_value'] = new Label('0 Bet');
+          playerView = new MyPlayerView();
         } else {
-          playerView = new AiPlayerView(sprites, labels, properties);
+          playerView = new AiPlayerView();
         }
         this.playerViews.push(playerView);
+        promises.push(playerView.initialize(sprites, labels, properties));
         index++;
       });
-      resolve(initialInformation);
-    });
+      resolve(promises);
+    }).then(promises=>{
+      return Promise.all(promises);
+    }).then(()=>{
+      return Promise.resolve(initialInformation);
+    })
   }
 
   initializeSpriteEvents() {
@@ -143,7 +155,7 @@ export default class TexasHoldemView extends BaseView {
         deelerIndex = view.getSeatNumber();
       }
     });
-    this.board.decidePositionDraw(deelerIndex);
+    this.boardView.decidePositionDraw(deelerIndex);
   }
 
   // ボードにカードを表示する
@@ -154,9 +166,9 @@ export default class TexasHoldemView extends BaseView {
   // カード配る部分の描画
   dealCardsDraw() {
     this.playerViews.forEach(view => {
-      const sprites;
+      let sprites;
       if (view instanceof MyPlayerView) {
-        cardNames = view.getCardImageNames();
+        const cardNames = view.getCardImageNames();
         sprites = [
           this.sprites['card_trump/' + cardNames[0]],
           this.sprites['card_trump/' + cardNames[1]]
@@ -193,7 +205,7 @@ export default class TexasHoldemView extends BaseView {
   // ショーダウン時の描画
   showDownDraw() {
     this.playerViews.forEach(view => {
-      if (!view instanceof MyPlayerView) {
+      if (false === (view instanceof MyPlayerView)) {
         view.showDownDraw();
       }
     });
@@ -217,14 +229,14 @@ export default class TexasHoldemView extends BaseView {
   shareChips() {
     this.potDraw(0);
     this.playerViews.forEach(view => {
-      this.view.moveChipDraw();
+      view.moveChipDraw();
     });
   }
 
   // アクション時の描画取り消し
   actionDrawErase() {
     this.playerViews.forEach(view => {
-      this.view.actionDrawErase();
+      view.actionDrawErase();
     });
   }
 
@@ -232,7 +244,7 @@ export default class TexasHoldemView extends BaseView {
   oneGameDrawErase() {
     this.boardView.cardsDrawErace();
     this.playerViews.forEach(view => {
-      this.view.actionDrawErase();
+      view.oneGameDrawErase();
     });
   }
 
@@ -263,5 +275,9 @@ export default class TexasHoldemView extends BaseView {
 
   resetBoard() {
     this.boardView.reset();
+  }
+
+  getCurrentAction() {
+    return this.getMyPlayerView().getCurrentAction();
   }
 }

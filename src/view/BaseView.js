@@ -7,13 +7,7 @@ import SceneRepository from '../repository/SceneRepository';
 // viewクラスのインターフェース的なサムシング
 export default class BaseView {
   initialize(imagesData = {}) {
-    return new Promise((resolve, reject) => {
-      resolve();
-    }).then(()=>{
-      return this.initializeSprites(imagesData)
-    }).then(()=>{
-      return this.getVisibleSpriteKeysWithPromise(imagesData);
-    });
+    return this.initializeSprites(imagesData)
   }
 
   getSprite(key) {

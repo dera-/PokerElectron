@@ -3,6 +3,8 @@ import ImageRepository from '../../../repository/ImageRepository';
 import * as Position from '../../../const/game/Position';
 import PlayerCardView from './PlayerCardView';
 import RankCardView from './RankCardView';
+import ActionModel from '../../../model/game/ActionModel';
+import * as TexasHoldemAction from '../../../const/game/TexasHoldemAction';
 
 export default class PlayerView extends ObjectView {
   initializeElements(elements) {
@@ -24,7 +26,7 @@ export default class PlayerView extends ObjectView {
       this.labels['player_bet_chip_value_' + playerId].color = 'white';
       this.labels['player_bet_chip_value_' + playerId].font = '14px sans-serif';
       this.labels['pot_get_message_' + playerId].moveTo(
-        this.sprites['player_card_' + playerId].x,
+        elements.x_place,
         this.sprites['player_bet_chip_' + playerId].y
       );
       this.labels['pot_get_message_' + playerId].font = '32px sans-serif';
@@ -38,15 +40,13 @@ export default class PlayerView extends ObjectView {
 
   initializePlayerCardView(elements) {
     return new Promise((resolve, reject) => {
-      const sprites = {
-        'player_card_' + this.player.id: this.sprites['player_card_' + this.player.id]
-      };
-      const labels = {
-        'player_name_' + this.player.id: this.labels['player_name_' + this.player.id],
-        'player_stack_' + this.player.id: this.labels['player_stack_' + this.player.id]
-      };
-      this.playerCardView = new PlayerCardView(sprites, labels, elements);
-      resolve();
+      const sprites = {};
+      sprites['player_card_' + this.player.id] = this.sprites['player_card_' + this.player.id];
+      const labels = {};
+      labels['player_name_' + this.player.id] = this.labels['player_name_' + this.player.id];
+      labels['player_stack_' + this.player.id] = this.labels['player_stack_' + this.player.id];
+      this.playerCardView = new PlayerCardView();
+      resolve(this.playerCardView.initialize(sprites, labels, elements));
     }).then(()=>{
       this.removeSprite('player_card_' + this.player.id);
       this.removeLabel('player_name_' + this.player.id);
@@ -57,14 +57,14 @@ export default class PlayerView extends ObjectView {
 
   initializeRankCardView(elements) {
     return new Promise((resolve, reject) => {
-      const sprites = {
-        'rank_card' + this.player.id: this.sprites['rank_card' + this.player.id]
-      };
-      const labels = {
-        'result_rank' + this.player.id: this.labels['result_rank' + this.player.id],
-      };
-      this.rankCardView = new RankCardView(sprites, labels, elements);
-      resolve();
+      const sprites = {};
+      sprites['rank_card' + this.player.id] = this.sprites['rank_card' + this.player.id];
+      const labels = {};
+      labels['result_rank' + this.player.id] = this.labels['result_rank' + this.player.id];
+      this.rankCardView = new RankCardView();
+      elements.player_card_width = this.playerCardView.getWidth();
+      elements.player_card_height = this.playerCardView.getHeight();
+      resolve(this.rankCardView.initialize(sprites, labels, elements));
     }).then(()=>{
       this.removeSprite('rank_card' + this.player.id);
       this.removeLabel('result_rank' + this.player.id);
@@ -106,7 +106,7 @@ export default class PlayerView extends ObjectView {
       return;
     }
     const restStack = this.player.getStack() - action.value;
-    this.labels['player_stack_' + id].text = '残り：' + restStack;
+    this.playerCardView.changeStackText(restStack);
     if (action.value > 0) {
       const chipSpriteKey = 'player_bet_chip_' + id;
       this.labels['player_bet_chip_value_' + id].text = action.name + '：' + action.value;
@@ -126,7 +126,9 @@ export default class PlayerView extends ObjectView {
 
   showDownDraw() {
     const cards = this.player.getCards();
+    console.log('showDownDrawshowDownDrawshowDownDrawshowDownDrawshowDownDrawshowDownDrawshowDownDrawshowDownDraw')
     if (cards.length === 2) {
+      console.log('ショーダウン');
       this.sprites['player_id_' + this.player.id + '_num0'].image = ImageRepository.getImage('trump/' + cards[0].getCardImageName());
       this.sprites['player_id_' + this.player.id + '_num1'].image = ImageRepository.getImage('trump/' + cards[1].getCardImageName());
     }
@@ -156,12 +158,12 @@ export default class PlayerView extends ObjectView {
   }
 
   moveChipDraw() {
-    this.labels['player_stack_' + this.player.id].text = '残り：' + this.player.getStack();
+    this.playerCardView.changeStackText(this.player.getStack());
     this.labels['player_bet_chip_value_' + this.player.id].text = '';
   }
 
   actionDrawErase() {
-    this.labels['player_stack_' + this.player.id].text = '残り：' + this.player.getStack();
+    this.playerCardView.changeStackText(this.player.getStack());
     this.labels['player_bet_chip_value_' + this.player.id].text = '';
     this.hideSprite('player_bet_chip_' + this.player.id);
   }
@@ -170,6 +172,7 @@ export default class PlayerView extends ObjectView {
     this.hideSprite('player_id_' + this.player.id + '_num0');
     this.hideSprite('player_id_' + this.player.id + '_num1');
     this.rankCardView.hideRank(this.player.id);
+    this.labels['pot_get_message_' + this.player.id].text = '';
   }
 
   isDealerPosition() {

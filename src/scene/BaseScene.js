@@ -74,13 +74,13 @@ export default class BaseScene {
       });
       // 以下、タップ時の処理
       scene.addEventListener('touchstart', () => {
-        this.touchStartEvent(this.view.getAction());
+        this.touchStartEvent();
       });
       scene.addEventListener('touchmove', () => {
-        this.touchMoveEvent(this.view.getAction());
+        this.touchMoveEvent();
       });
       scene.addEventListener('touchend', () => {
-        this.touchEndEvent(this.view.getAction());
+        this.touchEndEvent();
       });
       resolve(scene);
     }).then(scene =>{
@@ -92,7 +92,7 @@ export default class BaseScene {
   start() {}
   run(status) {}
   end() {}
-  touchStartEvent(action) {}
-  touchMoveEvent(action) {}
-  touchEndEvent(action) {}
+  touchStartEvent() {}
+  touchMoveEvent() {}
+  touchEndEvent() {}
 }

@@ -87,7 +87,7 @@ export default class TexasHoldemScene extends BaseScene {
       } else if (this.service.isAiAction()) {
         this.pushStatus(TexasHoldemStatus.STATUS_AI_THINKING);
       } else {
-        this.view.resetAction();
+        this.view.resetOneAction();
         this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_THINKING);
       }
     } else if (status === TexasHoldemStatus.STATUS_NEXT_PHASE) {
@@ -145,8 +145,8 @@ export default class TexasHoldemScene extends BaseScene {
     return targetStatuses.some(target => status === target);
   }
 
-  touchEndEvent(action) {
-    console.log('action:' + action);
+  touchEndEvent() {
+    const action = this.view.getCurrentAction();
     const status = this.getCurrentStatus();
     if (status === TexasHoldemStatus.STATUS_PLAYER_THINKING && action !== BaseAction.ACTION_NONE) {
       this.service.setCurrentPlayerAction(action, this.view.getCurrentBetValue());

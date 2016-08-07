@@ -3,11 +3,13 @@ import SceneRepository from '../repository/SceneRepository';
 export default class ObjectView {
   initialize(sprites, labels, elements = {}) {
     return new Promise((resolve, reject) => {
+      this.sprites = {};
       Object.keys(sprites).forEach(key => {
         this.sprites[key] = sprites[key];
       });
       resolve();
     }).then(() => {
+      this.labels = {};
       Object.keys(labels).forEach(key => {
         this.labels[key] = labels[key];
       });
