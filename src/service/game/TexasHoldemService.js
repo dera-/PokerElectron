@@ -7,6 +7,7 @@ import DealerModel from '../../model/game/DealerModel';
 import BoardModel from '../../model/game/BoardModel';
 import RankUtil from '../../util/game/RankUtil'
 import CardsFactory from '../../factory/game/CardsFactory';
+import * as Position from '../../const/game/Position';
 
 const NON_EXIST_PLAYER_INDEX = -1;
 const FROP_CARDS_NUM = 3;
@@ -66,9 +67,29 @@ export default class TexasHoldemService extends BaseService {
     } else {
       this.bbIndex = Math.floor(playerNum * Math.random());
     }
-    console.log('service_bbIndex:'+this.bbIndex);
+    this.updatePosition();
     this.players[this.bbIndex].setAction(TexasHoldemAction.ACTION_NONE, this.bigBlind);
     this.players[(this.bbIndex + playerNum - 1) % playerNum].setAction(TexasHoldemAction.ACTION_NONE, this.bigBlind/2);
+  }
+
+  updatePosition() {
+    const playerNum = this.players.length;
+    if (playerNum === 2) {
+      this.players[this.bbIndex].setPosition(Position.BIG_BLIND);
+      this.players[(this.bbIndex + playerNum - 1) % playerNum].setPosition(Position.DEALER_FOR_HEADS_UP);
+      return;
+    }
+    for (let index = 0; index < playerNum; index++) {
+      if (index === this.bbIndex) {
+        this.players[index].setPosition(Position.BIG_BLIND);
+      } else if (index === (this.bbIndex + playerNum - 1) % playerNum) {
+        this.players[index].setPosition(Position.SMALL_BLIND);
+      } else if (index === (this.bbIndex + playerNum - 2) % playerNum) {
+        this.players[index].setPosition(Position.DEALER);
+      } else {
+        this.players[index].setPosition(Position.OTHER);
+      }
+    }
   }
 
   dealCards() {
@@ -286,10 +307,6 @@ export default class TexasHoldemService extends BaseService {
 
   getBigBlindValue() {
     return this.bigBlind;
-  }
-
-  getBigBlindIndex() {
-    return this.bbIndex;
   }
 
   getChipPots() {

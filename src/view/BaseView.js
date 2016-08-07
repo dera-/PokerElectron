@@ -7,17 +7,12 @@ import SceneRepository from '../repository/SceneRepository';
 // viewクラスのインターフェース的なサムシング
 export default class BaseView {
   initialize(imagesData = {}) {
-    return this.initializeCurrentAction().then(()=>{
+    return new Promise((resolve, reject) => {
+      resolve();
+    }).then(()=>{
       return this.initializeSprites(imagesData)
     }).then(()=>{
       return this.getVisibleSpriteKeysWithPromise(imagesData);
-    });
-  }
-
-  initializeCurrentAction() {
-    return new Promise((resolve, reject) => {
-      this.currentAction = BaseAction.ACTION_NONE;
-      resolve();
     });
   }
 
@@ -73,24 +68,5 @@ export default class BaseView {
     });
   }
 
-  getVisibleSpriteKeysWithPromise(imagesData) {
-    return Promise.resolve(imagesData.filter(data => data.show).map(data => data.name)).then(keys=>{
-      this.visibleSpriteKeys = keys;
-      return Promise.resolve();
-    });
-  }
-
-  visibleSpritesDraw() {
-    this.visibleSpriteKeys.forEach(key => {
-      SceneRepository.addEntityToCurrentScene(key, this.getSprite(key));
-    });
-  }
-
-  getAction() {
-    return this.currentAction;
-  }
-
-  resetAction() {
-    this.currentAction = BaseAction.ACTION_NONE;
-  }
+  showFirst() {}
 }

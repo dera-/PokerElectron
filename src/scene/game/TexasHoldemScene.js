@@ -29,8 +29,7 @@ export default class TexasHoldemScene extends BaseScene {
   }
 
   start(status) {
-    this.view.visibleSpritesDraw();
-    this.view.labelsDraw();
+    this.view.showFirst();
     this.pushStatus(TexasHoldemStatus.STATUS_GAME_START);
   }
 
@@ -46,7 +45,7 @@ export default class TexasHoldemScene extends BaseScene {
       this.service.initializeGame(status === TexasHoldemStatus.STATUS_GAME_CONTINUE);
       this.service.dealCards();
       this.view.setPlayerBetValue();
-      this.view.decidePositionDraw(this.service.getBigBlindIndex(), this.service.getBigBlindValue());
+      this.view.decidePositionDraw();
       this.view.dealCardsDraw();
       this.pushStatuses([TexasHoldemStatus.STATUS_START_PHASE/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_START_PHASE) {
@@ -157,7 +156,7 @@ export default class TexasHoldemScene extends BaseScene {
       console.log('wait wait wait');
       this.service.reset();
       this.view.oneGameDrawErase();
-      this.view.resetOneGame();
+      this.view.resetBoard();
       this.popStatus();
       this.pushStatus(TexasHoldemStatus.STATUS_GAME_CONTINUE);
     }

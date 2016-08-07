@@ -2,7 +2,7 @@ import AiPlayerModel from './AiPlayerModel';
 import PokerLearnModel from './learn/PokerLearnModel';
 
 export default class MachineLearnPlayerModel extends AiPlayerModel {
-  constructor(id, money) {
+  constructor(id, money, seatNumber) {
     super(id, money);
     this.pokerLearnModel = new PokerLearnModel(money);
   }

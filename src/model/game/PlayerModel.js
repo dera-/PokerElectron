@@ -1,13 +1,16 @@
 import CardModel from './CardModel';
 import ActionModel from './ActionModel';
 import RankUtil from '../../util/game/RankUtil';
+import * as Position from '../../const/game/Position';
 
 export default class PlayerModel {
-  constructor(id, money) {
+  constructor(id, money, seatNumber) {
     this.id = id;
     this.stack = money;
+    this.seatNumber = seatNumber;
     this.hand = [];
     this.action = null;
+    this.position = Position.OTHER;
   }
 
   setAction(name, value) {
@@ -64,5 +67,17 @@ export default class PlayerModel {
 
   getRank(openedCards) {
     return RankUtil.getRank(this.hand, openedCards);
+  }
+
+  getPosition() {
+    return this.position;
+  }
+
+  setPosition(position) {
+    this.position = position;
+  }
+
+  getSeatNumber() {
+    return this.seatNumber;
   }
 }
