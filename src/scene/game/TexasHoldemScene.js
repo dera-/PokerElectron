@@ -45,6 +45,7 @@ export default class TexasHoldemScene extends BaseScene {
       this.service.initializeGame(status === TexasHoldemStatus.STATUS_GAME_CONTINUE);
       this.service.dealCards();
       this.view.setPlayerBetValue();
+      this.view.setCallValue(this.service.getBigBlindValue());
       this.view.decidePositionDraw();
       this.view.dealCardsDraw();
       this.pushStatuses([TexasHoldemStatus.STATUS_START_PHASE/*, BaseStatus.STATUS_DRAWING*/]);

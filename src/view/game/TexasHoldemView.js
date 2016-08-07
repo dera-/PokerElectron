@@ -15,8 +15,6 @@ export default class TexasHoldemView extends BaseView {
       return this.initializeBordView(initialInformation);
     }).then(initialInformation => {
       return this.initializePlayerViews(initialInformation);
-    }).then(()=>{
-      return this.initializeSpriteEvents();
     });
   }
 
@@ -32,8 +30,6 @@ export default class TexasHoldemView extends BaseView {
       }
       info['center_x'] = this.sprites['poker_table'].x + info['long_radius'];
       info['center_y'] = this.sprites['poker_table'].y + info['short_radius'];
-      console.log('initializeProperties');
-      console.log(info);
       resolve(info);
     });
   }
@@ -55,8 +51,6 @@ export default class TexasHoldemView extends BaseView {
         'center_y': initialInformation.center_y,
       };
       this.boardView = new BoardView();
-      console.log('initializeBordView');
-      console.log(properties);
       resolve(this.boardView.initialize(sprites, labels, properties));
     }).then(()=>{
       return Promise.resolve(initialInformation);
@@ -103,8 +97,6 @@ export default class TexasHoldemView extends BaseView {
           'center_x': initialInformation.center_x,
           'center_y': initialInformation.center_y,
         };
-        console.log('initializePlayerViews');
-        console.log(properties);
         let playerView;
         if (player.id === Conf.data.player.id) {
           sprites['bet_bar'] = this.sprites['bet_bar'];
@@ -112,7 +104,7 @@ export default class TexasHoldemView extends BaseView {
           sprites['fold'] = this.sprites['fold'];
           sprites['call'] = this.sprites['call'];
           sprites['raise'] = this.sprites['raise'];
-          labels['bet_value'] = new Label('0 Bet');
+          sprites['forbbiden_icon'] = SpriteFactory.getClone(this.sprites['forbbiden_icon']);
           playerView = new MyPlayerView();
         } else {
           playerView = new AiPlayerView();
@@ -127,16 +119,6 @@ export default class TexasHoldemView extends BaseView {
     }).then(()=>{
       return Promise.resolve(initialInformation);
     })
-  }
-
-  initializeSpriteEvents() {
-    return new Promise((resolve, reject) => {
-      this.boardView.registerEntityEvent();
-      this.playerViews.forEach(playerView => {
-        playerView.registerEntityEvent();
-      });
-      resolve();
-    });
   }
 
   showFirst() {

@@ -13,16 +13,15 @@ export default class ObjectView {
       Object.keys(labels).forEach(key => {
         this.labels[key] = labels[key];
       });
+      return Promise.resolve();
     }).then(() => {
-      this.initializeElements(elements);
+      return this.initializeElements(elements);
     });
   }
 
   initializeElements(elements) {
     return Promise.resolve();
   }
-
-  registerEntityEvent() {}
 
   addSprite(key, sprite) {
     this.sprites[key] = sprite;

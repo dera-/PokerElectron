@@ -70,7 +70,6 @@ export default class PokerLearnModel {
   updateQValuesForOnePhase(value, history) {
     let nextQValue = null;
     history.forEach((qValue) => {
-      //console.log(qValue);
       if (nextQValue === null) {
         qValue.updatedScore(value, 0);
       } else {
@@ -144,7 +143,11 @@ export default class PokerLearnModel {
     } else if (machineAction.id === CHECK_NUM) {
       return new ActionModel(ACTION_CHECK, ActionUtil.getNoBetValue(myAction));
     } else if (machineAction.id === CALL_NUM) {
-      return new ActionModel(ACTION_CALL, callValue);
+      if (callValue >= player.getStack()) {
+        return new ActionModel(ACTION_ALLIN, player.getStack());
+      } else {
+        return new ActionModel(ACTION_CALL, callValue);
+      }
     } else if (machineAction.id === ALLIN_NUM) {
       return new ActionModel(ACTION_ALLIN, player.getStack());
     }

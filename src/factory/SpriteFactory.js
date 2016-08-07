@@ -14,6 +14,18 @@ export default class SpriteFactory {
     });
   }
 
+  static generateRect(x, y, width, height, fillStyle) {
+    return new Promise((resolve, reject)=>{
+      const sprite = new Sprite(width, height);
+      const surface = new Surface(width, height);
+      surface.context.beginPath();
+      surface.context.fillStyle = fillStyle;
+      surface.context.fillRect(x, y, width, height);
+      sprite.image = surface;
+      resolve(sprite);
+    })
+  }
+
   static getClone(sprite) {
     const cloneSprite = new Sprite(sprite.width, sprite.height);
     cloneSprite.x = sprite.x;
