@@ -53,7 +53,9 @@ export default class TexasHoldemScene extends BaseScene {
       // フェーズ開始
       const openedCards = this.service.startPhase();
       this.view.setCardsDraw(openedCards);
-      this.pushStatuses([TexasHoldemStatus.STATUS_NEXT_PLAYER/*, BaseStatus.STATUS_DRAWING*/]);
+      this.view.setPhaseInformation(this.service.getPhaseString());
+      this.view.setSubInformation('');
+      this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_NEXT_PLAYER);
     } else if (status === TexasHoldemStatus.STATUS_PLAYER_DESIDE) {
       // プレイヤーアクション決定時
       const player = this.service.getCurrentPlayer()
@@ -66,19 +68,16 @@ export default class TexasHoldemScene extends BaseScene {
       this.view.resetOneAction();
       this.pushStatuses([TexasHoldemStatus.STATUS_NEXT_PLAYER/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_AI_THINKING) {
-      // AIアクション時
-      setTimeout(() => {
-        this.service.decideCurrentPlayerAction();
-        const player = this.service.getCurrentPlayer()
-        const action = this.service.getCurrentPlayerAction();
-        this.view.actionDraw(player.id, action);
-        if (action.name === TexasHoldemAction.FOLD) {
-          this.view.foldDraw(player.id);
-        } else {
-          this.view.setCallValue(action.value);
-        }
-        this.service.nextActionPlayer();
-      }, 0);
+      this.service.decideCurrentPlayerAction();
+      const player = this.service.getCurrentPlayer()
+      const action = this.service.getCurrentPlayerAction();
+      this.view.actionDraw(player.id, action);
+      if (action.name === TexasHoldemAction.FOLD) {
+        this.view.foldDraw(player.id);
+      } else {
+        this.view.setCallValue(action.value);
+      }
+      this.service.nextActionPlayer();
       this.pushStatuses([TexasHoldemStatus.STATUS_NEXT_PLAYER/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_NEXT_PLAYER) {
       this.service.decideCurrentPlayer();
@@ -86,8 +85,10 @@ export default class TexasHoldemScene extends BaseScene {
       if (this.service.isEndCurrentPhase()) {
           this.pushStatus(TexasHoldemStatus.STATUS_NEXT_PHASE);
       } else if (this.service.isAiAction()) {
+        this.view.setSubInformation('AIのターンです');
         this.pushStatus(TexasHoldemStatus.STATUS_AI_THINKING);
       } else {
+        this.view.setSubInformation('あなたのターンです');
         this.view.resetOneAction();
         this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_THINKING);
       }
@@ -128,8 +129,13 @@ export default class TexasHoldemScene extends BaseScene {
       if (this.service.isFinished()) {
         this.pushStatus(TexasHoldemStatus.STATUS_GAME_END);
       } else {
-        this.pushStatus(TexasHoldemStatus.STATUS_WAIT_NEXT_GAME);
+        this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_WAIT_NEXT_GAME, 2000);
       }
+    } else if (status === TexasHoldemStatus.STATUS_WAIT_NEXT_GAME) {
+      this.service.reset();
+      this.view.oneGameDrawErase();
+      this.view.resetBoard();
+      this.pushStatus(TexasHoldemStatus.STATUS_GAME_CONTINUE);
     } else if (status === TexasHoldemStatus.STATUS_GAME_END) {
       // 勝負が決まった時
       // TODO: 後で実装する
@@ -142,24 +148,28 @@ export default class TexasHoldemScene extends BaseScene {
   }
 
   isStopStateTransition(status) {
-    const targetStatuses = [BaseStatus.STATUS_DRAWING, BaseStatus.STATUS_NONE, TexasHoldemStatus.STATUS_PLAYER_THINKING, TexasHoldemStatus.STATUS_WAIT_NEXT_GAME];
+    const targetStatuses = [BaseStatus.STATUS_DRAWING, BaseStatus.STATUS_NONE, BaseStatus.STATUS_WAITING, TexasHoldemStatus.STATUS_PLAYER_THINKING];
     return targetStatuses.some(target => status === target);
+  }
+
+  changeStatusByAutomaticTiming(nextStatus, time = 500) {
+    this.pushStatuses([nextStatus, BaseStatus.STATUS_WAITING]);
+    setTimeout(() => {
+      if (this.getCurrentStatus() === BaseStatus.STATUS_WAITING) {
+        this.popStatus();
+      }
+    }, time);
   }
 
   touchEndEvent() {
     const action = this.view.getCurrentAction();
     const status = this.getCurrentStatus();
-    if (status === TexasHoldemStatus.STATUS_PLAYER_THINKING && action !== BaseAction.ACTION_NONE) {
+    if (status === BaseStatus.STATUS_WAITING) {
+      this.popStatus();
+    } else if (status === TexasHoldemStatus.STATUS_PLAYER_THINKING && action !== BaseAction.ACTION_NONE) {
       this.service.setCurrentPlayerAction(action, this.view.getCurrentBetValue());
       this.popStatus();
       this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_DESIDE);
-    } else if (status === TexasHoldemStatus.STATUS_WAIT_NEXT_GAME) {
-      console.log('wait wait wait');
-      this.service.reset();
-      this.view.oneGameDrawErase();
-      this.view.resetBoard();
-      this.popStatus();
-      this.pushStatus(TexasHoldemStatus.STATUS_GAME_CONTINUE);
     }
   }
 }

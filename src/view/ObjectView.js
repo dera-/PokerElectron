@@ -86,4 +86,27 @@ export default class ObjectView {
     }
     SceneRepository.removeEntityFromCurrentScene('label_' + key);
   }
+
+  // spriteを整形
+  initializeSprite(key, x, y) {
+    if (false === this.sprites.hasOwnProperty(key)) {
+      return;
+    }
+    this.sprites[key].x = x;
+    this.sprites[key].y = y;
+  }
+
+  // labelを整形
+  initializeLabel(key, x, y, font = null, color = null) {
+    if (false === this.labels.hasOwnProperty(key)) {
+      return;
+    }
+    this.labels[key].moveTo(x, y);
+    if (font !== null) {
+      this.labels[key].font = font;
+    }
+    if (color !== null) {
+      this.labels[key].color = color;
+    }
+  }
 }

@@ -6,6 +6,7 @@ import * as TexasHoldemAction from '../../const/game/TexasHoldemAction';
 import AiPlayerView from './object/AiPlayerView';
 import BoardView from './object/BoardView';
 import MyPlayerView from './object/MyPlayerView';
+import InformationView from './object/InformationView';
 
 export default class TexasHoldemView extends BaseView {
   initializeTexasHoldemView(players, initialBlind) {
@@ -15,6 +16,8 @@ export default class TexasHoldemView extends BaseView {
       return this.initializeBordView(initialInformation);
     }).then(initialInformation => {
       return this.initializePlayerViews(initialInformation);
+    }).then(initialInformation => {
+      return this.initializeInformationView(initialInformation);
     });
   }
 
@@ -27,10 +30,31 @@ export default class TexasHoldemView extends BaseView {
         'angle_interval': Math.round(360 / playersNum),
         'short_radius': Math.round(this.sprites['poker_table'].height / 2),
         'long_radius': Math.round(this.sprites['poker_table'].width / 2)
-      }
+      };
       info['center_x'] = this.sprites['poker_table'].x + info['long_radius'];
       info['center_y'] = this.sprites['poker_table'].y + info['short_radius'];
       resolve(info);
+    });
+  }
+
+  initializeInformationView(initialInformation) {
+    return new Promise((resolve, reject) => {
+      const labels = {
+        'main_info_rightup': new Label(''),
+        'sub_info_rightup': new Label('')
+      };
+      const properties = {
+        name: 'rightup',
+        x: 0.75 * Conf.main.width,
+        y: 0.08 * Conf.main.height,
+        interval: 0.08 * Conf.main.height,
+        color: 'black',
+        font: '32px sans-serif'
+      };
+      this.informationView = new InformationView();
+      resolve(this.informationView.initialize({}, labels, properties));
+    }).then(()=>{
+      return Promise.resolve(initialInformation);
     });
   }
 
@@ -54,7 +78,7 @@ export default class TexasHoldemView extends BaseView {
       resolve(this.boardView.initialize(sprites, labels, properties));
     }).then(()=>{
       return Promise.resolve(initialInformation);
-    })
+    });
   }
 
   initializePlayerViews(initialInformation) {
@@ -240,6 +264,14 @@ export default class TexasHoldemView extends BaseView {
 
   setPlayerBetValue() {
     this.getMyPlayerView().setPlayerBetValue();
+  }
+
+  setPhaseInformation(phase) {
+    this.informationView.changeMainInfoText('現在のフェーズ：' + phase);
+  }
+
+  setSubInformation(text) {
+    this.informationView.changeSubInfoText(text);
   }
 
   resetOneAction() {

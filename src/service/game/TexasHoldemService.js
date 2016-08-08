@@ -20,7 +20,6 @@ export default class TexasHoldemService extends BaseService {
       this.dealer = new DealerModel(CardsFactory.generate());
       this.board = new BoardModel();
 
-      this.phase = TexasHoldemPhase.PHASE_PRE_FLOP;
       this.bigBlind = initialBlind;
       this.bbIndex = 0;
       this.currentPlayerIndex = 0;
@@ -155,6 +154,8 @@ export default class TexasHoldemService extends BaseService {
     const currentPlayer = this.players[this.currentPlayerIndex];
     const enemyPlayer = this.players[(this.currentPlayerIndex + 1) % this.players.length];
     currentPlayer.decideAction(this.actionPhase, enemyPlayer, this.board, this.currentCallValue);
+    currentPlayer.fixAction(this.bigBlind);
+
   }
 
   getCurrentPlayerAction() {
@@ -311,5 +312,20 @@ export default class TexasHoldemService extends BaseService {
 
   getChipPots() {
     return this.board.getChipPots();
+  }
+
+  getPhaseString() {
+    switch (this.actionPhase) {
+      case TexasHoldemPhase.PHASE_PRE_FLOP:
+        return 'プリフロップ';
+      case TexasHoldemPhase.PHASE_FLOP:
+        return 'フロップ';
+      case TexasHoldemPhase.PHASE_TURN:
+        return 'ターン';
+      case TexasHoldemPhase.PHASE_RIVER:
+        return 'リバー';
+      default:
+        return '';
+    }
   }
 }
