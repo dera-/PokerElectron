@@ -1,8 +1,10 @@
 import ObjectView from '../../ObjectView';
+import Conf from '../../../config/conf.json'
 import ImageRepository from '../../../repository/ImageRepository';
 import * as Position from '../../../const/game/Position';
 import PlayerCardView from './PlayerCardView';
 import RankCardView from './RankCardView';
+import CharacterView from './CharacterView';
 import ActionModel from '../../../model/game/ActionModel';
 import * as TexasHoldemAction from '../../../const/game/TexasHoldemAction';
 
@@ -41,6 +43,31 @@ export default class PlayerView extends ObjectView {
       return this.initializePlayerCardView(elements);
     }).then(()=>{
       return this.initializeRankCardView(elements);
+    }).then(()=>{
+      return this.initializeCharacterView();
+    });
+  }
+
+  initializeCharacterView() {
+    return new Promise((resolve, reject) => {
+      const sprites = {};
+      this.player.characterData.getSpriteData().forEach(data => {
+        sprites[data.sprite_key] = this.sprites[data.sprite_key];
+      });
+      const properties = {
+        'id': this.player.id,
+        'name': this.player.characterData.name,
+        'image': this.player.characterData.image,
+        'x': this.playerCardView.getX() - 0.2 * Conf.main.width,
+        'y': this.playerCardView.getY()
+      };
+      this.characterView = new CharacterView();
+      resolve(this.characterView.initialize(sprites, {}, properties));
+    }).then(()=>{
+      this.player.characterData.getSpriteData().forEach(data => {
+        this.removeSprite(data.sprite_key);
+      });
+      return Promise.resolve();
     })
   }
 
@@ -83,6 +110,7 @@ export default class PlayerView extends ObjectView {
     this.hideSprite('player_bet_chip_' + this.player.id);
     this.playerCardView.showFirst();
     this.hideActionSprites();
+    this.characterView.showFirst();
   }
 
   hideActionSprites() {
@@ -126,6 +154,7 @@ export default class PlayerView extends ObjectView {
       this.labels['player_bet_chip_value_' + id].text = action.value + 'BET';
       this.showSprite(chipSpriteKey);
     }
+    this.hideActionSprites();
     let actionSpriteKey = this.getActionSpriteKey(action.name);
     if (actionSpriteKey !== '') {
       this.showSprite(actionSpriteKey);

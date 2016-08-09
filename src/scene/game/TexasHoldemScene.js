@@ -10,9 +10,9 @@ import FileModel from '../../model/FileModel';
 import * as PlayerDicision from '../../const/game/PlayerDicision';
 
 export default class TexasHoldemScene extends BaseScene {
-  initializeTexasHoldemScene(players, initialBlind) {
+  initializeTexasHoldemScene(players, initialBlind, stageData) {
     return this.initialize(
-      {players: players, initialBlind: initialBlind},
+      {players: players, initialBlind: initialBlind, stageData: stageData},
       {players: players, initialBlind: initialBlind}
     ).then(() => {
       return this;
@@ -29,7 +29,7 @@ export default class TexasHoldemScene extends BaseScene {
   generateViewWithPromise(object = {}) {
     return Promise.resolve(new TexasHoldemView()).then(view => {
       this.view = view;
-      return this.view.initializeTexasHoldemView(object.players, object.initialBlind);
+      return this.view.initializeTexasHoldemView(object.players, object.initialBlind, object.stageData);
     });
   }
 
@@ -71,7 +71,7 @@ export default class TexasHoldemScene extends BaseScene {
       }
       this.service.nextActionPlayer();
       this.view.resetOneAction();
-      this.pushStatuses([TexasHoldemStatus.STATUS_NEXT_PLAYER/*, BaseStatus.STATUS_DRAWING*/]);
+      this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_NEXT_PLAYER, 1000);
     } else if (status === TexasHoldemStatus.STATUS_AI_THINKING) {
       this.service.decideCurrentPlayerAction();
       const player = this.service.getCurrentPlayer()
@@ -83,7 +83,7 @@ export default class TexasHoldemScene extends BaseScene {
         this.view.setCallValue(action.value);
       }
       this.service.nextActionPlayer();
-      this.pushStatuses([TexasHoldemStatus.STATUS_NEXT_PLAYER/*, BaseStatus.STATUS_DRAWING*/]);
+      this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_NEXT_PLAYER, 1000);
     } else if (status === TexasHoldemStatus.STATUS_NEXT_PLAYER) {
       this.service.decideCurrentPlayer();
       // 次のフェーズに移るもしくは1プレイ完了

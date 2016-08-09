@@ -9,10 +9,14 @@ import MyPlayerView from './object/MyPlayerView';
 import InformationView from './object/InformationView';
 import SelectWindowView from './object/SelectWindowView';
 import * as PlayerDicision from '../../const/game/PlayerDicision';
+import SceneRepository from '../../repository/SceneRepository';
 
 export default class TexasHoldemView extends BaseView {
-  initializeTexasHoldemView(players, initialBlind) {
-    return this.initialize(SpritesConf.images).then(()=>{
+  initializeTexasHoldemView(players, initialBlind, stageData) {
+    return this.initialize(this.getImages(SpritesConf.images, players)).then(() => {
+      return SpriteFactory.generateWithPromise(0, 0, stageData.back_ground);
+    }).then((backGroundSprite)=>{
+      this.sprites['back_ground'] = backGroundSprite;
       return this.initializeProperties(players, initialBlind);
     }).then(initialInformation => {
       return this.initializeBordView(initialInformation);
@@ -23,6 +27,16 @@ export default class TexasHoldemView extends BaseView {
     }).then(initialInformation =>{
       return this.initializeSelectWindowViews(initialInformation);
     });
+  }
+
+
+  getImages(images, players) {
+    players.forEach(player => {
+      player.characterData.getSpriteData().forEach(data => {
+        images.push({name:data.sprite_key, x:0, y:0, image_path:data.image_path});
+      });
+    });
+    return images;
   }
 
   initializeProperties(players, initialBlind) {
@@ -63,12 +77,10 @@ export default class TexasHoldemView extends BaseView {
         'select_win_2': SpriteFactory.getClone(this.sprites['common_select_button'])
       };
       const labels = {
-        'select_win_1': new Label('続ける'),
+        'select_win_1': new Label('もう一回'),
         'select_win_2': new Label('タイトルへ')
       };
       properties.name = 'win';
-      console.log('winview');
-      console.log(properties);
       this.winView = new SelectWindowView();
       return Promise.resolve(this.winView.initialize(sprites, labels, properties));
     }).then(() => {
@@ -79,13 +91,11 @@ export default class TexasHoldemView extends BaseView {
         'select_lose_2': SpriteFactory.getClone(this.sprites['common_select_button'])
       };
       const labels = {
-        'select_lose_1': new Label('続ける'),
+        'select_lose_1': new Label('もう一回'),
         'select_lose_2': new Label('タイトルへ')
       };
       properties.name = 'lose';
       this.loseView = new SelectWindowView();
-      console.log('loseview');
-      console.log(properties);
       return Promise.resolve(this.loseView.initialize(sprites, labels, properties));
     });
   }
@@ -161,6 +171,9 @@ export default class TexasHoldemView extends BaseView {
         sprites['raise_action' + player.id] = SpriteFactory.getClone(this.sprites['raise_action']);
         sprites['call_action' + player.id] = SpriteFactory.getClone(this.sprites['call_action']);
         sprites['fold_action' + player.id] = SpriteFactory.getClone(this.sprites['fold_action']);
+        sprites['chara_'+player.characterData.name+'_normal'] = this.sprites['chara_'+player.characterData.name+'_normal'];
+        sprites['chara_'+player.characterData.name+'_happy'] = this.sprites['chara_'+player.characterData.name+'_happy'];
+        sprites['chara_'+player.characterData.name+'_sad'] = this.sprites['chara_'+player.characterData.name+'_sad'];
         const labels = {};
         labels['player_name_' + player.id] = new Label('ID：' + player.id);
         labels['player_stack_' + player.id] = new Label('残り：' + player.getStack());
@@ -203,6 +216,8 @@ export default class TexasHoldemView extends BaseView {
   }
 
   showFirst() {
+    // 一旦、背景用のviewは作らない感じで
+    SceneRepository.addEntityToCurrentScene('sprite_back_ground', this.sprites['back_ground']);
     this.boardView.showFirst();
     this.playerViews.forEach(playerView => {
       playerView.showFirst();

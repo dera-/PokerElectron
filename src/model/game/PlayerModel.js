@@ -2,9 +2,10 @@ import CardModel from './CardModel';
 import ActionModel from './ActionModel';
 import RankUtil from '../../util/game/RankUtil';
 import * as Position from '../../const/game/Position';
+import CharacterData from '../data/CharacterData';
 
 export default class PlayerModel {
-  constructor(id, money, seatNumber) {
+  constructor(id, money, seatNumber, characterData) {
     this.id = id;
     this.initialStack = money;
     this.seatNumber = seatNumber;
@@ -12,6 +13,7 @@ export default class PlayerModel {
     this.hand = [];
     this.action = null;
     this.position = Position.OTHER;
+    this.characterData = new CharacterData(characterData);
   }
 
   setAction(name, value) {
