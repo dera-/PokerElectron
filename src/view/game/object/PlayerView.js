@@ -12,24 +12,30 @@ export default class PlayerView extends ObjectView {
       this.player = elements.player;
       this.bigBlind = elements.initial_blind;
       const playerId = this.player.id;
-      this.sprites['player_bet_chip_' + playerId].x =
-        elements.center_x + 0.9 * elements.long_radius * Math.cos(elements.angle * Math.PI / 180);
-      this.sprites['player_bet_chip_' + playerId].y =
-        elements.center_y + 0.9 * elements.short_radius * Math.sin(elements.angle * Math.PI / 180);
+      this.initializeSprite(
+        'player_bet_chip_' + playerId,
+        elements.center_x + 0.9 * elements.long_radius * Math.cos(elements.angle * Math.PI / 180),
+        elements.center_y + 0.9 * elements.short_radius * Math.sin(elements.angle * Math.PI / 180)
+      );
       if (elements.center_y < this.sprites['player_bet_chip_' + playerId].y) {
           this.sprites['player_bet_chip_' + playerId].y -= this.sprites['player_bet_chip_' + playerId].height;
       }
-      this.labels['player_bet_chip_value_' + playerId].moveTo(
-        elements.center_x + 0.7 * elements.long_radius * Math.cos((elements.angle + 10) * Math.PI / 180),
-        elements.center_y + 0.7 * elements.short_radius * Math.sin((elements.angle + 10) * Math.PI / 180)
+      const actionKeys = ['allin_action', 'raise_action', 'call_action', 'fold_action'];
+      actionKeys.forEach(key => {
+        this.initializeSprite(
+          key + playerId,
+          elements.x_place + 1.05 * this.sprites['player_card_' + playerId].width,
+          elements.y_place + 0.25 * this.sprites['player_card_' + playerId].height
+        );
+      });
+      this.initializeLabel(
+        'player_bet_chip_value_' + playerId,
+        elements.x_place + 1.05 * this.sprites['player_card_' + playerId].width,
+        elements.y_place,
+        '36px sans-serif',
+        'black'
       );
-      this.labels['player_bet_chip_value_' + playerId].color = 'white';
-      this.labels['player_bet_chip_value_' + playerId].font = '14px sans-serif';
-      this.labels['pot_get_message_' + playerId].moveTo(
-        elements.x_place,
-        this.sprites['player_bet_chip_' + playerId].y
-      );
-      this.labels['pot_get_message_' + playerId].font = '32px sans-serif';
+      this.initializeLabel('pot_get_message_' + playerId, elements.x_place, this.sprites['player_bet_chip_' + playerId].y, '32px sans-serif');
       resolve();
     }).then(()=>{
       return this.initializePlayerCardView(elements);
@@ -76,6 +82,14 @@ export default class PlayerView extends ObjectView {
     this.showAll();
     this.hideSprite('player_bet_chip_' + this.player.id);
     this.playerCardView.showFirst();
+    this.hideActionSprites();
+  }
+
+  hideActionSprites() {
+    this.hideSprite('allin_action' + this.player.id);
+    this.hideSprite('raise_action' + this.player.id);
+    this.hideSprite('call_action' + this.player.id);
+    this.hideSprite('fold_action' + this.player.id);
   }
 
   handDraw(cardSprites) {
@@ -109,10 +123,30 @@ export default class PlayerView extends ObjectView {
     this.playerCardView.changeStackText(restStack);
     if (action.value > 0) {
       const chipSpriteKey = 'player_bet_chip_' + id;
-      this.labels['player_bet_chip_value_' + id].text = action.name + '：' + action.value;
+      this.labels['player_bet_chip_value_' + id].text = action.value + 'BET';
       this.showSprite(chipSpriteKey);
-    } else {
-      this.labels['player_bet_chip_value_' + id].text = action.name;
+    }
+    let actionSpriteKey = this.getActionSpriteKey(action.name);
+    if (actionSpriteKey !== '') {
+      this.showSprite(actionSpriteKey);
+      this.sprites[actionSpriteKey].tl.fadeIn(120);
+    }
+  }
+
+  getActionSpriteKey(actionName) {
+    switch(actionName) {
+      case TexasHoldemAction.ACTION_ALLIN:
+        return 'allin_action' + this.player.id;
+      case TexasHoldemAction.ACTION_RAISE:
+        return 'raise_action' + this.player.id;
+      case TexasHoldemAction.ACTION_CALL:
+        return 'call_action' + this.player.id;
+      case TexasHoldemAction.ACTION_CHECK:
+        return 'call_action' + this.player.id;
+      case TexasHoldemAction.ACTION_FOLD:
+        return 'fold_action' + this.player.id;
+      default:
+        return '';
     }
   }
 
@@ -126,9 +160,7 @@ export default class PlayerView extends ObjectView {
 
   showDownDraw() {
     const cards = this.player.getCards();
-    console.log('showDownDrawshowDownDrawshowDownDrawshowDownDrawshowDownDrawshowDownDrawshowDownDrawshowDownDraw')
     if (cards.length === 2) {
-      console.log('ショーダウン');
       this.sprites['player_id_' + this.player.id + '_num0'].image = ImageRepository.getImage('trump/' + cards[0].getCardImageName());
       this.sprites['player_id_' + this.player.id + '_num1'].image = ImageRepository.getImage('trump/' + cards[1].getCardImageName());
     }
@@ -166,6 +198,7 @@ export default class PlayerView extends ObjectView {
     this.playerCardView.changeStackText(this.player.getStack());
     this.labels['player_bet_chip_value_' + this.player.id].text = '';
     this.hideSprite('player_bet_chip_' + this.player.id);
+    this.hideActionSprites();
   }
 
   oneGameDrawErase() {

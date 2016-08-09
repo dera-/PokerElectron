@@ -5,6 +5,7 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
   constructor(id, money, seatNumber) {
     super(id, money, seatNumber);
     this.pokerLearnModel = new PokerLearnModel(money);
+    this.foldHand = [];
   }
 
   // override
@@ -13,13 +14,26 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
   }
 
   learn(chip, isLoose) {
+    console.log('普通に学習');
     this.pokerLearnModel.updateQValues(chip, isLoose);
     this.pokerLearnModel.deleteHistories();
   }
 
   learnWhenFold(actionPhase, chip, isLoose) {
+    console.log('fold時学習');
     this.pokerLearnModel.updateQValue(actionPhase, chip, isLoose);
     this.pokerLearnModel.deleteHistories();
+  }
+
+  setFoldHand() {
+    this.foldHand = [];
+    this.hand.forEach(card=>{
+      this.foldHand.push(card);
+    })
+  }
+
+  getFoldHand() {
+    return this.foldHand;
   }
 
   save() {

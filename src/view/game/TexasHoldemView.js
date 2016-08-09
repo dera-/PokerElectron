@@ -7,6 +7,8 @@ import AiPlayerView from './object/AiPlayerView';
 import BoardView from './object/BoardView';
 import MyPlayerView from './object/MyPlayerView';
 import InformationView from './object/InformationView';
+import SelectWindowView from './object/SelectWindowView';
+import * as PlayerDicision from '../../const/game/PlayerDicision';
 
 export default class TexasHoldemView extends BaseView {
   initializeTexasHoldemView(players, initialBlind) {
@@ -18,6 +20,8 @@ export default class TexasHoldemView extends BaseView {
       return this.initializePlayerViews(initialInformation);
     }).then(initialInformation => {
       return this.initializeInformationView(initialInformation);
+    }).then(initialInformation =>{
+      return this.initializeSelectWindowViews(initialInformation);
     });
   }
 
@@ -37,6 +41,55 @@ export default class TexasHoldemView extends BaseView {
     });
   }
 
+  initializeSelectWindowViews(initialInformation) {
+    let properties;
+    return new Promise((resolve, reject) => {
+      properties = {
+        choices: [PlayerDicision.REPLAY, PlayerDicision.TITLE],
+        x: 0.28 * Conf.main.width,
+        y: 0.65 * Conf.main.height,
+        inner_x_interval: 0.05 * this.sprites['common_select_button'].width,
+        inner_y_interval: 0.2 * this.sprites['common_select_button'].height,
+        outer_interval: 0.23 * Conf.main.width,
+        font: '28px sans-serif',
+        color: 'white'
+      };
+      resolve();
+    }).then(() => {
+      const sprites = {
+        'win_back': SpriteFactory.getRect(0, 0, Conf.main.width, Conf.main.height, "rgba(0, 0, 0, 0.75)"),
+        'win_icon': this.sprites['win_icon'],
+        'select_win_1': SpriteFactory.getClone(this.sprites['common_select_button']),
+        'select_win_2': SpriteFactory.getClone(this.sprites['common_select_button'])
+      };
+      const labels = {
+        'select_win_1': new Label('続ける'),
+        'select_win_2': new Label('タイトルへ')
+      };
+      properties.name = 'win';
+      console.log('winview');
+      console.log(properties);
+      this.winView = new SelectWindowView();
+      return Promise.resolve(this.winView.initialize(sprites, labels, properties));
+    }).then(() => {
+      const sprites = {
+        'lose_back': SpriteFactory.getRect(0, 0, Conf.main.width, Conf.main.height, "rgba(0, 0, 0, 0.75)"),
+        'lose_icon': this.sprites['lose_icon'],
+        'select_lose_1': SpriteFactory.getClone(this.sprites['common_select_button']),
+        'select_lose_2': SpriteFactory.getClone(this.sprites['common_select_button'])
+      };
+      const labels = {
+        'select_lose_1': new Label('続ける'),
+        'select_lose_2': new Label('タイトルへ')
+      };
+      properties.name = 'lose';
+      this.loseView = new SelectWindowView();
+      console.log('loseview');
+      console.log(properties);
+      return Promise.resolve(this.loseView.initialize(sprites, labels, properties));
+    });
+  }
+
   initializeInformationView(initialInformation) {
     return new Promise((resolve, reject) => {
       const labels = {
@@ -45,11 +98,11 @@ export default class TexasHoldemView extends BaseView {
       };
       const properties = {
         name: 'rightup',
-        x: 0.75 * Conf.main.width,
-        y: 0.08 * Conf.main.height,
-        interval: 0.08 * Conf.main.height,
+        x: 0.6 * Conf.main.width,
+        y: 0.05 * Conf.main.height,
+        interval: 0.04 * Conf.main.height,
         color: 'black',
-        font: '32px sans-serif'
+        font: '28px sans-serif'
       };
       this.informationView = new InformationView();
       resolve(this.informationView.initialize({}, labels, properties));
@@ -104,6 +157,10 @@ export default class TexasHoldemView extends BaseView {
         sprites['player_card_' + player.id] = cardSprite;
         sprites['player_bet_chip_' + player.id] = chipSprite;
         sprites['rank_card' + player.id] = rankCardSprite;
+        sprites['allin_action' + player.id] = SpriteFactory.getClone(this.sprites['allin_action']);
+        sprites['raise_action' + player.id] = SpriteFactory.getClone(this.sprites['raise_action']);
+        sprites['call_action' + player.id] = SpriteFactory.getClone(this.sprites['call_action']);
+        sprites['fold_action' + player.id] = SpriteFactory.getClone(this.sprites['fold_action']);
         const labels = {};
         labels['player_name_' + player.id] = new Label('ID：' + player.id);
         labels['player_stack_' + player.id] = new Label('残り：' + player.getStack());
@@ -150,6 +207,7 @@ export default class TexasHoldemView extends BaseView {
     this.playerViews.forEach(playerView => {
       playerView.showFirst();
     });
+    this.informationView.showFirst();
   }
 
   // ディーラーポジションを決める描画
@@ -231,6 +289,27 @@ export default class TexasHoldemView extends BaseView {
     });
   }
 
+  // 最終的に買ったか負けたかの表示
+  gameResultDraw(isWin) {
+    if (isWin) {
+      this.currentSelectWindow = this.winView;
+    } else {
+      this.currentSelectWindow = this.loseView;
+    }
+    this.currentSelectWindow.showFirst();
+  }
+
+  getPlayerDicision() {
+    const playerChoice = this.currentSelectWindow.getCurrentChoice();
+    this.currentSelectWindow.resetCurrentChoice();
+    return playerChoice;
+  }
+
+  hideSelectWindow() {
+    this.currentSelectWindow.hideAll();
+    this.currentSelectWindow = null;
+  }
+
   // チップ変動
   shareChips() {
     this.potDraw(0);
@@ -267,7 +346,7 @@ export default class TexasHoldemView extends BaseView {
   }
 
   setPhaseInformation(phase) {
-    this.informationView.changeMainInfoText('現在のフェーズ：' + phase);
+    this.informationView.changeMainInfoText('現フェーズ：' + phase);
   }
 
   setSubInformation(text) {

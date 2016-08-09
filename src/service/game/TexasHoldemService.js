@@ -3,6 +3,7 @@ import * as TexasHoldemPhase from '../../const/game/TexasHoldemPhase';
 import * as TexasHoldemAction from '../../const/game/TexasHoldemAction';
 import PlayerModel from '../../model/game/PlayerModel';
 import AiPlayerModel from '../../model/game/AiPlayerModel';
+import MachineLearnPlayerModel from '../../model/game/MachineLearnPlayerModel';
 import DealerModel from '../../model/game/DealerModel';
 import BoardModel from '../../model/game/BoardModel';
 import RankUtil from '../../util/game/RankUtil'
@@ -15,8 +16,9 @@ const FROP_CARDS_NUM = 3;
 export default class TexasHoldemService extends BaseService {
 
   initializeTexasHoldemService(players, initialBlind) {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
       this.players = players;
+      this.copyPlayers = this.players.map(player => player);
       this.dealer = new DealerModel(CardsFactory.generate());
       this.board = new BoardModel();
 
@@ -42,9 +44,13 @@ export default class TexasHoldemService extends BaseService {
    * TODO: ヘッズアップならこれでいいけど、３人以上のゲームだと次にアクションが始まる位置がおかしなことになるので要修正
    */
   deleteDeadPlayer() {
-    this.players = this.players.filter((player) => {
+    this.players = this.players.filter(player => {
       return player.hasChip();
     });
+  }
+
+  isSurvive(id) {
+    return this.players.some(player => player.id === id);
   }
 
   reset() {
@@ -155,7 +161,9 @@ export default class TexasHoldemService extends BaseService {
     const enemyPlayer = this.players[(this.currentPlayerIndex + 1) % this.players.length];
     currentPlayer.decideAction(this.actionPhase, enemyPlayer, this.board, this.currentCallValue);
     currentPlayer.fixAction(this.bigBlind);
-
+    if (currentPlayer instanceof MachineLearnPlayerModel) {
+      currentPlayer.setFoldHand();
+    }
   }
 
   getCurrentPlayerAction() {
@@ -301,9 +309,36 @@ export default class TexasHoldemService extends BaseService {
     });
   }
 
-  isWin(playerHand, targetHand) {
-    let boardCards = this.board.getOpenedCards();
-    return RankUtil.compareRanks(RankUtil.getRank(playerHand, boardCards), RankUtil.getRank(targetHand, boardCards)) !== -1;
+  learnForLearnAi() {
+    this.players.forEach(player => {
+      if (player instanceof MachineLearnPlayerModel) {
+        const action = player.getAction();
+        if (action !== null && action.name === TexasHoldemAction.ACTION_FOLD) {
+          player.learnWhenFold(this.actionPhase, this.board.getPotValue(), this.isWinByHand(player.id));
+        } else {
+          player.learn(this.board.getPotValue(), false === this.isWinByResult(player.id));
+        }
+      }
+    });
+  }
+
+  isWinByResult(playerId) {
+    return this.getWinners().some(player => player.id === playerId);
+  }
+
+  isWinByHand(playerId) {
+    const boardCards = this.board.getOpenedCards();
+    const targetPlayer = this.getPlayer(playerId);
+    return false === this.getWinners().some(player => RankUtil.compareRanks(RankUtil.getRank(targetPlayer.getFoldHand(), boardCards), player.getRank(boardCards)) === -1);
+  }
+
+  reStart() {
+    this.reset();
+    this.players = [];
+    this.copyPlayers.forEach(player => {
+      player.resetAll();
+      this.players.push(player);
+    });
   }
 
   getBigBlindValue() {

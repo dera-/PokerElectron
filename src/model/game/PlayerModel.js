@@ -6,8 +6,9 @@ import * as Position from '../../const/game/Position';
 export default class PlayerModel {
   constructor(id, money, seatNumber) {
     this.id = id;
-    this.stack = money;
+    this.initialStack = money;
     this.seatNumber = seatNumber;
+    this.stack = money;
     this.hand = [];
     this.action = null;
     this.position = Position.OTHER;
@@ -79,5 +80,16 @@ export default class PlayerModel {
 
   getSeatNumber() {
     return this.seatNumber;
+  }
+
+  changeInitialiStack(stack) {
+    this.initialStack = stack;
+  }
+
+  resetAll() {
+    this.stack = this.initialStack;
+    this.hand = [];
+    this.action = null;
+    this.position = Position.OTHER;
   }
 }

@@ -14,16 +14,14 @@ export default class SpriteFactory {
     });
   }
 
-  static generateRect(x, y, width, height, fillStyle) {
-    return new Promise((resolve, reject)=>{
-      const sprite = new Sprite(width, height);
-      const surface = new Surface(width, height);
-      surface.context.beginPath();
-      surface.context.fillStyle = fillStyle;
-      surface.context.fillRect(x, y, width, height);
-      sprite.image = surface;
-      resolve(sprite);
-    })
+  static getRect(x, y, width, height, fillStyle) {
+    const sprite = new Sprite(width, height);
+    const surface = new Surface(width, height);
+    surface.context.beginPath();
+    surface.context.fillStyle = fillStyle;
+    surface.context.fillRect(x, y, width, height);
+    sprite.image = surface;
+    return sprite;
   }
 
   static getClone(sprite) {

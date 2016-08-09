@@ -1,5 +1,5 @@
 import PlayerModel from './PlayerModel';
-import TexasHoldemAction from '../../const/game/TexasHoldemAction';
+import * as TexasHoldemAction from '../../const/game/TexasHoldemAction';
 
 export default class AiPlayerModel extends PlayerModel {
   decideAction(actionPhase, enemyPlayerModel, boardModel, callValue) {}

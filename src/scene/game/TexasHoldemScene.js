@@ -1,3 +1,4 @@
+import Conf from '../../config/conf.json';
 import BaseScene from '../BaseScene';
 import * as BaseStatus from '../../const/BaseStatus';
 import * as TexasHoldemStatus from '../../const/game/TexasHoldemStatus';
@@ -6,10 +7,14 @@ import * as BaseAction from '../../const/BaseAction';
 import TexasHoldemService from '../../service/game/TexasHoldemService';
 import TexasHoldemView from '../../view/game/TexasHoldemView';
 import FileModel from '../../model/FileModel';
+import * as PlayerDicision from '../../const/game/PlayerDicision';
 
 export default class TexasHoldemScene extends BaseScene {
   initializeTexasHoldemScene(players, initialBlind) {
-    return this.initialize({players: players, initialBlind: initialBlind}).then(() => {
+    return this.initialize(
+      {players: players, initialBlind: initialBlind},
+      {players: players, initialBlind: initialBlind}
+    ).then(() => {
       return this;
     });
   }
@@ -85,16 +90,17 @@ export default class TexasHoldemScene extends BaseScene {
       if (this.service.isEndCurrentPhase()) {
           this.pushStatus(TexasHoldemStatus.STATUS_NEXT_PHASE);
       } else if (this.service.isAiAction()) {
-        this.view.setSubInformation('AIのターンです');
+        this.view.setSubInformation('AIのアクションです');
         this.pushStatus(TexasHoldemStatus.STATUS_AI_THINKING);
       } else {
-        this.view.setSubInformation('あなたのターンです');
+        this.view.setSubInformation('あなたのアクションです');
         this.view.resetOneAction();
         this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_THINKING);
       }
     } else if (status === TexasHoldemStatus.STATUS_NEXT_PHASE) {
       // 次のフェーズへ移行
-      this.service.collectChipsToPod()
+      this.service.collectChipsToPod();
+      this.view.setSubInformation('');
       this.view.actionDrawErase();
       this.view.potDraw(this.service.board.getPotValue());
       this.view.resetOnePhase();
@@ -111,7 +117,7 @@ export default class TexasHoldemScene extends BaseScene {
       // リバーまで行ってショーダウンする場合
       const openedCards = this.service.showdown();
       this.service.sharePodToWinners(this.service.getWinners());
-      this.service.resetPlayersAction();
+      this.view.setPhaseInformation('ショーダウン');
       this.view.ranksDraw(this.service.getPlayerRanks());
       this.view.showDownDraw();
       this.view.setCardsDraw(openedCards);
@@ -119,16 +125,21 @@ export default class TexasHoldemScene extends BaseScene {
       this.pushStatuses([TexasHoldemStatus.STATUS_JUDGE_CONTINUE_GAME/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_FOLD_END) {
       // ショーダウンせずに勝負が決まる場合
+      this.view.setPhaseInformation('フォールドエンド');
       this.service.sharePodToWinners(this.service.getWinners());
-      this.service.resetPlayersAction();
       this.view.shareChips();
       this.pushStatuses([TexasHoldemStatus.STATUS_JUDGE_CONTINUE_GAME/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_JUDGE_CONTINUE_GAME) {
+      this.service.learnForLearnAi();
+      this.service.resetPlayersAction();
       this.view.resultDraw(this.service.getChipPots());
       this.service.deleteDeadPlayer();
       if (this.service.isFinished()) {
+        this.view.setPhaseInformation('ゲーム終了');
+        this.view.gameResultDraw(this.service.isSurvive(Conf.data.player.id))
         this.pushStatus(TexasHoldemStatus.STATUS_GAME_END);
       } else {
+        this.view.setPhaseInformation('次ゲーム移行中...');
         this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_WAIT_NEXT_GAME, 2000);
       }
     } else if (status === TexasHoldemStatus.STATUS_WAIT_NEXT_GAME) {
@@ -136,19 +147,11 @@ export default class TexasHoldemScene extends BaseScene {
       this.view.oneGameDrawErase();
       this.view.resetBoard();
       this.pushStatus(TexasHoldemStatus.STATUS_GAME_CONTINUE);
-    } else if (status === TexasHoldemStatus.STATUS_GAME_END) {
-      // 勝負が決まった時
-      // TODO: 後で実装する
-      //const fileModel = new FileModel('sample.txt');
-      //fileModel.open();
-      //fileModel.writeOneLine("test_desu");
-      //fileModel.close();
-      console.log('game_end');
     }
   }
 
   isStopStateTransition(status) {
-    const targetStatuses = [BaseStatus.STATUS_DRAWING, BaseStatus.STATUS_NONE, BaseStatus.STATUS_WAITING, TexasHoldemStatus.STATUS_PLAYER_THINKING];
+    const targetStatuses = [BaseStatus.STATUS_DRAWING, BaseStatus.STATUS_NONE, BaseStatus.STATUS_WAITING, TexasHoldemStatus.STATUS_PLAYER_THINKING, TexasHoldemStatus.STATUS_GAME_END];
     return targetStatuses.some(target => status === target);
   }
 
@@ -170,6 +173,13 @@ export default class TexasHoldemScene extends BaseScene {
       this.service.setCurrentPlayerAction(action, this.view.getCurrentBetValue());
       this.popStatus();
       this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_DESIDE);
+    } else if (status === TexasHoldemStatus.STATUS_GAME_END && this.view.getPlayerDicision() === PlayerDicision.REPLAY) {
+      this.service.reStart();
+      this.view.hideSelectWindow();
+      this.view.oneGameDrawErase();
+      this.view.resetBoard();
+      this.popStatus();
+      this.pushStatus(TexasHoldemStatus.STATUS_GAME_START);
     }
   }
 }

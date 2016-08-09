@@ -3,16 +3,16 @@ import BaseView from '../view/BaseView';
 import * as BaseStatus from '../const/BaseStatus';
 
 export default class BaseScene {
-  initialize(object = {}) {
+  initialize(objectForView = {}, objectForService = {}) {
     return new Promise((resolve, reject) => {
       this.statusQueue = [];
       resolve();
     }).then(()=>{
-      return this.generateViewWithPromise(object);
+      return this.generateViewWithPromise(objectForView);
     }).then(()=>{
-      return this.generateService(object);
+      return this.generateService(objectForService);
     }).then(()=>{
-      return this.generateScene(object);
+      return this.generateScene();
     });
   }
 
