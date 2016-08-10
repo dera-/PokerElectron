@@ -7,9 +7,26 @@ export default class CharacterView extends ObjectView {
     return new Promise((resolve, reject) => {
       this.characterData = elements.characterData;
       this.expression = CharacterExpression.EXPRESSION_NORMAL;
+      this.centerX = elements.center_x;
+      this.centerY = elements.center_y;
+      this.targetPositionX = elements.x;
       Object.keys(this.sprites).forEach(key => {
         this.initializeSprite(key, elements.x, elements.y);
       });
+      this.initializeSprite('serif' + elements.characterData.name, elements.x, elements.y);
+      if (elements.y < elements.center_y) {
+        this.sprites['serif' + elements.characterData.name].y = elements.y + this.sprites[this.characterData.getSpriteKey(this.expression)].height - this.sprites['serif' + elements.characterData.name].height;
+        this.targetPositionY = this.sprites['serif' + elements.characterData.name].y + this.sprites['serif' + elements.characterData.name].height;
+      } else {
+        this.targetPositionY = this.sprites['serif' + elements.characterData.name].y - this.sprites['serif' + elements.characterData.name].height;
+      }
+      this.initializeLabel(
+        'serif' + elements.characterData.name,
+        this.sprites['serif' + elements.characterData.name].x + 0.05 * this.sprites['serif' + elements.characterData.name].width,
+        this.sprites['serif' + elements.characterData.name].y + 0.3 * this.sprites['serif' + elements.characterData.name].height,
+        '28px sans-serif',
+        'black'
+      );
       resolve();
     });
   }
@@ -41,5 +58,28 @@ export default class CharacterView extends ObjectView {
     this.characterData.getSpriteData().forEach(data => {
       this.hideSprite(data.sprite_key);
     });
+  }
+
+  showSerifWhenStudy(isPraise) {
+    let serif;
+    if (isPraise) {
+      this.labels['serif' + this.characterData.name].text = this.characterData.serifs.praise;
+    } else {
+      this.labels['serif' + this.characterData.name].text = this.characterData.serifs.scold;
+    }
+    this.showSprite('serif' + this.characterData.name);
+    this.showLabel('serif' + this.characterData.name);
+    this.sprites['serif' + this.characterData.name].tl.moveTo(this.targetPositionX, this.targetPositionY, 30);
+    this.labels['serif' + this.characterData.name].tl.moveTo(
+      this.targetPositionX + 0.05 * this.sprites['serif' + this.characterData.name].width,
+      this.targetPositionY + 0.3 * this.sprites['serif' + this.characterData.name].height,
+      30
+    );
+  }
+
+  hideSerif() {
+    this.repositExpression();
+    this.hideSprite('serif' + this.characterData.name);
+    this.hideLabel('serif' + this.characterData.name);
   }
 }

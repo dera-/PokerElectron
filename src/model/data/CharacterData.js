@@ -7,7 +7,7 @@ export default class CharacterData {
     this.name = data.name;
     this.image = data.image;
     this.type = data.type;
-    this.serif = data.serif;
+    this.serifs = data.serifs;
   }
 
   getSpriteData() {

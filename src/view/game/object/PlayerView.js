@@ -44,24 +44,30 @@ export default class PlayerView extends ObjectView {
     }).then(()=>{
       return this.initializeRankCardView(elements);
     }).then(()=>{
-      return this.initializeCharacterView();
+      return this.initializeCharacterView(elements);
     });
   }
 
-  initializeCharacterView() {
+  initializeCharacterView(elements) {
     return new Promise((resolve, reject) => {
       const sprites = {};
+      sprites['serif' + this.player.characterData.name] = this.sprites['serif' + this.player.characterData.name];
       this.player.characterData.getSpriteData().forEach(data => {
         sprites[data.sprite_key] = this.sprites[data.sprite_key];
       });
+      const labels = {};
+      labels['serif' + this.player.characterData.name] = new Label('');
       const properties = {
         'characterData': this.player.characterData,
-        'x': this.playerCardView.getX() - 0.2 * Conf.main.width,
-        'y': this.playerCardView.getY()
+        'x': this.playerCardView.getX() - 0.14 * Conf.main.width,
+        'y': this.playerCardView.getY(),
+        'center_x': elements.center_x,
+        'center_y': elements.center_y
       };
       this.characterView = new CharacterView();
-      resolve(this.characterView.initialize(sprites, {}, properties));
+      resolve(this.characterView.initialize(sprites, labels, properties));
     }).then(()=>{
+      this.removeSprite('serif' + this.player.characterData.name);
       this.player.characterData.getSpriteData().forEach(data => {
         this.removeSprite(data.sprite_key);
       });
@@ -223,6 +229,14 @@ export default class PlayerView extends ObjectView {
 
   changeExpressionDraw(isWin) {
     this.characterView.changeExpressionByResult(isWin);
+  }
+
+  studySerifDraw(isPraise) {
+    this.characterView.showSerifWhenStudy(isPraise);
+  }
+
+  studySerifDrawErase() {
+    this.characterView.hideSerif();
   }
 
   actionDrawErase() {

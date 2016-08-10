@@ -31,12 +31,12 @@ export default class StudyView extends ObjectView {
     });
   }
 
-  getStudyStatus() {
-    return this.studyStatus;
+  showFirst() {
+    this.studyStatus = MachineStudy.STUDY_NONE;
+    this.showAll();
   }
 
-  disable() {
-    this.studyStatus = MachineStudy.STUDY_NONE;
-    this.hideAll();
+  getStudyStatus() {
+    return this.studyStatus;
   }
 }

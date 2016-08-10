@@ -95,8 +95,11 @@ export default class TexasHoldemScene extends BaseScene {
       this.view.moveStudyView();
       this.pushStatus(TexasHoldemStatus.STATUS_STUDY);
     } else if (status === TexasHoldemStatus.STATUS_STUDY_RESULT) {
-      console.log('ここでセリフ表示予定');
-      this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_NEXT_PLAYER, 500);
+      this.view.studySerifsDraw(this.view.getCurrentStudyAction() === MachineStudy.STUDY_PRAISE);
+      setTimeout(() => {
+        this.view.studySerifsDrawErase();
+      }, 1200);
+      this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_NEXT_PLAYER, 1200);
     } else if (status === TexasHoldemStatus.STATUS_NEXT_PLAYER) {
       this.service.decideCurrentPlayer();
       // 次のフェーズに移るもしくは1プレイ完了
@@ -195,7 +198,11 @@ export default class TexasHoldemScene extends BaseScene {
       this.service.learnDirect(studyStatus);
       this.view.eraseStudyView();
       this.popStatus();
-      this.pushStatus(TexasHoldemStatus.STATUS_STUDY_RESULT);
+      if (studyStatus === MachineStudy.STUDY_SKIP) {
+        this.pushStatus(TexasHoldemStatus.STATUS_NEXT_PLAYER);
+      } else {
+        this.pushStatus(TexasHoldemStatus.STATUS_STUDY_RESULT);
+      }
     } else if (status === TexasHoldemStatus.STATUS_GAME_END && this.view.getPlayerDicision() === PlayerDicision.REPLAY) {
       this.service.reStart();
       this.view.hideSelectWindow();

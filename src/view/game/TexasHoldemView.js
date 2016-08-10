@@ -190,6 +190,7 @@ export default class TexasHoldemView extends BaseView {
         sprites['raise_action' + player.id] = SpriteFactory.getClone(this.sprites['raise_action']);
         sprites['call_action' + player.id] = SpriteFactory.getClone(this.sprites['call_action']);
         sprites['fold_action' + player.id] = SpriteFactory.getClone(this.sprites['fold_action']);
+        sprites['serif' + player.characterData.name] = SpriteFactory.getClone(this.sprites['serif']);
         player.characterData.getSpriteData().forEach(data => {
           sprites[data.sprite_key] = this.sprites[data.sprite_key];
         });
@@ -356,6 +357,18 @@ export default class TexasHoldemView extends BaseView {
     this.currentSelectWindow = null;
   }
 
+  studySerifsDraw(isPraise) {
+    this.playerViews.forEach(view => {
+      view.studySerifDraw(isPraise);
+    });
+  }
+
+  studySerifsDrawErase() {
+    this.playerViews.forEach(view => {
+      view.studySerifDrawErase();
+    });
+  }
+
   // チップ変動
   shareChips() {
     this.potDraw(0);
@@ -385,11 +398,11 @@ export default class TexasHoldemView extends BaseView {
 
   moveStudyView() {
     this.getMyPlayerView().hidePokerHud();
-    this.studyView.showAll();
+    this.studyView.showFirst();
   }
 
   eraseStudyView() {
-    this.studyView.disable();
+    this.studyView.hideAll();
     this.getMyPlayerView().showPokerHud();
   }
 
