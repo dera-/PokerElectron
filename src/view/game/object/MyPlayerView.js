@@ -156,4 +156,21 @@ export default class MyPlayerView extends PlayerView {
     this.raiseButtonView.showForbiddenIcon();
     this.callButtonView.changeText('チェック');
   }
+
+  hidePokerHud() {
+    this.foldButtonView.hideAll();
+    this.callButtonView.hideAll();
+    this.raiseButtonView.hideAll();
+    this.hideSprite('bet_bar');
+    this.hideSprite('bet_slider');
+  }
+
+  showPokerHud() {
+    this.foldButtonView.showFirst();
+    this.callButtonView.showFirst();
+    this.raiseButtonView.showFirst();
+    this.raiseButtonView.showForbiddenIcon();
+    this.showSprite('bet_bar');
+    this.showSprite('bet_slider');
+  }
 }

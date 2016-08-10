@@ -9,6 +9,7 @@ import BoardModel from '../../model/game/BoardModel';
 import RankUtil from '../../util/game/RankUtil'
 import CardsFactory from '../../factory/game/CardsFactory';
 import * as Position from '../../const/game/Position';
+import * as MachineStudy from '../../const/game/learn/MachineStudy';
 
 const NON_EXIST_PLAYER_INDEX = -1;
 const FROP_CARDS_NUM = 3;
@@ -306,6 +307,23 @@ export default class TexasHoldemService extends BaseService {
     const boardCards = this.board.getOpenedCards();
     return this.players.map(player => {
       return {id: player.id, rank: player.getRank(boardCards)};
+    });
+  }
+
+  learnDirect(studyStatus) {
+    this.players.forEach(player => {
+      if (player instanceof MachineLearnPlayerModel) {
+        const reward = player.getInitialStack();
+        if (studyStatus === MachineStudy.STUDY_PRAISE) {
+          console.log('ほめる');
+          player.learnDirect(reward);
+        } else if (studyStatus === MachineStudy.STUDY_SCOLD) {
+          console.log('しかる');
+          player.learnDirect(-1 * reward);
+        } else {
+          console.log('何もしない');
+        }
+      }
     });
   }
 

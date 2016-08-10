@@ -4,6 +4,7 @@ import PlayerModel from '../../model/game/PlayerModel';
 import MachineLearnPlayerModel from '../../model/game/MachineLearnPlayerModel';
 import CharacterConfig from '../../config/data/character.json';
 import StageConfig from '../../config/data/stage.json';
+import * as GameMode from '../../const/game/GameMode'
 
 export default class TexasHoldemSceneFactory {
   static generateWithPromise(playerData, enemyData, initialBlind) {
@@ -14,7 +15,8 @@ export default class TexasHoldemSceneFactory {
           new MachineLearnPlayerModel(enemyData.id, enemyData.stack, 1, CharacterConfig.data.ai)
         ],
         initialBlind,
-        StageConfig.data.casino
+        StageConfig.data.casino,
+        GameMode.MODE_STUDY
       );
     });
   }

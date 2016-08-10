@@ -10,6 +10,8 @@ import InformationView from './object/InformationView';
 import SelectWindowView from './object/SelectWindowView';
 import * as PlayerDicision from '../../const/game/PlayerDicision';
 import SceneRepository from '../../repository/SceneRepository';
+import * as MachineStudy from '../../const/game/learn/MachineStudy';
+import StudyView from './object/StudyView';
 
 export default class TexasHoldemView extends BaseView {
   initializeTexasHoldemView(players, initialBlind, stageData) {
@@ -24,8 +26,10 @@ export default class TexasHoldemView extends BaseView {
       return this.initializePlayerViews(initialInformation);
     }).then(initialInformation => {
       return this.initializeInformationView(initialInformation);
-    }).then(initialInformation =>{
+    }).then(initialInformation => {
       return this.initializeSelectWindowViews(initialInformation);
+    }).then(initialInformation => {
+      return this.initializeStudyView(initialInformation);
     });
   }
 
@@ -51,6 +55,20 @@ export default class TexasHoldemView extends BaseView {
       info['center_x'] = this.sprites['poker_table'].x + info['long_radius'];
       info['center_y'] = this.sprites['poker_table'].y + info['short_radius'];
       resolve(info);
+    });
+  }
+
+  initializeStudyView(initialInformation) {
+    return new Promise((resolve, reject) => {
+      const sprites = {
+        'praise': this.sprites['praise'],
+        'scold': this.sprites['scold'],
+        'skip': this.sprites['skip'],
+      };
+      this.studyView = new StudyView();
+      resolve(this.studyView.initialize(sprites, {}, {}));
+    }).then(() => {
+      return Promise.resolve(initialInformation);
     });
   }
 
@@ -96,6 +114,8 @@ export default class TexasHoldemView extends BaseView {
       properties.name = 'lose';
       this.loseView = new SelectWindowView();
       return Promise.resolve(this.loseView.initialize(sprites, labels, properties));
+    }).then(()=>{
+      return Promise.resolve(initialInformation);
     });
   }
 
@@ -110,7 +130,7 @@ export default class TexasHoldemView extends BaseView {
         x: 0.6 * Conf.main.width,
         y: 0.05 * Conf.main.height,
         interval: 0.04 * Conf.main.height,
-        color: 'black',
+        color: 'white',
         font: '28px sans-serif'
       };
       this.informationView = new InformationView();
@@ -242,10 +262,11 @@ export default class TexasHoldemView extends BaseView {
   }
 
   // カード配る部分の描画
-  dealCardsDraw() {
+  dealCardsDraw(studyMode) {
     this.playerViews.forEach(view => {
       let sprites;
-      if (view instanceof MyPlayerView) {
+      // マイプレイヤーもしくは学習モードの時はカードをオープンにするやつ
+      if (view instanceof MyPlayerView || studyMode) {
         const cardNames = view.getCardImageNames();
         sprites = [
           this.sprites['card_trump/' + cardNames[0]],
@@ -356,6 +377,20 @@ export default class TexasHoldemView extends BaseView {
     this.playerViews.forEach(view => {
       view.oneGameDrawErase();
     });
+  }
+
+  getCurrentStudyAction() {
+    return this.studyView.getStudyStatus();
+  }
+
+  moveStudyView() {
+    this.getMyPlayerView().hidePokerHud();
+    this.studyView.showAll();
+  }
+
+  eraseStudyView() {
+    this.studyView.disable();
+    this.getMyPlayerView().showPokerHud();
   }
 
   getCurrentBetValue() {

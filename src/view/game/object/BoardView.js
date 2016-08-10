@@ -44,6 +44,9 @@ export default class BoardView extends ObjectView {
     const angle = (90 + this.angleInterval * dealerIndex) % 360;
     this.sprites['deeler_button'].x = this.centerX + 0.9 * this.longRadius * Math.cos((angle + this.angleInterval / 10)  * Math.PI / 180);
     this.sprites['deeler_button'].y = this.centerY + 0.9 * this.shortRadius * Math.sin((angle + this.angleInterval / 10) * Math.PI / 180);
+    if (this.centerY < this.sprites['deeler_button'].y) {
+      this.sprites['deeler_button'].y -= this.sprites['deeler_button'].height;
+    }
   }
 
   potDraw(potValue) {

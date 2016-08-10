@@ -13,6 +13,10 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
     this.action = this.pokerLearnModel.getAction(actionPhase, this, enemy, board, callValue);
   }
 
+  learnDirect(reward) {
+    this.pokerLearnModel.updateCurrentSimilarQValues(reward);
+  }
+
   learn(chip, isLoose) {
     console.log('普通に学習');
     this.pokerLearnModel.updateQValues(chip, isLoose);

@@ -35,7 +35,7 @@ export default class PlayerView extends ObjectView {
         elements.x_place + 1.05 * this.sprites['player_card_' + playerId].width,
         elements.y_place,
         '36px sans-serif',
-        'black'
+        'white'
       );
       this.initializeLabel('pot_get_message_' + playerId, elements.x_place, this.sprites['player_bet_chip_' + playerId].y, '32px sans-serif');
       resolve();

@@ -2,6 +2,7 @@ import QValue from '../../../model/game/learn/QValue';
 import MachineAction from '../../../model/game/learn/MachineAction';
 import MachineOpenedBoardState from '../../../model/game/learn/MachineOpenedBoardState';
 import MachinePreFlopState from '../../../model/game/learn/MachinePreFlopState';
+import * as MachineActionNumber from '../../../const/game/learn/MachineActionNumber';
 const MapForEs6 = Map
 
 export default class QvalueFactory {
@@ -18,11 +19,20 @@ export default class QvalueFactory {
     for (let stateId = 1; stateId <= statesCount; stateId++) {
       let qValues = [];
       for (let actionId = 1; actionId <= actionsCount; actionId++) {
-        qValues.push(new QValue(stateId, actionId));
+        const score = this.getInitialScore(actionId);
+        qValues.push(new QValue(stateId, actionId, score));
       }
       qValueMap.set(stateId, qValues);
     }
     return qValueMap;
+  }
+
+  getInitialScore(actionId) {
+    if (actionId === MachineActionNumber.ALLIN_NUM || actionId === MachineActionNumber.BIG_RAISE_NUM || actionId === MachineActionNumber.MIDDLE_RAISE_NUM || actionId === MachineActionNumber.SMALL_RAISE_NUM) {
+      return 0.5;
+    } else {
+      return 1;
+    }
   }
 
   generateMapByCsv(csvDatas) {

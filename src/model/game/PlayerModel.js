@@ -84,6 +84,10 @@ export default class PlayerModel {
     return this.seatNumber;
   }
 
+  getInitialStack() {
+    return this.initialStack;
+  }
+
   changeInitialiStack(stack) {
     this.initialStack = stack;
   }

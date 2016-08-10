@@ -12,3 +12,6 @@ export const STATUS_GAME_END = 'GAME_END';
 export const STATUS_GAME_CONTINUE = 'GAME_CONTINUE';
 export const STATUS_WAIT_NEXT_GAME = 'WAIT_NEXT_GAME';
 export const STATUS_RESTART = 'RESTART';
+export const STATUS_MOVE_STUDY = 'MOVE_STUDY';
+export const STATUS_STUDY = 'STUDY';
+export const STATUS_STUDY_RESULT = 'STUDY_RESULT';
