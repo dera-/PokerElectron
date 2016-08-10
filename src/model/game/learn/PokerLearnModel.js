@@ -35,6 +35,11 @@ export default class PokerLearnModel {
     this.flopActionHistory = [];
     this.turnActionHistory = [];
     this.riverActionHistory = [];
+    this.preFlopSimilarQValues = [];
+    this.flopSimilarQValues = [];
+    this.turnSimilarQValues = [];
+    this.riverSimilarQValues = [];
+    this.actionValues = {};
   }
 
   updateQValues(chip, isLoose) {
@@ -79,6 +84,27 @@ export default class PokerLearnModel {
     });
   }
 
+  updateSimilarQValues(actionPhase, reward) {
+    let qValues;
+    switch(actionPhase) {
+      case PHASE_PRE_FLOP:
+        qValues = this.preFlopSimilarQValues;
+        break;
+      case PHASE_FLOP:
+        qValues = this.flopSimilarQValues;
+        break;
+      case PHASE_TURN:
+        qValues = this.turnSimilarQValues;
+        break;
+      case PHASE_RIVER:
+        qValues = this.riverSimilarQValues;
+        break;
+    }
+    qValues.forEach((qValue) => {
+      qValue.updatedScore(value, 0);
+    });
+  }
+
   getResultValue(chip, isLoose) {
     let result = isLoose ? PENALTY : REWARD;
     return result * chip / this.initialStack;
@@ -89,6 +115,11 @@ export default class PokerLearnModel {
     this.flopActionHistory = [];
     this.turnActionHistory = [];
     this.riverActionHistory = [];
+
+    this.preFlopSimilarQValues = [];
+    this.flopSimilarQValues = [];
+    this.turnSimilarQValues = [];
+    this.riverSimilarQValues = [];
   }
 
   getAction(actionPhase, player, enemy, board, callValue) {
@@ -103,28 +134,43 @@ export default class PokerLearnModel {
       stateId,
       qvalues,
       qvalue,
-      machineAction;
+      machineAction,
+      similarStateIds,
+      similarQValues,
+      currrentMap;
     switch(actionPhase) {
       case PHASE_PRE_FLOP:
         stateId = MachinePreFlopState.getId(myHand, myStack, enemyStack, myActionName, enemyActionName);
+        similarStateIds = MachinePreFlopState.getSimilarIds(myHand, myStack, enemyStack, myActionName, enemyActionName);
+        similarQValues = this.preFlopSimilarQValues;
+        currrentMap = this.preFlopQValueMap;
         qvalues = this.preFlopQValueMap.get(stateId);
         qvalue = this.getQValue(qvalues, callValue, ActionUtil.getNoBetValue(myAction));
         this.preFlopActionHistory.unshift(qvalue);
         break;
       case PHASE_FLOP:
         stateId = MachineOpenedBoardState.getId(myHand, boardCards, myStack, enemyStack, myActionName, enemyActionName);
+        similarStateIds = MachineOpenedBoardState.getSimilarIds(myHand, boardCards, myStack, enemyStack, myActionName, enemyActionName);
+        similarQValues = this.flopSimilarQValues;
+        currrentMap = this.flopQValueMap;
         qvalues = this.flopQValueMap.get(stateId);
         qvalue = this.getQValue(qvalues, callValue, ActionUtil.getNoBetValue(myAction));
         this.flopActionHistory.unshift(qvalue)
         break;
       case PHASE_TURN:
         stateId = MachineOpenedBoardState.getId(myHand, boardCards, myStack, enemyStack, myActionName, enemyActionName);
+        similarStateIds = MachineOpenedBoardState.getSimilarIds(myHand, boardCards, myStack, enemyStack, myActionName, enemyActionName);
+        similarQValues = this.turnSimilarQValues;
+        currrentMap = this.turnQValueMap;
         qvalues = this.turnQValueMap.get(stateId);
         qvalue = this.getQValue(qvalues, callValue, ActionUtil.getNoBetValue(myAction));
         this.turnActionHistory.unshift(qvalue);
         break;
       case PHASE_RIVER:
         stateId = MachineOpenedBoardState.getId(myHand, boardCards, myStack, enemyStack, myActionName, enemyActionName);
+        similarStateIds = MachineOpenedBoardState.getSimilarIds(myHand, boardCards, myStack, enemyStack, myActionName, enemyActionName);
+        similarQValues = this.riverSimilarQValues;
+        currrentMap = this.riverQValueMap;
         qvalues = this.riverQValueMap.get(stateId);
         qvalue = this.getQValue(qvalues, callValue, ActionUtil.getNoBetValue(myAction));
         this.riverActionHistory.unshift(qvalue);
@@ -132,6 +178,11 @@ export default class PokerLearnModel {
     }
     console.log(qvalue);
     machineAction = MachineAction.getMachineAction(qvalue.actionId);
+    // 類似QValueの取得
+    similarStateIds.forEach(id => {
+      const targetQValue = currrentMap.get(id).filter(q => q.actionId === qvalue.actionId);
+      similarQValues.push(targetQValue[0]);
+    });
     return this.getActualAction(machineAction, actionPhase, board.getPotValue(), callValue, player);
   }
 
@@ -207,6 +258,24 @@ export default class PokerLearnModel {
   }
 
   saveQvaluesData() {
+  }
+
+  getBestPreFlopStateId() {
+    let maxValue = -1000,
+      bestStateId = -1;
+    for (let qValues of this.preFlopQValueMap.values()) {
+      let currentValue = 0;
+      qValues.forEach(qvalue => {
+        if (qvalue.actionId === FOLD_NUM) {
+          currentValue += qvalue.score;
+        }
+      });
+      if (currentValue > maxValue) {
+        maxValue = currentValue;
+        bestStateId = qvalue.stateId;
+      }
+    }
+    return bestStateId;
   }
 
   // writeQValueCsvDatas(map, fileName) {

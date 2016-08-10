@@ -33,8 +33,7 @@ export default class MachineOpenedBoardState extends MachineState {
   }
 
   static getId(myHand, boardCards, myStack, enemyStack, myAction, enemyAction) {
-    let sortedMyHand = myHand.sort((card1, card2) => card1.number - card2.number),
-      rank = RankUtil.getRealRank(myHand, boardCards),
+    let rank = RankUtil.getRealRank(myHand, boardCards),
       isFlushDraw = RankUtil.isFlushDraw(myHand, boardCards),
       isStraightDraw = RankUtil.isStraightDraw(myHand, boardCards),
       boardType = BoardUtil.getBoardType(boardCards),
@@ -42,15 +41,24 @@ export default class MachineOpenedBoardState extends MachineState {
         return rank === state.rank && isFlushDraw === state.isFlushDraw && isStraightDraw === state.isStraightDraw && boardType === state.boardType && enemyAction === state.enemyAction;
       });
     if (searched.length === 0) {
-      console.log(sortedMyHand);
-      console.log(boardCards);
-      console.log('rank:'+rank);
-      console.log('フラドロ:'+isFlushDraw);
-      console.log('ストドロ:'+isStraightDraw);
-      console.log('ボード:'+boardType);
       throw new Error('状態IDが見つかりませんでした');
     }
     return searched[0].id;
+  }
+
+  // 対象の状態に似たような状態の取得
+  static getSimilarIds(myHand, boardCards, myStack, enemyStack, myAction, enemyAction) {
+    let rank = RankUtil.getRealRank(myHand, boardCards),
+      isFlushDraw = RankUtil.isFlushDraw(myHand, boardCards),
+      isStraightDraw = RankUtil.isStraightDraw(myHand, boardCards),
+      boardType = BoardUtil.getBoardType(boardCards),
+      searched = ALL_STATES.filter((state) => {
+        return rank - 1 <= state.rank && state.rank <= rank + 1 && boardType === state.boardType && enemyAction === state.enemyAction;
+      });
+    if (searched.length === 0) {
+      throw new Error('状態IDが見つかりませんでした');
+    }
+    return searched.map(state => state.id);
   }
 
   static getStatesCount() {

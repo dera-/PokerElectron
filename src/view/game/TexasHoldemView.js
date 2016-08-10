@@ -29,7 +29,6 @@ export default class TexasHoldemView extends BaseView {
     });
   }
 
-
   getImages(images, players) {
     players.forEach(player => {
       player.characterData.getSpriteData().forEach(data => {
@@ -171,9 +170,9 @@ export default class TexasHoldemView extends BaseView {
         sprites['raise_action' + player.id] = SpriteFactory.getClone(this.sprites['raise_action']);
         sprites['call_action' + player.id] = SpriteFactory.getClone(this.sprites['call_action']);
         sprites['fold_action' + player.id] = SpriteFactory.getClone(this.sprites['fold_action']);
-        sprites['chara_'+player.characterData.name+'_normal'] = this.sprites['chara_'+player.characterData.name+'_normal'];
-        sprites['chara_'+player.characterData.name+'_happy'] = this.sprites['chara_'+player.characterData.name+'_happy'];
-        sprites['chara_'+player.characterData.name+'_sad'] = this.sprites['chara_'+player.characterData.name+'_sad'];
+        player.characterData.getSpriteData().forEach(data => {
+          sprites[data.sprite_key] = this.sprites[data.sprite_key];
+        });
         const labels = {};
         labels['player_name_' + player.id] = new Label('ID：' + player.id);
         labels['player_stack_' + player.id] = new Label('残り：' + player.getStack());
@@ -286,6 +285,17 @@ export default class TexasHoldemView extends BaseView {
     this.playerViews.forEach(view => {
       if (false === (view instanceof MyPlayerView)) {
         view.showDownDraw();
+      }
+    });
+  }
+
+  // キャラの表情の変換
+  changeCharactersExpressionDraw(winners) {
+    this.playerViews.forEach(view => {
+      if (winners.some(winner => winner.id === view.player.id)) {
+        view.changeExpressionDraw(true);
+      } else {
+        view.changeExpressionDraw(false);
       }
     });
   }

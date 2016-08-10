@@ -1,4 +1,5 @@
-const EXPRESSIONS = ['normal', 'happy', 'sad'];
+import * as CharacterExpression from '../../const/data/CharacterExpression';
+
 const SPRITE_KEY_PREFIX = 'chara_';
 
 export default class CharacterData {
@@ -10,11 +11,15 @@ export default class CharacterData {
   }
 
   getSpriteData() {
-    return EXPRESSIONS.map(expression => {
+    return CharacterExpression.ALL_EXPRESSIONS.map(expression => {
       return {
         'sprite_key': SPRITE_KEY_PREFIX + this.name + '_' + expression,
         'image_path': this.image + '_' + expression + '.png'
       }
     });
+  }
+
+  getSpriteKey(expression) {
+    return SPRITE_KEY_PREFIX + this.name + '_' + expression;
   }
 }

@@ -55,9 +55,7 @@ export default class PlayerView extends ObjectView {
         sprites[data.sprite_key] = this.sprites[data.sprite_key];
       });
       const properties = {
-        'id': this.player.id,
-        'name': this.player.characterData.name,
-        'image': this.player.characterData.image,
+        'characterData': this.player.characterData,
         'x': this.playerCardView.getX() - 0.2 * Conf.main.width,
         'y': this.playerCardView.getY()
       };
@@ -223,6 +221,10 @@ export default class PlayerView extends ObjectView {
     this.labels['player_bet_chip_value_' + this.player.id].text = '';
   }
 
+  changeExpressionDraw(isWin) {
+    this.characterView.changeExpressionByResult(isWin);
+  }
+
   actionDrawErase() {
     this.playerCardView.changeStackText(this.player.getStack());
     this.labels['player_bet_chip_value_' + this.player.id].text = '';
@@ -235,6 +237,7 @@ export default class PlayerView extends ObjectView {
     this.hideSprite('player_id_' + this.player.id + '_num1');
     this.rankCardView.hideRank(this.player.id);
     this.labels['pot_get_message_' + this.player.id].text = '';
+    this.characterView.repositExpression();
   }
 
   isDealerPosition() {

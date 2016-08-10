@@ -116,7 +116,9 @@ export default class TexasHoldemScene extends BaseScene {
     } else if (status === TexasHoldemStatus.STATUS_SHOWDOWN) {
       // リバーまで行ってショーダウンする場合
       const openedCards = this.service.showdown();
-      this.service.sharePodToWinners(this.service.getWinners());
+      const winners = this.service.getWinners();
+      this.service.sharePodToWinners(winners);
+      this.view.changeCharactersExpressionDraw(winners);
       this.view.setPhaseInformation('ショーダウン');
       this.view.ranksDraw(this.service.getPlayerRanks());
       this.view.showDownDraw();
@@ -125,8 +127,10 @@ export default class TexasHoldemScene extends BaseScene {
       this.pushStatuses([TexasHoldemStatus.STATUS_JUDGE_CONTINUE_GAME/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_FOLD_END) {
       // ショーダウンせずに勝負が決まる場合
+      const winners = this.service.getWinners();
+      this.service.sharePodToWinners(winners);
+      this.view.changeCharactersExpressionDraw(winners);
       this.view.setPhaseInformation('フォールドエンド');
-      this.service.sharePodToWinners(this.service.getWinners());
       this.view.shareChips();
       this.pushStatuses([TexasHoldemStatus.STATUS_JUDGE_CONTINUE_GAME/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_JUDGE_CONTINUE_GAME) {
