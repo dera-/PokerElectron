@@ -4,18 +4,19 @@ export default class PlayerCardView extends ObjectView {
   initializeElements(elements) {
     return new Promise((resolve, reject) => {
       this.playerId = elements.player.id;
-      this.sprites['player_card_' + this.playerId].x = elements.x_place;
-      this.sprites['player_card_' + this.playerId].y = elements.y_place;
-      this.labels['player_name_' + this.playerId].moveTo(
+      this.initializeSprite('player_card_' + this.playerId, elements.x_place, elements.y_place);
+      this.initializeLabel(
+        'player_name_' + this.playerId,
         elements.x_place + 0.05 * this.sprites['player_card_' + this.playerId].width,
-        elements.y_place + 0.1 * this.sprites['player_card_' + this.playerId].height
+        elements.y_place + 0.1 * this.sprites['player_card_' + this.playerId].height,
+        '20px sans-serif'
       );
-      this.labels['player_name_' + this.playerId].font = '16px sans-serif';
-      this.labels['player_stack_' + this.playerId].moveTo(
+      this.initializeLabel(
+        'player_stack_' + this.playerId,
         elements.x_place + 0.05 * this.sprites['player_card_' + this.playerId].width,
-        elements.y_place + 0.6 * this.sprites['player_card_' + this.playerId].height
+        elements.y_place + 0.6 * this.sprites['player_card_' + this.playerId].height,
+        '20px sans-serif'
       );
-      this.labels['player_stack_' + this.playerId].font = '16px sans-serif';
       resolve();
     });
   }

@@ -7,6 +7,7 @@ export default class CharacterData {
     this.name = data.name;
     this.image = data.image;
     this.type = data.type;
+    this.displayName = data.display_name;
     this.serifs = data.serifs;
   }
 

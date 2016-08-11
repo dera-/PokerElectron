@@ -195,7 +195,7 @@ export default class TexasHoldemView extends BaseView {
           sprites[data.sprite_key] = this.sprites[data.sprite_key];
         });
         const labels = {};
-        labels['player_name_' + player.id] = new Label('ID：' + player.id);
+        labels['player_name_' + player.id] = new Label(player.characterData.displayName);
         labels['player_stack_' + player.id] = new Label('残り：' + player.getStack());
         labels['player_bet_chip_value_' + player.id] = new Label('');
         labels['pot_get_message_' + player.id] = new Label('');

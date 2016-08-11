@@ -32,6 +32,4 @@ export default class SceneRepository {
     gameObject.currentScene.removeChild(drawedEntities[key]);
     delete drawedEntities[key];
   }
-
-
 }

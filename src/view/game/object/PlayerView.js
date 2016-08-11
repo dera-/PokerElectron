@@ -59,7 +59,7 @@ export default class PlayerView extends ObjectView {
       labels['serif' + this.player.characterData.name] = new Label('');
       const properties = {
         'characterData': this.player.characterData,
-        'x': this.playerCardView.getX() - 0.14 * Conf.main.width,
+        'x': this.playerCardView.getX() - 0.155 * Conf.main.width,
         'y': this.playerCardView.getY(),
         'center_x': elements.center_x,
         'center_y': elements.center_y
