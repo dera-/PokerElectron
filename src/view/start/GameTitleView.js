@@ -6,7 +6,7 @@ import * as MODE from '../../const/start/Mode';
 import SceneRepository from '../../repository/SceneRepository';
 
 export default class GameTitleView extends BaseView {
-  initializeTexasHoldemView() {
+  initializeGameTitleView() {
     return this.initialize(SpritesConf.images).then(() => {
       return this.initializeLabels();
     }).then(() =>{

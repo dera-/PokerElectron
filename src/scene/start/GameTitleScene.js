@@ -1,7 +1,7 @@
 import Conf from '../../config/conf.json';
 import BaseScene from '../BaseScene';
 import GameTitleView from '../../view/start/GameTitleView';
-import Mode from '../../const/start/Mode';
+import * as MODE from '../../const/start/Mode';
 import TexasHoldemSceneFactory from '../../factory/game/TexasHoldemSceneFactory';
 import SceneRepository from '../../repository/SceneRepository';
 
@@ -15,30 +15,35 @@ export default class GameTitleScene extends BaseScene {
   generateViewWithPromise(object = {}) {
     return Promise.resolve(new GameTitleView()).then(view => {
       this.view = view;
-      return this.view.initializeTitleView();
+      return this.view.initializeGameTitleView();
     });
   }
 
   start(status) {
+    console.log('titletitletitltetitle');
     this.view.resetDicidedMode();
     this.view.show();
   }
 
   touchEndEvent() {
+    console.log('click on title');
     switch (this.view.getCurrentAction()) {
       case MODE.STUDY:
-        TexasHoldemSceneFactory.generateWithPromise('study')
-          .then(sceneObject => {
-            SceneRepository.pushScene(sceneObject.getScene());
-          });
+        new Promise((resolve,reject) => {
+          SceneRepository.popScene();
+          resolve(TexasHoldemSceneFactory.generateWithPromise('study'));
+        }).then(sceneObject => {
+          SceneRepository.pushScene(sceneObject.getScene());
+        });
         break;
-      case MODE_BATTLE:
+      case MODE.BATTLE:
         TexasHoldemSceneFactory.generateWithPromise('battle')
           .then(sceneObject => {
+            SceneRepository.popScene();
             SceneRepository.pushScene(sceneObject.getScene());
           });
         break;
-      case MODE_EXIT:
+      case MODE.EXIT:
         window.open('about:blank', '_self').close();
         break;
       default:

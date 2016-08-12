@@ -9,7 +9,9 @@ import TexasHoldemView from '../../view/game/TexasHoldemView';
 import FileModel from '../../model/FileModel';
 import * as PlayerDicision from '../../const/game/PlayerDicision';
 import * as MachineStudy from '../../const/game/learn/MachineStudy';
-import * as GameMode from '../../const/game/GameMode'
+import * as GameMode from '../../const/game/GameMode';
+import SceneRepository from '../../repository/SceneRepository';
+import GameTitleSceneFactory from '../../factory/start/GameTitleSceneFactory';
 
 export default class TexasHoldemScene extends BaseScene {
   initializeTexasHoldemScene(players, initialBlind, stageData, gameMode) {
@@ -202,13 +204,22 @@ export default class TexasHoldemScene extends BaseScene {
       } else {
         this.pushStatus(TexasHoldemStatus.STATUS_STUDY_RESULT);
       }
-    } else if (status === TexasHoldemStatus.STATUS_GAME_END && this.view.getPlayerDicision() === PlayerDicision.REPLAY) {
-      this.service.reStart();
-      this.view.hideSelectWindow();
-      this.view.oneGameDrawErase();
-      this.view.resetBoard();
-      this.popStatus();
-      this.pushStatus(TexasHoldemStatus.STATUS_GAME_START);
+    } else if (status === TexasHoldemStatus.STATUS_GAME_END) {
+      const dicision = this.view.getPlayerDicision();
+      if (dicision === PlayerDicision.REPLAY) {
+        this.service.reStart();
+        this.view.hideSelectWindow();
+        this.view.oneGameDrawErase();
+        this.view.resetBoard();
+        this.popStatus();
+        this.pushStatus(TexasHoldemStatus.STATUS_GAME_START);
+     } else if (dicision === PlayerDicision.TITLE) {
+        GameTitleSceneFactory.generateWithPromise().then(sceneObject => {
+          console.log('aaaaaaaaaaaa');
+          SceneRepository.popScene();
+          SceneRepository.pushScene(sceneObject.getScene());
+        });
+     }
     }
   }
 }

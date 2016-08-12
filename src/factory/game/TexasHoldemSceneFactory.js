@@ -1,7 +1,7 @@
 import TexasHoldemScene from '../../scene/game/TexasHoldemScene';
 import StageConfig from '../../config/data/stage.json';
 import * as GameMode from '../../const/game/GameMode';
-import PlayerModelRepository from '../../PlayerModelRepository';
+import PlayerModelRepository from '../../repository/game/PlayerModelRepository';
 
 export default class TexasHoldemSceneFactory {
   static generateWithPromise(stageKey) {

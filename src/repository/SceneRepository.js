@@ -1,16 +1,17 @@
 import GameRepository from './GameRepository';
 
-let gameObject = null;
-const drawedEntities = {};
+let gameObject = null,
+  drawedEntities = {};
 
 export default class SceneRepository {
   static setGameObject(game) {
     gameObject = game;
   }
 
-  static popScene(scene) {
+  static popScene() {
     if (gameObject === null) return;
-    gameObject.popScene(scene);
+    drawedEntities = {};
+    gameObject.popScene();
   }
   static pushScene(scene) {
     if (gameObject === null) return;
@@ -31,9 +32,5 @@ export default class SceneRepository {
     }
     gameObject.currentScene.removeChild(drawedEntities[key]);
     delete drawedEntities[key];
-  }
-
-  static clearDrawedEntities() {
-    drawedEntities = {};
   }
 }

@@ -1,6 +1,6 @@
 import Conf from '../config/conf.json';
 import SceneRepository from './SceneRepository';
-import GameTitleScene from '../scene/start/GameTitleScene';
+import GameTitleSceneFactory from '../factory/start/GameTitleSceneFactory';
 import PlayerModelRepository from '../repository/game/PlayerModelRepository';
 
 let gameObject = null;
@@ -14,14 +14,10 @@ export default class GameRepository {
 
   static initialize() {
     const game = new Game(Conf.main.width, Conf.main.height);
+    game.preload(Conf.data.loading.image_path);
     game.onload =  () => {
-      new Promise((resolve, reject) => {
-        //試しに強化学習AI２つ投入
-        PlayerModelRepository.get('ai', 5000, 0);
-        PlayerModelRepository.get('kyouka', 5000, 1);
-        const gameTitleScene = new GameTitleScene();
-        resolve(gameTitleScene.initializeGameTitleScene())
-      }).then(sceneObject => {
+      GameTitleSceneFactory.generateWithPromise().then(sceneObject => {
+        PlayerModelRepository.register('ai');
         SceneRepository.setGameObject(game);
         SceneRepository.pushScene(sceneObject.getScene());
         return Promise.resolve();

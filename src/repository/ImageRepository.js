@@ -27,4 +27,8 @@ export default class ImageRepository {
     }
     return null;
   }
+
+  static getLoaingImage() {
+    return GameRepository.get().assets[Conf.data.loading.image_path];
+  }
 }
