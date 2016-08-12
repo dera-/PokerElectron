@@ -63,13 +63,17 @@ export default class CharacterView extends ObjectView {
   showSerifWhenStudy(isPraise) {
     let serif;
     if (isPraise) {
-      this.labels['serif' + this.characterData.name].text = this.characterData.serifs.praise;
+      serif = this.characterData.serifs.praise;
     } else {
-      this.labels['serif' + this.characterData.name].text = this.characterData.serifs.scold;
+      serif = this.characterData.serifs.scold;
     }
+    if (typeof serif === "undefined") {
+      return;
+    }
+    this.labels['serif' + this.characterData.name].text = serif;
     this.showSprite('serif' + this.characterData.name);
     this.showLabel('serif' + this.characterData.name);
-    this.sprites['serif' + this.characterData.name].tl.moveTo(this.targetPositionX, this.targetPositionY, 30);
+    this.sprites['serif' + this.characterData.name].tl.moveTo(this.targetPositionX, this.targetPositionY, 20);
     this.labels['serif' + this.characterData.name].tl.moveTo(
       this.targetPositionX + 0.05 * this.sprites['serif' + this.characterData.name].width,
       this.targetPositionY + 0.3 * this.sprites['serif' + this.characterData.name].height,

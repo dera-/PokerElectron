@@ -75,7 +75,13 @@ export default class TexasHoldemService extends BaseService {
     }
     this.updatePosition();
     this.players[this.bbIndex].setAction(TexasHoldemAction.ACTION_NONE, this.bigBlind);
+    if (this.players[this.bbIndex] instanceof AiPlayerModel) {
+      this.players[this.bbIndex].fixAction();
+    }
     this.players[(this.bbIndex + playerNum - 1) % playerNum].setAction(TexasHoldemAction.ACTION_NONE, this.bigBlind/2);
+    if (this.players[(this.bbIndex + playerNum - 1) % playerNum] instanceof AiPlayerModel) {
+      this.players[(this.bbIndex + playerNum - 1) % playerNum].fixAction();
+    }
   }
 
   updatePosition() {
@@ -310,9 +316,9 @@ export default class TexasHoldemService extends BaseService {
     });
   }
 
-  learnDirect(studyStatus) {
+  learnDirect(id, studyStatus) {
     this.players.forEach(player => {
-      if (player instanceof MachineLearnPlayerModel) {
+      if (player instanceof MachineLearnPlayerModel && player.id === id) {
         const reward = player.getInitialStack();
         if (studyStatus === MachineStudy.STUDY_PRAISE) {
           console.log('ほめる');

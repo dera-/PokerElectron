@@ -46,4 +46,13 @@ export default class SelectWindowView extends ObjectView {
     this.currentChoice = PlayerDicision.NONE;
   }
 
+  nextDraw(canGoNext) {
+    if (canGoNext) {
+      this.labels['select_' + this.name + '_1'].text = '次の対戦へ'
+      this.choices[0] = PlayerDicision.NEXT;
+    } else {
+      this.labels['select_' + this.name + '_1'].text = 'もう一回';
+      this.choices[0] = PlayerDicision.REPLAY;
+    }
+  }
 }

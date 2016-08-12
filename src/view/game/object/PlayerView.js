@@ -262,4 +262,8 @@ export default class PlayerView extends ObjectView {
   getSeatNumber() {
     return this.player.getSeatNumber();
   }
+
+  getPlayerId() {
+    return this.player.id;
+  }
 }

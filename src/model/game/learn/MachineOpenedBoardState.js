@@ -20,13 +20,13 @@ export default class MachineOpenedBoardState extends MachineState {
       id = 1;
     for (let rank of ALL_REAL_RANK_STRENGTH) {
       for (let boardType of ALL_BOARD_PATTERNS) {
-            for (let enemyAction of ALL_ACTIONS) {
-              states.push(new MachineOpenedBoardState(id, rank, true, true, boardType, enemyAction));
-              states.push(new MachineOpenedBoardState(id + 1, rank, true, false, boardType, enemyAction));
-              states.push(new MachineOpenedBoardState(id + 2, rank, false, true, boardType, enemyAction));
-              states.push(new MachineOpenedBoardState(id + 3, rank, false, false, boardType, enemyAction));
-              id += 4;
-            }
+        for (let enemyAction of ALL_ACTIONS) {
+          states.push(new MachineOpenedBoardState(id, rank, true, true, boardType, enemyAction));
+          states.push(new MachineOpenedBoardState(id + 1, rank, true, false, boardType, enemyAction));
+          states.push(new MachineOpenedBoardState(id + 2, rank, false, true, boardType, enemyAction));
+          states.push(new MachineOpenedBoardState(id + 3, rank, false, false, boardType, enemyAction));
+          id += 4;
+        }
       }
     }
     return states;

@@ -20,28 +20,20 @@ export default class GameTitleScene extends BaseScene {
   }
 
   start(status) {
-    console.log('titletitletitltetitle');
     this.view.resetDicidedMode();
     this.view.show();
   }
 
   touchEndEvent() {
-    console.log('click on title');
     switch (this.view.getCurrentAction()) {
       case MODE.STUDY:
-        new Promise((resolve,reject) => {
-          SceneRepository.popScene();
-          resolve(TexasHoldemSceneFactory.generateWithPromise('study'));
-        }).then(sceneObject => {
-          SceneRepository.pushScene(sceneObject.getScene());
-        });
+        this.moveTexasHoldemScene('study');
         break;
       case MODE.BATTLE:
-        TexasHoldemSceneFactory.generateWithPromise('battle')
-          .then(sceneObject => {
-            SceneRepository.popScene();
-            SceneRepository.pushScene(sceneObject.getScene());
-          });
+        this.moveTexasHoldemScene('battle');
+        break;
+      case MODE.AI_BATTLE:
+        this.moveTexasHoldemScene('ai_battle_1');
         break;
       case MODE.EXIT:
         window.open('about:blank', '_self').close();
@@ -49,5 +41,14 @@ export default class GameTitleScene extends BaseScene {
       default:
         return;
     }
+  }
+
+  moveTexasHoldemScene(stageKey) {
+    new Promise((resolve,reject) => {
+      SceneRepository.popScene();
+      resolve(TexasHoldemSceneFactory.generateWithPromise(stageKey));
+    }).then(sceneObject => {
+      SceneRepository.pushScene(sceneObject.getScene());
+    });
   }
 }

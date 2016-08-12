@@ -1,4 +1,3 @@
-import Conf from '../../config/conf.json';
 import BaseScene from '../BaseScene';
 import * as BaseStatus from '../../const/BaseStatus';
 import * as TexasHoldemStatus from '../../const/game/TexasHoldemStatus';
@@ -12,6 +11,7 @@ import * as MachineStudy from '../../const/game/learn/MachineStudy';
 import * as GameMode from '../../const/game/GameMode';
 import SceneRepository from '../../repository/SceneRepository';
 import GameTitleSceneFactory from '../../factory/start/GameTitleSceneFactory';
+import TexasHoldemSceneFactory from '../../factory/game/TexasHoldemSceneFactory';
 
 export default class TexasHoldemScene extends BaseScene {
   initializeTexasHoldemScene(players, initialBlind, stageData, gameMode) {
@@ -20,6 +20,12 @@ export default class TexasHoldemScene extends BaseScene {
       {players: players, initialBlind: initialBlind}
     ).then(() => {
       this.gameMode = gameMode;
+      this.allyId = players[0].id;
+      if (stageData.hasOwnProperty('next')) {
+        this.nextStageKey = stageData.next;
+      } else {
+        this.nextStageKey = null;
+      }
       return this;
     });
   }
@@ -56,7 +62,7 @@ export default class TexasHoldemScene extends BaseScene {
       this.view.setPlayerBetValue();
       this.view.setCallValue(this.service.getBigBlindValue());
       this.view.decidePositionDraw();
-      this.view.dealCardsDraw(this.gameMode === GameMode.MODE_STUDY);
+      this.view.dealCardsDraw(this.allyId, this.gameMode === GameMode.MODE_STUDY);
       this.pushStatuses([TexasHoldemStatus.STATUS_START_PHASE/*, BaseStatus.STATUS_DRAWING*/]);
     } else if (status === TexasHoldemStatus.STATUS_START_PHASE) {
       // フェーズ開始
@@ -78,7 +84,7 @@ export default class TexasHoldemScene extends BaseScene {
       this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_NEXT_PLAYER, 500);
     } else if (status === TexasHoldemStatus.STATUS_AI_THINKING) {
       this.service.decideCurrentPlayerAction();
-      const player = this.service.getCurrentPlayer()
+      const player = this.service.getCurrentPlayer();
       const action = this.service.getCurrentPlayerAction();
       this.view.actionDraw(player.id, action);
       if (action.name === TexasHoldemAction.FOLD) {
@@ -87,7 +93,7 @@ export default class TexasHoldemScene extends BaseScene {
         this.view.setCallValue(action.value);
       }
       this.service.nextActionPlayer();
-      if (this.gameMode === GameMode.MODE_STUDY) {
+      if (this.gameMode === GameMode.MODE_STUDY || (this.gameMode === GameMode.MODE_AI_BATTLE && player.id === this.allyId)) {
         this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_MOVE_STUDY, 500);
       } else {
         this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_NEXT_PLAYER, 500);
@@ -107,10 +113,10 @@ export default class TexasHoldemScene extends BaseScene {
       if (this.service.isEndCurrentPhase()) {
           this.pushStatus(TexasHoldemStatus.STATUS_NEXT_PHASE);
       } else if (this.service.isAiAction()) {
-        this.view.setSubInformation('AIのアクションです');
+        this.view.setSubInformation(this.service.getCurrentPlayer().characterData.name + 'のアクションです');
         this.pushStatus(TexasHoldemStatus.STATUS_AI_THINKING);
       } else {
-        this.view.setSubInformation('あなたのアクションです');
+        this.view.setSubInformation(this.service.getCurrentPlayer().characterData.name + 'のアクションです');
         this.view.resetOneAction();
         this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_THINKING);
       }
@@ -157,7 +163,7 @@ export default class TexasHoldemScene extends BaseScene {
       this.service.deleteDeadPlayer();
       if (this.service.isFinished()) {
         this.view.setPhaseInformation('ゲーム終了');
-        this.view.gameResultDraw(this.service.isSurvive(Conf.data.player.id))
+        this.view.gameResultDraw(this.service.isSurvive(this.allyId), this.nextStageKey !== null);
         this.pushStatus(TexasHoldemStatus.STATUS_GAME_END);
       } else {
         this.view.setPhaseInformation('次ゲーム移行中...');
@@ -189,14 +195,16 @@ export default class TexasHoldemScene extends BaseScene {
     const action = this.view.getCurrentAction();
     const status = this.getCurrentStatus();
     const studyStatus = this.view.getCurrentStudyAction();
-    if (status === BaseStatus.STATUS_WAITING) {
+    if (this.view.isReturnToTitle()) {
+      this.returnToTitle();
+    } else if (status === BaseStatus.STATUS_WAITING) {
       this.popStatus();
     } else if (status === TexasHoldemStatus.STATUS_PLAYER_THINKING && action !== BaseAction.ACTION_NONE) {
       this.service.setCurrentPlayerAction(action, this.view.getCurrentBetValue());
       this.popStatus();
       this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_DESIDE);
     } else if (status === TexasHoldemStatus.STATUS_STUDY && studyStatus !== MachineStudy.STUDY_NONE) {
-      this.service.learnDirect(studyStatus);
+      this.service.learnDirect(this.service.getCurrentPlayer().id, studyStatus);
       this.view.eraseStudyView();
       this.popStatus();
       if (studyStatus === MachineStudy.STUDY_SKIP) {
@@ -213,13 +221,23 @@ export default class TexasHoldemScene extends BaseScene {
         this.view.resetBoard();
         this.popStatus();
         this.pushStatus(TexasHoldemStatus.STATUS_GAME_START);
-     } else if (dicision === PlayerDicision.TITLE) {
-        GameTitleSceneFactory.generateWithPromise().then(sceneObject => {
-          console.log('aaaaaaaaaaaa');
+      } else if (dicision === PlayerDicision.TITLE) {
+        this.returnToTitle();
+      } else if (dicision === PlayerDicision.NEXT) {
+        new Promise((resolve,reject) => {
           SceneRepository.popScene();
+          resolve(TexasHoldemSceneFactory.generateWithPromise(this.nextStageKey));
+        }).then(sceneObject => {
           SceneRepository.pushScene(sceneObject.getScene());
         });
-     }
+      }
     }
+  }
+
+  returnToTitle() {
+    GameTitleSceneFactory.generateWithPromise().then(sceneObject => {
+      SceneRepository.popScene();
+      SceneRepository.pushScene(sceneObject.getScene());
+    });
   }
 }
