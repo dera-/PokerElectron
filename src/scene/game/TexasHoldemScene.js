@@ -32,7 +32,7 @@ export default class TexasHoldemScene extends BaseScene {
   generateViewWithPromise(object = {}) {
     return Promise.resolve(new TexasHoldemView()).then(view => {
       this.view = view;
-      return this.view.initializeTexasHoldemView(object.players, object.initialBlind, object.stageData, object.studyMode);
+      return this.view.initializeTexasHoldemView(object.players, object.initialBlind, object.stageData);
     });
   }
 
@@ -45,7 +45,6 @@ export default class TexasHoldemScene extends BaseScene {
     if (this.isStopStateTransition(status)) {
       return;
     }
-    console.log('status:' + status);
     // シーン毎の行動+遷移
     this.popStatus();
     if (status === TexasHoldemStatus.STATUS_GAME_START || status === TexasHoldemStatus.STATUS_GAME_CONTINUE) {

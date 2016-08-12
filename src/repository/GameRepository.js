@@ -1,6 +1,7 @@
 import Conf from '../config/conf.json';
 import SceneRepository from './SceneRepository';
-import TexasHoldemSceneFactory from '../factory/game/TexasHoldemSceneFactory';
+import GameTitleScene from '../scene/start/GameTitleScene';
+import PlayerModelRepository from '../repository/game/PlayerModelRepository';
 
 let gameObject = null;
 export default class GameRepository {
@@ -14,11 +15,17 @@ export default class GameRepository {
   static initialize() {
     const game = new Game(Conf.main.width, Conf.main.height);
     game.onload =  () => {
-      TexasHoldemSceneFactory.generateWithPromise({id: Conf.data.player.id, stack: 5000}, {id: 22, stack: 5000}, 50)
-        .then(sceneObject => {
-          SceneRepository.setGameObject(game);
-          SceneRepository.pushScene(sceneObject.getScene())
-        });
+      new Promise((resolve, reject) => {
+        //試しに強化学習AI２つ投入
+        PlayerModelRepository.get('ai', 5000, 0);
+        PlayerModelRepository.get('kyouka', 5000, 1);
+        const gameTitleScene = new GameTitleScene();
+        resolve(gameTitleScene.initializeGameTitleScene())
+      }).then(sceneObject => {
+        SceneRepository.setGameObject(game);
+        SceneRepository.pushScene(sceneObject.getScene());
+        return Promise.resolve();
+      });
     };
     game.start();
     gameObject = game;

@@ -1,23 +1,30 @@
 import TexasHoldemScene from '../../scene/game/TexasHoldemScene';
-import PlayerModel from '../../model/game/PlayerModel';
-//import AnyHandCallPlayerModel from '../../model/game/AnyHandCallPlayerModel';
-import MachineLearnPlayerModel from '../../model/game/MachineLearnPlayerModel';
-import CharacterConfig from '../../config/data/character.json';
 import StageConfig from '../../config/data/stage.json';
-import * as GameMode from '../../const/game/GameMode'
+import * as GameMode from '../../const/game/GameMode';
+import PlayerModelRepository from '../../PlayerModelRepository';
 
 export default class TexasHoldemSceneFactory {
-  static generateWithPromise(playerData, enemyData, initialBlind) {
+  static generateWithPromise(stageKey) {
     return Promise.resolve(new TexasHoldemScene()).then(scene => {
-      return scene.initializeTexasHoldemScene(
-        [
-          new PlayerModel(playerData.id, playerData.stack, 0, CharacterConfig.data.you),
-          new MachineLearnPlayerModel(enemyData.id, enemyData.stack, 1, CharacterConfig.data.ai)
-        ],
-        initialBlind,
-        StageConfig.data.casino,
-        GameMode.MODE_STUDY
-      );
+      const stageData = StageConfig.data[stageKey];
+      const playerKeys = stageData.players;
+      let playerModels = [];
+      for (let index = 0; index < playerKeys.length; index++) {
+        playerModels.push(PlayerModelRepository.get(playerKeys[index], stageData.initial_stack, index));
+      }
+      return scene.initializeTexasHoldemScene(playerModels, stageData.big_blind, stageData, TexasHoldemSceneFactory.getGameMode(stageKey));
     });
+  }
+
+  static getGameMode(stageKey) {
+    const stageData = StageConfig.data[stageKey];
+    switch (stageData.game_mode) {
+      case 'study':
+        return GameMode.MODE_STUDY;
+      case 'ai_battle':
+        return GameMode.MODE_AI_BATTLE;
+      default:
+        return GameMode.MODE_BATTLE;
+    }
   }
 }

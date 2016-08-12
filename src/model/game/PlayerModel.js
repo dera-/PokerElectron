@@ -84,6 +84,10 @@ export default class PlayerModel {
     return this.seatNumber;
   }
 
+  setSeatNumber(index) {
+    this.seatNumber = index;
+  }
+
   getInitialStack() {
     return this.initialStack;
   }
