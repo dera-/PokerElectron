@@ -34,7 +34,7 @@ export default class GameTitleScene extends BaseScene {
         this.moveTexasHoldemScene('battle');
         break;
       case MODE.AI_BATTLE:
-        this.moveTexasHoldemScene('ai_battle_1');
+        this.moveTexasHoldemScene('ai_battle_0');
         break;
       case MODE.AI_STATUS:
         new Promise((resolve,reject) => {

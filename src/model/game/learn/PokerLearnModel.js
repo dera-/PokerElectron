@@ -265,7 +265,7 @@ export default class PokerLearnModel {
     values[CALL_NUM] = 0;
     values[CHECK_NUM] = 0;
     values[FOLD_NUM] = 0;
-    for (let qvalues of map) {
+    for (let qvalues of map.values()) {
       qvalues.forEach(qvalue => {
         values[qvalue.actionId] += QValueUtil.getRealScore(qvalue.score);
       });
@@ -283,22 +283,17 @@ export default class PokerLearnModel {
   getActionRate(actionValues) {
     const actionRate = {raise: 0, call: 0, fold: 0};
     let total = 0;
+    console.log('action_values:');
+    console.log(actionValues);
     Object.keys(actionValues).forEach(key => {
+      console.log(key);
       total += actionValues[key];
-      switch(key) {
-        case ALLIN_NUM:
-        case BIG_RAISE_NUM:
-        case MIDDLE_RAISE_NUM:
-        case SMALL_RAISE_NUM:
-          actionRate.raise += actionValues[key];
-          break;
-        case CALL_NUM:
-        case CHECK_NUM:
-          actionRate.call += actionValues[key];
-          break;
-        case FOLD_NUM:
-          actionRate.fold += actionValues[key];
-          break;
+      if (key == ALLIN_NUM || key == BIG_RAISE_NUM || key == MIDDLE_RAISE_NUM || key == SMALL_RAISE_NUM) {
+        actionRate.raise += actionValues[key];
+      } else if (key == CALL_NUM || key == CHECK_NUM) {
+        actionRate.call += actionValues[key];
+      } else if (key == FOLD_NUM) {
+        actionRate.fold += actionValues[key];
       }
     });
     Object.keys(actionRate).forEach(key => {

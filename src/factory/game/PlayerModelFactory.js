@@ -1,6 +1,7 @@
 import CharacterConf from '../../config/data/character.json';
 import PlayerModel from '../../model/game/PlayerModel';
 import AnyHandCallPlayerModel from '../../model/game/AnyHandCallPlayerModel';
+import DocilePlayerModel from '../../model/game/DocilePlayerModel';
 import MachineLearnPlayerModel from '../../model/game/MachineLearnPlayerModel';
 
 export default class PlayerModelFactory {
@@ -15,6 +16,8 @@ export default class PlayerModelFactory {
         return new MachineLearnPlayerModel(charaData.id, 0, 0, charaData);
       case 'anyhand':
         return new AnyHandCallPlayerModel(charaData.id, 0, 0, charaData);
+      case 'docile':
+        return new DocilePlayerModel(charaData.id, 0, 0, charaData);
       default:
         return new PlayerModel(charaData.id, 0, 0, charaData);
     }
