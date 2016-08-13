@@ -20,7 +20,8 @@
   "dependencies": {
     "electron-packager": "^7.1.0",
     "electron-prebuilt": "^1.2.5",
-    "fs": "0.0.2"
+    "fs": "0.0.2",
+    "raw-loader": "^0.5.1"
   },
   "devDependencies": {
     "babel": "^6.5.2",

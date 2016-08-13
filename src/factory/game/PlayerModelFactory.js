@@ -13,7 +13,11 @@ export default class PlayerModelFactory {
     const charaData = CharacterConf.data[key];
     switch(charaData.type) {
       case 'learn':
-        return new MachineLearnPlayerModel(charaData.id, 0, 0, charaData);
+        let dataFilePrefix = '';
+        if (charaData.hasOwnProperty('data_file_prefix')) {
+          dataFilePrefix = charaData.data_file_prefix;
+        }
+        return new MachineLearnPlayerModel(charaData.id, 0, 0, charaData, dataFilePrefix);
       case 'anyhand':
         return new AnyHandCallPlayerModel(charaData.id, 0, 0, charaData);
       case 'docile':

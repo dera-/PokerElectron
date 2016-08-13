@@ -30,9 +30,9 @@ export default class QvalueFactory {
 
   getInitialScore(actionId) {
     if (actionId === MachineActionNumber.ALLIN_NUM || actionId === MachineActionNumber.BIG_RAISE_NUM || actionId === MachineActionNumber.MIDDLE_RAISE_NUM || actionId === MachineActionNumber.SMALL_RAISE_NUM) {
-      return QValueUtil.getDividedScore(1, 4);
+      return QValueUtil.getDividedScore(0, 4);
     } else {
-      return 1;
+      return 0;
     }
   }
 

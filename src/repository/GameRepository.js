@@ -18,6 +18,7 @@ export default class GameRepository {
     game.onload =  () => {
       GameTitleSceneFactory.generateWithPromise().then(sceneObject => {
         PlayerModelRepository.register('ai');
+        PlayerModelRepository.register('kyouka');
         SceneRepository.setGameObject(game);
         SceneRepository.pushScene(sceneObject.getScene());
         return Promise.resolve();

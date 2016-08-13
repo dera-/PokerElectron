@@ -16,14 +16,23 @@ const REWARD = 10;
 const PENALTY = -10;
 
 export default class PokerLearnModel {
-  constructor(initialStack, useFile = false) {
+  constructor(initialStack, dataFilePrefix = '') {
     let qValueFactory = new QValueFactory();
     this.initialStack = initialStack;
-    if (useFile) {
-      // this.preFlopQValueMap = qValueFactory.generateMapByCsv(FileUtil.getContent('preFlopQValues.csv'));
-      // this.flopQValueMap = qValueFactory.generateMapByCsv(FileUtil.getContent('flopQValues.csv'));
-      // this.turnQValueMap = qValueFactory.generateMapByCsv(FileUtil.getContent('turnQValues.csv'));
-      // this.riverQValueMap = qValueFactory.generateMapByCsv(FileUtil.getContent('riverQValues.csv'));
+    if (dataFilePrefix !== '') {
+      console.log("ファイル読み込みやつ"+dataFilePrefix);
+      const preFlopQValuesData = require("raw!../../../data/" + dataFilePrefix + "PreFlopQValues.txt").split('\n');
+      const flopQValuesData = require("raw!../../../data/" + dataFilePrefix + "FlopQValues.txt").split('\n');
+      this.preFlopQValueMap = qValueFactory.generateMapByCsv(preFlopQValuesData);
+      this.flopQValueMap = qValueFactory.generateMapByCsv(flopQValuesData);
+      this.turnQValueMap = qValueFactory.generateMapByCsv(flopQValuesData);
+      this.riverQValueMap = qValueFactory.generateMapByCsv(flopQValuesData);
+      console.log(preFlopQValuesData);
+      console.log(flopQValuesData);
+      console.log(this.preFlopQValueMap);
+      console.log(this.flopQValueMap);
+      console.log(this.turnQValueMap);
+      console.log(this.riverQValueMap);
     } else {
       console.log('preflop_init');
       this.preFlopQValueMap = qValueFactory.generateMapForPreFlopState();
@@ -258,6 +267,7 @@ export default class PokerLearnModel {
 
   getActionValues(map) {
     const values = {};
+    const MAX_THRESHOLD = 10000000;
     values[ALLIN_NUM] = 0;
     values[BIG_RAISE_NUM] = 0;
     values[MIDDLE_RAISE_NUM] = 0;
@@ -267,7 +277,11 @@ export default class PokerLearnModel {
     values[FOLD_NUM] = 0;
     for (let qvalues of map.values()) {
       qvalues.forEach(qvalue => {
-        values[qvalue.actionId] += QValueUtil.getRealScore(qvalue.score);
+        if (values[qvalue.actionId] >= MAX_THRESHOLD) {
+          values[qvalue.actionId] = MAX_THRESHOLD;
+        } else {
+          values[qvalue.actionId] += QValueUtil.getRealScore(qvalue.score) / 10000000;
+        }
       });
     }
     return values;

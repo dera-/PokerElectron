@@ -2,9 +2,9 @@ import AiPlayerModel from './AiPlayerModel';
 import PokerLearnModel from './learn/PokerLearnModel';
 
 export default class MachineLearnPlayerModel extends AiPlayerModel {
-  constructor(id, money, seatNumber, characterData) {
+  constructor(id, money, seatNumber, characterData, dataFilePrefix = '') {
     super(id, money, seatNumber, characterData);
-    this.pokerLearnModel = new PokerLearnModel(money);
+    this.pokerLearnModel = new PokerLearnModel(money, dataFilePrefix);
     this.foldHand = [];
     this.teachedCount = 0;
     this.playCount = 0;
