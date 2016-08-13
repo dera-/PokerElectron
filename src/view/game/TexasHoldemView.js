@@ -15,6 +15,8 @@ import * as MachineStudy from '../../const/game/learn/MachineStudy';
 import StudyView from './object/StudyView';
 import ButtonView from '../object/ButtonView'
 
+
+const commonInterval = 0.01 * Conf.main.width;
 export default class TexasHoldemView extends BaseView {
   initializeTexasHoldemView(players, initialBlind, stageData) {
     return this.initialize(this.getImages(SpritesConf.images, players)).then(() => {
@@ -84,8 +86,13 @@ export default class TexasHoldemView extends BaseView {
         'scold': this.sprites['scold'],
         'skip': this.sprites['skip'],
       };
+      const labels = {
+        'praise': new Label('ほめる'),
+        'scold': new Label('しかる'),
+        'skip': new Label('スキップ'),
+      };
       this.studyView = new StudyView();
-      resolve(this.studyView.initialize(sprites, {}, {}));
+      resolve(this.studyView.initialize(sprites, labels, {}));
     }).then(() => {
       return Promise.resolve(initialInformation);
     });
@@ -188,28 +195,27 @@ export default class TexasHoldemView extends BaseView {
       const promises = [];
       let index = 0;
       initialInformation.players.forEach(player =>{
-        let xPlace, yPlace;
-        const cardSprite = SpriteFactory.getClone(this.sprites['player_card']);
-        const rankCardSprite = SpriteFactory.getClone(this.sprites['rank_card']);
-        const chipSprite = SpriteFactory.getClone(this.sprites['chip'])
-        const angle = (90 + initialInformation.angle_interval * index) % 360;
-        xPlace = initialInformation.center_x + initialInformation.long_radius * Math.cos(angle * Math.PI / 180);
-        if (xPlace < initialInformation.center_x) {
-          xPlace -= cardSprite.width;
-        }
-        yPlace = initialInformation.center_y + 0.95 * initialInformation.short_radius * Math.sin(angle * Math.PI / 180);
-        if (yPlace < initialInformation.center_y) {
-          yPlace -= cardSprite.height;
+        let xPlace, yPlace, chipPlaceInterval, relativeDealerPositionY;
+        const chipSprite = SpriteFactory.getClone(this.sprites['chip']);
+        xPlace = commonInterval;
+        yPlace = 0.78 * Conf.main.height - 0.72 * Conf.main.height * index;
+        if (index === 0) {
+          chipPlaceInterval = -1 * chipSprite.height - commonInterval;
+          relativeDealerPositionY = -1 * this.sprites['deeler_button'].height - commonInterval;
+        } else if (index === 1){
+          chipPlaceInterval = this.sprites[player.characterData.getSpriteKey('normal')].height + commonInterval;
+          relativeDealerPositionY = chipSprite.height + commonInterval;
+        } else {
+          chipPlaceInterval = 0;
         }
         const sprites = {};
-        sprites['player_card_' + player.id] = cardSprite;
+        //sprites['player_card_' + player.id] = cardSprite;
         sprites['player_bet_chip_' + player.id] = chipSprite;
-        sprites['rank_card' + player.id] = rankCardSprite;
-        sprites['allin_action' + player.id] = SpriteFactory.getClone(this.sprites['allin_action']);
-        sprites['raise_action' + player.id] = SpriteFactory.getClone(this.sprites['raise_action']);
-        sprites['call_action' + player.id] = SpriteFactory.getClone(this.sprites['call_action']);
-        sprites['fold_action' + player.id] = SpriteFactory.getClone(this.sprites['fold_action']);
-        sprites['serif' + player.characterData.name] = SpriteFactory.getClone(this.sprites['serif']);
+        if (index === 0) {
+          sprites['serif' + player.characterData.name] = this.sprites['fukidashi_shita'];
+        } else {
+          sprites['serif' + player.characterData.name] = this.sprites['fukidashi_ue'];
+        }
         player.characterData.getSpriteData().forEach(data => {
           sprites[data.sprite_key] = this.sprites[data.sprite_key];
         });
@@ -224,7 +230,10 @@ export default class TexasHoldemView extends BaseView {
           'initial_blind': initialInformation.initial_blind,
           'x_place': xPlace,
           'y_place': yPlace,
-          'angle': angle,
+          'chip_place_interval': chipPlaceInterval,
+          'relative_dealer_position_y': relativeDealerPositionY,
+          'common_interval': commonInterval,
+          //'angle': angle,
           'short_radius': initialInformation.short_radius,
           'long_radius': initialInformation.long_radius,
           'center_x': initialInformation.center_x,
@@ -237,7 +246,6 @@ export default class TexasHoldemView extends BaseView {
           sprites['fold'] = this.sprites['fold'];
           sprites['call'] = this.sprites['call'];
           sprites['raise'] = this.sprites['raise'];
-          sprites['forbbiden_icon'] = SpriteFactory.getClone(this.sprites['forbbiden_icon']);
           playerView = new MyPlayerView();
         } else {
           playerView = new AiPlayerView();
@@ -267,14 +275,14 @@ export default class TexasHoldemView extends BaseView {
 
   // ディーラーポジションを決める描画
   decidePositionDraw() {
-    let deelerIndex;
+    let position;
     this.playerViews.forEach(view => {
       view.initialActionDraw();
       if (view.isDealerPosition()) {
-        deelerIndex = view.getSeatNumber();
+        position = view.getDealerPosition();
       }
     });
-    this.boardView.decidePositionDraw(deelerIndex);
+    this.boardView.decidePositionDraw(position.x, position.y);
   }
 
   // ボードにカードを表示する

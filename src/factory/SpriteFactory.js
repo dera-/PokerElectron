@@ -8,10 +8,17 @@ export default class SpriteFactory {
       sprite.x = x;
       sprite.y = y;
       sprite.image = image;
-      //sprite.scale(1.0 * width / image.width, 1.0 * height / image.height);
-      //console.log(imagePath + ": x:" + sprite.x + ", y:" + sprite.y + ', originalX:' + x +', originalY:' + y);
       return sprite;
     });
+  }
+
+  static generate(x, y, imagePath) {
+    const image = ImageRepository.getImage(imagePath);
+    const sprite = new Sprite(image.width, image.height);
+    sprite.x = x;
+    sprite.y = y;
+    sprite.image = image;
+    return sprite;
   }
 
   static getRect(x, y, width, height, fillStyle) {

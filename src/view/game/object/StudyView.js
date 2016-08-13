@@ -5,10 +5,17 @@ export default class StudyView extends ObjectView {
   initializeElements(elements) {
     return new Promise((resolve, reject) => {
       this.studyStatus = MachineStudy.STUDY_NONE;
-      console.log('study_initialize1');
+      Object.keys(this.sprites).forEach(key => {
+        this.initializeLabel(
+          key,
+          this.sprites[key].x + 0.1 * this.sprites[key].width,
+          this.sprites[key].y + 0.25 * this.sprites[key].height,
+          '36px sans-serif',
+          'white'
+        );
+      });
       resolve();
     }).then(() => {
-      console.log('study_initialize_sprite');
       return this.initializeSpriteEvents();
     }).then(()=>{
       return Promise.resolve();

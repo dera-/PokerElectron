@@ -6,7 +6,7 @@ import SceneRepository from '../repository/SceneRepository';
 
 // viewクラスのインターフェース的なサムシング
 export default class BaseView {
-  initialize(imagesData = {}) {
+  initialize(imagesData = []) {
     return this.initializeSprites(imagesData)
   }
 

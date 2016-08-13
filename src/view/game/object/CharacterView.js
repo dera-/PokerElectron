@@ -9,23 +9,15 @@ export default class CharacterView extends ObjectView {
       this.expression = CharacterExpression.EXPRESSION_NORMAL;
       this.centerX = elements.center_x;
       this.centerY = elements.center_y;
-      this.targetPositionX = elements.x;
       Object.keys(this.sprites).forEach(key => {
         this.initializeSprite(key, elements.x, elements.y);
       });
-      this.initializeSprite('serif' + elements.characterData.name, elements.x, elements.y);
-      if (elements.y < elements.center_y) {
-        this.sprites['serif' + elements.characterData.name].y = elements.y + this.sprites[this.characterData.getSpriteKey(this.expression)].height - this.sprites['serif' + elements.characterData.name].height;
-        this.targetPositionY = this.sprites['serif' + elements.characterData.name].y + this.sprites['serif' + elements.characterData.name].height;
-      } else {
-        this.targetPositionY = this.sprites['serif' + elements.characterData.name].y - this.sprites['serif' + elements.characterData.name].height;
-      }
       this.initializeLabel(
         'serif' + elements.characterData.name,
         this.sprites['serif' + elements.characterData.name].x + 0.05 * this.sprites['serif' + elements.characterData.name].width,
         this.sprites['serif' + elements.characterData.name].y + 0.3 * this.sprites['serif' + elements.characterData.name].height,
-        '28px sans-serif',
-        'black'
+        '32px sans-serif',
+        'white'
       );
       resolve();
     });
@@ -70,20 +62,27 @@ export default class CharacterView extends ObjectView {
     if (typeof serif === "undefined") {
       return;
     }
+    this.showSerif(serif);
+  }
+
+  showSerif(text) {
     this.labels['serif' + this.characterData.name].text = serif;
     this.showSprite('serif' + this.characterData.name);
     this.showLabel('serif' + this.characterData.name);
-    this.sprites['serif' + this.characterData.name].tl.moveTo(this.targetPositionX, this.targetPositionY, 20);
-    this.labels['serif' + this.characterData.name].tl.moveTo(
-      this.targetPositionX + 0.05 * this.sprites['serif' + this.characterData.name].width,
-      this.targetPositionY + 0.3 * this.sprites['serif' + this.characterData.name].height,
-      30
-    );
   }
 
   hideSerif() {
     this.repositExpression();
+    this.labels['serif' + this.characterData.name].text = '';
     this.hideSprite('serif' + this.characterData.name);
     this.hideLabel('serif' + this.characterData.name);
+  }
+
+  getCharaSpriteWidth() {
+    return this.sprites[this.player.characterData.getSpriteKey('normal')].width;
+  }
+
+  getCharaSpriteHeight() {
+    return this.sprites[this.player.characterData.getSpriteKey('normal')].height;
   }
 }

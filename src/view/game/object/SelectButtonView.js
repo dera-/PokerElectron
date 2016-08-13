@@ -26,18 +26,4 @@ export default class SelectButtonView extends ObjectView {
   changeText(buttonText) {
     this.labels['button_' + this.name].text = buttonText;
   }
-
-  showForbiddenIcon() {
-    if (false === this.sprites.hasOwnProperty('forbidden_' + this.name)) {
-      return;
-    }
-    this.showSprite('forbidden_' + this.name);
-  }
-
-  hideForbiddenIcon() {
-    if (false === this.sprites.hasOwnProperty('forbidden_' + this.name)) {
-      return;
-    }
-    this.hideSprite('forbidden_' + this.name);
-  }
 }

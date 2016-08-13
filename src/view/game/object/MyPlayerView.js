@@ -29,8 +29,8 @@ export default class MyPlayerView extends PlayerView {
       this.callButtonView = new SelectButtonView();
       return Promise.resolve(this.callButtonView.initialize(sprites, labels, {name: 'call'}));
     }).then(()=>{
-      const sprites = {'button_raise': this.sprites['raise'], 'forbidden_raise': this.sprites['forbbiden_icon']};
-      const labels = {'button_raise': new Label('レイズ 0')};
+      const sprites = {'button_raise': this.sprites['raise']};
+      const labels = {'button_raise': new Label('レイズ 0 (不可)')};
       this.raiseButtonView = new SelectButtonView();
       return Promise.resolve(this.raiseButtonView.initialize(sprites, labels, {name: 'raise'}));
     }).then(()=>{
@@ -86,7 +86,6 @@ export default class MyPlayerView extends PlayerView {
     this.foldButtonView.showFirst();
     this.callButtonView.showFirst();
     this.raiseButtonView.showFirst();
-    this.raiseButtonView.showForbiddenIcon();
   }
 
   moveBetSlider(event) {
@@ -101,13 +100,10 @@ export default class MyPlayerView extends PlayerView {
     const betValue = Math.round(this.player.getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
     if (betValue === this.player.getStack()) {
       this.raiseButtonView.changeText('オールイン');
-      this.raiseButtonView.hideForbiddenIcon();
     } else if (betValue < this.bigBlind || betValue < 2 * this.callValue || betValue < this.betValue) {
-      this.raiseButtonView.changeText('レイズ ' + betValue);
-      this.raiseButtonView.showForbiddenIcon();
+      this.raiseButtonView.changeText('レイズ ' + betValue + '(不可)');
     } else {
       this.raiseButtonView.changeText('レイズ ' + betValue);
-      this.raiseButtonView.hideForbiddenIcon();
     }
   }
 
@@ -144,16 +140,14 @@ export default class MyPlayerView extends PlayerView {
   resetAction() {
     this.currentAction = TexasHoldemAction.ACTION_NONE;
     this.sprites['bet_slider'].x = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
-    this.raiseButtonView.changeText('レイズ 0');
-    this.raiseButtonView.showForbiddenIcon();
+    this.raiseButtonView.changeText('レイズ 0 (不可)');
   }
 
   resetOnePhase() {
     this.currentAction = TexasHoldemAction.ACTION_NONE;
     this.betValue = 0;
     this.callValue = 0;
-    this.raiseButtonView.changeText('レイズ 0');
-    this.raiseButtonView.showForbiddenIcon();
+    this.raiseButtonView.changeText('レイズ 0 (不可)');
     this.callButtonView.changeText('チェック');
   }
 
@@ -169,7 +163,6 @@ export default class MyPlayerView extends PlayerView {
     this.foldButtonView.showFirst();
     this.callButtonView.showFirst();
     this.raiseButtonView.showFirst();
-    this.raiseButtonView.showForbiddenIcon();
     this.showSprite('bet_bar');
     this.showSprite('bet_slider');
   }

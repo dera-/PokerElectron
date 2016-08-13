@@ -38,15 +38,9 @@ export default class BoardView extends ObjectView {
     });
   }
 
-  decidePositionDraw(dealerIndex) {
-    console.log('angle:'+this.angleInterval);
-    console.log('dealerIndex:'+dealerIndex);
-    const angle = (90 + this.angleInterval * dealerIndex) % 360;
-    this.sprites['deeler_button'].x = this.centerX + 0.9 * this.longRadius * Math.cos((angle + this.angleInterval / 10)  * Math.PI / 180);
-    this.sprites['deeler_button'].y = this.centerY + 0.9 * this.shortRadius * Math.sin((angle + this.angleInterval / 10) * Math.PI / 180);
-    if (this.centerY < this.sprites['deeler_button'].y) {
-      this.sprites['deeler_button'].y -= this.sprites['deeler_button'].height;
-    }
+  decidePositionDraw(x, y) {
+    this.sprites['deeler_button'].x = x;
+    this.sprites['deeler_button'].y = y;
   }
 
   potDraw(potValue) {

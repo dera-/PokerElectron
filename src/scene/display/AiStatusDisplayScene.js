@@ -42,5 +42,4 @@ export default class AiStatusDisplayScene extends BaseScene {
       });
     }
   }
-
 }

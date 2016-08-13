@@ -2,8 +2,6 @@ import ObjectView from '../../ObjectView';
 import Conf from '../../../config/conf.json'
 import ImageRepository from '../../../repository/ImageRepository';
 import * as Position from '../../../const/game/Position';
-import PlayerCardView from './PlayerCardView';
-import RankCardView from './RankCardView';
 import CharacterView from './CharacterView';
 import ActionModel from '../../../model/game/ActionModel';
 import * as TexasHoldemAction from '../../../const/game/TexasHoldemAction';
@@ -13,36 +11,46 @@ export default class PlayerView extends ObjectView {
     return new Promise((resolve, reject) => {
       this.player = elements.player;
       this.bigBlind = elements.initial_blind;
+      this.xPlace = elements.x_place;
+      this.yPlace = elements.y_place;
+      this.commonInterval = elements.common_interval;
+      this.currentActionSerif = '';
       const playerId = this.player.id;
       this.initializeSprite(
         'player_bet_chip_' + playerId,
-        elements.center_x + 0.9 * elements.long_radius * Math.cos(elements.angle * Math.PI / 180),
-        elements.center_y + 0.9 * elements.short_radius * Math.sin(elements.angle * Math.PI / 180)
+        elements.x_place + this.sprites[this.player.characterData.getSpriteKey('normal')].width + elements.common_interval,
+        elements.y_place + elements.chip_place_interval
       );
-      if (elements.center_y < this.sprites['player_bet_chip_' + playerId].y) {
-          this.sprites['player_bet_chip_' + playerId].y -= this.sprites['player_bet_chip_' + playerId].height;
-      }
-      const actionKeys = ['allin_action', 'raise_action', 'call_action', 'fold_action'];
-      actionKeys.forEach(key => {
-        this.initializeSprite(
-          key + playerId,
-          elements.x_place + 1.05 * this.sprites['player_card_' + playerId].width,
-          elements.y_place + 0.25 * this.sprites['player_card_' + playerId].height
-        );
-      });
       this.initializeLabel(
         'player_bet_chip_value_' + playerId,
-        elements.x_place + 1.05 * this.sprites['player_card_' + playerId].width,
-        elements.y_place,
+        this.sprites['player_bet_chip_' + playerId].x + elements.common_interval,
+        this.sprites['player_bet_chip_' + playerId].y,
         '36px sans-serif',
         'white'
       );
-      this.initializeLabel('pot_get_message_' + playerId, elements.x_place, this.sprites['player_bet_chip_' + playerId].y, '32px sans-serif');
+      this.initializeLabel(
+        'pot_get_message_' + playerId,
+        elements.x_place,
+        elements.y_place - this.sprites['serif' + this.player.characterData.name].height,
+        '32px sans-serif',
+        'white'
+      );
+      this.initializeLabel(
+        'player_name_' + playerId,
+        elements.x_place + this.sprites[this.player.characterData.getSpriteKey('normal')].width + elements.common_interval,
+        elements.y_place,
+        '48px sans-serif',
+        'white'
+      );
+      this.initializeLabel(
+        'player_stack_' + playerId,
+        elements.x_place,
+        elements.y_place + this.sprites[this.player.characterData.getSpriteKey('normal')].height - 36,
+        '36px sans-serif',
+        'white'
+      );
+      this.dealerPositionY = this.sprites['player_bet_chip_' + playerId].y + elements.relative_dealer_position_y;
       resolve();
-    }).then(()=>{
-      return this.initializePlayerCardView(elements);
-    }).then(()=>{
-      return this.initializeRankCardView(elements);
     }).then(()=>{
       return this.initializeCharacterView(elements);
     });
@@ -59,8 +67,8 @@ export default class PlayerView extends ObjectView {
       labels['serif' + this.player.characterData.name] = new Label('');
       const properties = {
         'characterData': this.player.characterData,
-        'x': this.playerCardView.getX() - 0.155 * Conf.main.width,
-        'y': this.playerCardView.getY(),
+        'x': elements.x_place,
+        'y': elements.y_place,
         'center_x': elements.center_x,
         'center_y': elements.center_y
       };
@@ -75,60 +83,17 @@ export default class PlayerView extends ObjectView {
     })
   }
 
-  initializePlayerCardView(elements) {
-    return new Promise((resolve, reject) => {
-      const sprites = {};
-      sprites['player_card_' + this.player.id] = this.sprites['player_card_' + this.player.id];
-      const labels = {};
-      labels['player_name_' + this.player.id] = this.labels['player_name_' + this.player.id];
-      labels['player_stack_' + this.player.id] = this.labels['player_stack_' + this.player.id];
-      this.playerCardView = new PlayerCardView();
-      resolve(this.playerCardView.initialize(sprites, labels, elements));
-    }).then(()=>{
-      this.removeSprite('player_card_' + this.player.id);
-      this.removeLabel('player_name_' + this.player.id);
-      this.removeLabel('player_stack_' + this.player.id);
-      return Promise.resolve();
-    });
-  }
-
-  initializeRankCardView(elements) {
-    return new Promise((resolve, reject) => {
-      const sprites = {};
-      sprites['rank_card' + this.player.id] = this.sprites['rank_card' + this.player.id];
-      const labels = {};
-      labels['result_rank' + this.player.id] = this.labels['result_rank' + this.player.id];
-      this.rankCardView = new RankCardView();
-      elements.player_card_width = this.playerCardView.getWidth();
-      elements.player_card_height = this.playerCardView.getHeight();
-      resolve(this.rankCardView.initialize(sprites, labels, elements));
-    }).then(()=>{
-      this.removeSprite('rank_card' + this.player.id);
-      this.removeLabel('result_rank' + this.player.id);
-      return Promise.resolve();
-    });
-  }
-
   showFirst() {
     this.showAll();
     this.hideSprite('player_bet_chip_' + this.player.id);
-    this.playerCardView.showFirst();
-    this.hideActionSprites();
     this.characterView.showFirst();
-  }
-
-  hideActionSprites() {
-    this.hideSprite('allin_action' + this.player.id);
-    this.hideSprite('raise_action' + this.player.id);
-    this.hideSprite('call_action' + this.player.id);
-    this.hideSprite('fold_action' + this.player.id);
   }
 
   handDraw(cardSprites) {
     for (let index = 0; index < cardSprites.length; index++) {
       const sprite = cardSprites[index];
-      sprite.x = this.playerCardView.getX() + this.playerCardView.getWidth() + (index - 2) * sprite.width;
-      sprite.y = this.playerCardView.getY();
+      sprite.x = this.xPlace + this.commonInterval + this.characterView.getCharaSpriteWidth() + (sprite.width + this.commonInterval) * index;
+      sprite.y = this.yPlace + this.characterView.getCharaSpriteHeight() - sprite.height;
       this.addSprite('player_id_' + this.player.id + '_num' + index, sprite);
       this.showSprite('player_id_' + this.player.id + '_num' + index);
     }
@@ -147,37 +112,40 @@ export default class PlayerView extends ObjectView {
     }
   }
 
+  changeStackText(stackValue) {
+    this.labels['player_stack_' + this.playerId].text = '残り：' + stackValue;
+  }
+
   actionDraw(id, action) {
     if (this.player.id !== id) {
       return;
     }
     const restStack = this.player.getStack() - action.value;
-    this.playerCardView.changeStackText(restStack);
+    this.changeStackText(restStack);
     if (action.value > 0) {
       const chipSpriteKey = 'player_bet_chip_' + id;
       this.labels['player_bet_chip_value_' + id].text = action.value + 'BET';
       this.showSprite(chipSpriteKey);
     }
-    this.hideActionSprites();
-    let actionSpriteKey = this.getActionSpriteKey(action.name);
-    if (actionSpriteKey !== '') {
-      this.showSprite(actionSpriteKey);
-      this.sprites[actionSpriteKey].tl.fadeIn(120);
+    let actionSerif = this.getActionSerif(action.name);
+    if (actionSerif !== '') {
+      this.currentActionSerif = actionSerif;
+      this.characterView.showSerif(serif);
     }
   }
 
-  getActionSpriteKey(actionName) {
+  getActionSerif(actionName) {
     switch(actionName) {
       case TexasHoldemAction.ACTION_ALLIN:
-        return 'allin_action' + this.player.id;
+        return this.player.characterData.serifs.allin;
       case TexasHoldemAction.ACTION_RAISE:
-        return 'raise_action' + this.player.id;
+        return this.player.characterData.serifs.raise;
       case TexasHoldemAction.ACTION_CALL:
-        return 'call_action' + this.player.id;
+        return this.player.characterData.serifs.call;
       case TexasHoldemAction.ACTION_CHECK:
-        return 'call_action' + this.player.id;
+        return this.player.characterData.serifs.check;
       case TexasHoldemAction.ACTION_FOLD:
-        return 'fold_action' + this.player.id;
+        return this.player.characterData.serifs.fold;
       default:
         return '';
     }
@@ -202,7 +170,7 @@ export default class PlayerView extends ObjectView {
   rankDraw(ranks) {
     const targets = ranks.filter(rank => rank.id === this.player.id);
     if (targets.length === 1) {
-      this.rankCardView.showRank(targets[0]);
+      this.characterView.showSerif(targets[0].rank.getRankName());
     }
   }
 
@@ -223,7 +191,7 @@ export default class PlayerView extends ObjectView {
   }
 
   moveChipDraw() {
-    this.playerCardView.changeStackText(this.player.getStack());
+    this.changeStackText(this.player.getStack());
     this.labels['player_bet_chip_value_' + this.player.id].text = '';
   }
 
@@ -237,19 +205,23 @@ export default class PlayerView extends ObjectView {
 
   studySerifDrawErase() {
     this.characterView.hideSerif();
+    if (this.currentActionSerif !== '') {
+      this.characterView.showSerif(this.currentActionSerif);
+    }
   }
 
   actionDrawErase() {
-    this.playerCardView.changeStackText(this.player.getStack());
+    this.currentActionSerif = '';
+    this.changeStackText(this.player.getStack());
     this.labels['player_bet_chip_value_' + this.player.id].text = '';
     this.hideSprite('player_bet_chip_' + this.player.id);
-    this.hideActionSprites();
+    this.characterView.hideSerif();
   }
 
   oneGameDrawErase() {
     this.hideSprite('player_id_' + this.player.id + '_num0');
     this.hideSprite('player_id_' + this.player.id + '_num1');
-    this.rankCardView.hideRank(this.player.id);
+    this.characterView.hideSerif();
     this.labels['pot_get_message_' + this.player.id].text = '';
     this.characterView.repositExpression();
   }
@@ -265,5 +237,9 @@ export default class PlayerView extends ObjectView {
 
   getPlayerId() {
     return this.player.id;
+  }
+
+  getDealerPosition() {
+    return position = {x: this.sprites['player_bet_chip_' + playerId].x , y: this.dealerPositionY};
   }
 }

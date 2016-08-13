@@ -2,6 +2,7 @@ import Conf from '../config/conf.json';
 import SceneRepository from './SceneRepository';
 import GameTitleSceneFactory from '../factory/start/GameTitleSceneFactory';
 import PlayerModelRepository from '../repository/game/PlayerModelRepository';
+import LoadingScene from '../scene/LoadingScene';
 
 let gameObject = null;
 export default class GameRepository {
@@ -16,10 +17,17 @@ export default class GameRepository {
     const game = new Game(Conf.main.width, Conf.main.height);
     game.preload(Conf.data.loading.image_path);
     game.onload =  () => {
-      GameTitleSceneFactory.generateWithPromise().then(sceneObject => {
+      new Promise((resolve, reject) => {
+        SceneRepository.setGameObject(game);
+        const loadingScene = new LoadingScene();
+        resolve(loadingScene.initializeLoadingScene());
+      }).then(sceneObject => {
+        SceneRepository.pushScene(sceneObject.getScene());
+        return Promise.resolve(GameTitleSceneFactory.generateWithPromise());
+      }).then(sceneObject => {
         PlayerModelRepository.register('ai');
         PlayerModelRepository.register('kyouka');
-        SceneRepository.setGameObject(game);
+        SceneRepository.popScene();
         SceneRepository.pushScene(sceneObject.getScene());
         return Promise.resolve();
       });
