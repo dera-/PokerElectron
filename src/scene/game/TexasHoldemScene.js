@@ -21,6 +21,13 @@ export default class TexasHoldemScene extends BaseScene {
     ).then(() => {
       this.gameMode = gameMode;
       this.allyId = players[0].id;
+      this.studentId = null;
+      if (this.gameMode === GameMode.MODE_STUDY) {
+        this.studentId = players[1].id;
+      } else if (this.gameMode === GameMode.MODE_AI_BATTLE) {
+        this.studentId = this.allyId;
+      }
+
       if (stageData.hasOwnProperty('next')) {
         this.nextStageKey = stageData.next;
       } else {
@@ -93,7 +100,7 @@ export default class TexasHoldemScene extends BaseScene {
         this.view.setCallValue(action.value);
       }
       this.service.nextActionPlayer();
-      if (this.gameMode === GameMode.MODE_STUDY || (this.gameMode === GameMode.MODE_AI_BATTLE && player.id === this.allyId)) {
+      if (this.studentId !== null && player.id === this.studentId) {
         this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_MOVE_STUDY, 500);
       } else {
         this.changeStatusByAutomaticTiming(TexasHoldemStatus.STATUS_NEXT_PLAYER, 500);
@@ -102,7 +109,7 @@ export default class TexasHoldemScene extends BaseScene {
       this.view.moveStudyView();
       this.pushStatus(TexasHoldemStatus.STATUS_STUDY);
     } else if (status === TexasHoldemStatus.STATUS_STUDY_RESULT) {
-      this.view.studySerifsDraw(this.view.getCurrentStudyAction() === MachineStudy.STUDY_PRAISE);
+      this.view.studySerifsDraw(this.studentId, this.view.getCurrentStudyAction() === MachineStudy.STUDY_PRAISE);
       setTimeout(() => {
         this.view.studySerifsDrawErase();
       }, 1200);
@@ -204,7 +211,7 @@ export default class TexasHoldemScene extends BaseScene {
       this.popStatus();
       this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_DESIDE);
     } else if (status === TexasHoldemStatus.STATUS_STUDY && studyStatus !== MachineStudy.STUDY_NONE) {
-      this.service.learnDirect(this.service.getCurrentPlayer().id, studyStatus);
+      this.service.learnDirect(this.studentId, studyStatus);
       this.view.eraseStudyView();
       this.popStatus();
       if (studyStatus === MachineStudy.STUDY_SKIP) {

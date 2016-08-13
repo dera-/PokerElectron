@@ -376,9 +376,11 @@ export default class TexasHoldemView extends BaseView {
     this.currentSelectWindow = null;
   }
 
-  studySerifsDraw(isPraise) {
+  studySerifsDraw(id, isPraise) {
     this.playerViews.forEach(view => {
-      view.studySerifDraw(isPraise);
+      if (view.getPlayerId() === id || view instanceof MyPlayerView) {
+        view.studySerifDraw(isPraise);
+      }
     });
   }
 

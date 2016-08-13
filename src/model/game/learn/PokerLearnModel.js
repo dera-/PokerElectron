@@ -8,6 +8,9 @@ import {ACTION_ALLIN, ACTION_RAISE, ACTION_CALL, ACTION_CHECK, ACTION_FOLD, ACTI
 import {ALLIN_NUM, BIG_RAISE_NUM, MIDDLE_RAISE_NUM, SMALL_RAISE_NUM, CALL_NUM, CHECK_NUM, FOLD_NUM} from '../../../const/game/learn/MachineActionNumber';
 import ActionModel from '../ActionModel';
 import ActionUtil from '../../../util/game/learn/ActionUtil';
+import QValueUtil from '../../../util/game/learn/QValueUtil';
+import CardModel from '../CardModel';
+import * as CardSuit from '../../../const/game/CardSuit';
 
 const REWARD = 10;
 const PENALTY = -10;
@@ -36,6 +39,12 @@ export default class PokerLearnModel {
     this.turnActionHistory = [];
     this.riverActionHistory = [];
     this.currentSimilarQValues = [];
+
+    this.bestPreFlopState = null;
+    this.preFlopActionValues = {};
+    this.flopActionValues = {};
+    this.turnActionValues = {};
+    this.riverActionValues = {};
   }
 
   updateQValues(chip, isLoose) {
@@ -195,7 +204,7 @@ export default class PokerLearnModel {
       }
       return isPossibleAction;
     }),
-      probabilities = this.getQValueProbabilities(candidates),
+      probabilities = QValueUtil.getQValueProbabilities(candidates),
       random = Math.random(),
       before = 0;
     for (let i=0; i < probabilities.length; i++) {
@@ -209,35 +218,15 @@ export default class PokerLearnModel {
     return candidates[probabilities.length-1];
   }
 
-  getQValueProbabilities(qvalues) {
-    let probabilities = [],
-      temp = 0.20,  //逆温度(0に近い程グリーディ)
-      all = 0;
-    //expを全部足した値を導く
-    for (let qvalue of qvalues) {
-      all += Math.exp(qvalue.getScore() / temp); //逆温度を使用
-    }
-    //全て足し合わせた値が0ならば選ばれる確率は皆均等にする
-    if (all === 0) {
-      for(let i=0; i < qvalues.length; i++){
-        probabilities.push(1.0 / qvalues.length);
-      }
-    } else {
-      for (let qvalue of qvalues) {
-        probabilities.push(Math.exp(qvalue.getScore() / temp) / all);  //逆温度を使用
-      }
-    }
-    return probabilities;
-  }
-
   saveQvaluesData() {
   }
 
   getBestPreFlopStateId() {
     let maxValue = 0,
       bestStateId = null;
-    for (let qValues of this.preFlopQValueMap.values()) {
-      let currentValue = 0;
+    for (let key of this.preFlopQValueMap.keys()) {
+      let qValues = this.preFlopQValueMap.get(key),
+        currentValue = 0;
       qValues.forEach(qvalue => {
         if (qvalue.actionId === FOLD_NUM) {
           currentValue += qvalue.score;
@@ -245,10 +234,26 @@ export default class PokerLearnModel {
       });
       if (bestStateId === null || currentValue > maxValue) {
         maxValue = currentValue;
-        bestStateId = qvalue.stateId;
+        bestStateId = key;
       }
     }
     return bestStateId;
+  }
+
+  setBestPreFlopStateId() {
+    const stateId = this.getBestPreFlopStateId();
+    this.bestPreFlopState = MachinePreFlopState.getState(stateId);
+  }
+
+  getFavoriteHand() {
+    const hand = [];
+    let suit = CardSuit.SPADE;
+    hand.push(new CardModel(this.bestPreFlopState.handTop, suit));
+    if (this.bestPreFlopState.isSuited) {
+      suit = CardSuit.HEART;
+    }
+    hand.push(new CardModel(this.bestPreFlopState.handBottom, suit));
+    return hand;
   }
 
   getActionValues(map) {
@@ -262,10 +267,53 @@ export default class PokerLearnModel {
     values[FOLD_NUM] = 0;
     for (let qvalues of map) {
       qvalues.forEach(qvalue => {
-        values[qvlaue.actionId] += qvalue.score;
+        values[qvalue.actionId] += QValueUtil.getRealScore(qvalue.score);
       });
     }
     return values;
+  }
+
+  setActionValues() {
+    this.preFlopActionValues = this.getActionValues(this.preFlopQValueMap);
+    this.flopActionValues = this.getActionValues(this.flopQValueMap);
+    this.turnActionValues = this.getActionValues(this.turnQValueMap);
+    this.riverActionValues = this.getActionValues(this.riverQValueMap);
+  }
+
+  getActionRate(actionValues) {
+    const actionRate = {raise: 0, call: 0, fold: 0};
+    let total = 0;
+    Object.keys(actionValues).forEach(key => {
+      total += actionValues[key];
+      switch(key) {
+        case ALLIN_NUM:
+        case BIG_RAISE_NUM:
+        case MIDDLE_RAISE_NUM:
+        case SMALL_RAISE_NUM:
+          actionRate.raise += actionValues[key];
+          break;
+        case CALL_NUM:
+        case CHECK_NUM:
+          actionRate.call += actionValues[key];
+          break;
+        case FOLD_NUM:
+          actionRate.fold += actionValues[key];
+          break;
+      }
+    });
+    Object.keys(actionRate).forEach(key => {
+      actionRate[key] = actionRate[key] / total;
+    });
+    return actionRate;
+  }
+
+  getActionRates() {
+    return {
+      preflop: this.getActionRate(this.preFlopActionValues),
+      flop: this.getActionRate(this.flopActionValues),
+      turn: this.getActionRate(this.turnActionValues),
+      river: this.getActionRate(this.riverActionValues)
+    };
   }
 
   // writeQValueCsvDatas(map, fileName) {

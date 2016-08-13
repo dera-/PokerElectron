@@ -15,7 +15,6 @@ const NON_EXIST_PLAYER_INDEX = -1;
 const FROP_CARDS_NUM = 3;
 
 export default class TexasHoldemService extends BaseService {
-
   initializeTexasHoldemService(players, initialBlind) {
     return new Promise((resolve, reject) => {
       this.players = players;

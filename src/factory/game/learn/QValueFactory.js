@@ -3,6 +3,7 @@ import MachineAction from '../../../model/game/learn/MachineAction';
 import MachineOpenedBoardState from '../../../model/game/learn/MachineOpenedBoardState';
 import MachinePreFlopState from '../../../model/game/learn/MachinePreFlopState';
 import * as MachineActionNumber from '../../../const/game/learn/MachineActionNumber';
+import QValueUtil from '../../../util/game/learn/QValueUtil';
 const MapForEs6 = Map
 
 export default class QvalueFactory {
@@ -29,7 +30,7 @@ export default class QvalueFactory {
 
   getInitialScore(actionId) {
     if (actionId === MachineActionNumber.ALLIN_NUM || actionId === MachineActionNumber.BIG_RAISE_NUM || actionId === MachineActionNumber.MIDDLE_RAISE_NUM || actionId === MachineActionNumber.SMALL_RAISE_NUM) {
-      return 0.5;
+      return QValueUtil.getDividedScore(1, 4);
     } else {
       return 1;
     }

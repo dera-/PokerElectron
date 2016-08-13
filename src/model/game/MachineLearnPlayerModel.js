@@ -6,6 +6,10 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
     super(id, money, seatNumber, characterData);
     this.pokerLearnModel = new PokerLearnModel(money);
     this.foldHand = [];
+    this.teachedCount = 0;
+    this.playCount = 0;
+    this.winningCount = 0;
+    this.rightFoldCount = 0;
   }
 
   // override
@@ -15,18 +19,26 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
 
   learnDirect(reward) {
     this.pokerLearnModel.updateCurrentSimilarQValues(reward);
+    this.teachedCount++;
+    console.log('direct_learn:' + this.teachedCount);
   }
 
   learn(chip, isLoose) {
-    console.log('普通に学習');
     this.pokerLearnModel.updateQValues(chip, isLoose);
     this.pokerLearnModel.deleteHistories();
+    this.playCount++;
+    if (false === isLoose) {
+      this.winningCount++;
+    }
   }
 
   learnWhenFold(actionPhase, chip, isLoose) {
-    console.log('fold時学習');
     this.pokerLearnModel.updateQValue(actionPhase, chip, isLoose);
     this.pokerLearnModel.deleteHistories();
+    this.playCount++;
+    if (false === isLoose) {
+      this.rightFoldCount++;
+    }
   }
 
   setFoldHand() {
@@ -38,6 +50,30 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
 
   getFoldHand() {
     return this.foldHand;
+  }
+
+  getWinningRate() {
+    if (this.playCount === 0) {
+      return 0;
+    }
+    return this.winningCount / this.playCount;
+  }
+
+  getRightFoldRate() {
+    if (this.playCount === 0) {
+      return 0;
+    }
+    return this.rightFoldCount / this.playCount;
+  }
+
+  getFavoriteHand() {
+    this.pokerLearnModel.setBestPreFlopStateId();
+    return this.pokerLearnModel.getFavoriteHand();
+  }
+
+  getActionRates() {
+    this.pokerLearnModel.setActionValues();
+    return  this.pokerLearnModel.getActionRates();
   }
 
   save() {
