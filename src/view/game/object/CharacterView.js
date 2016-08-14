@@ -17,7 +17,7 @@ export default class CharacterView extends ObjectView {
         this.sprites['serif' + elements.characterData.name].x + 0.05 * this.sprites['serif' + elements.characterData.name].width,
         this.sprites['serif' + elements.characterData.name].y + 0.3 * this.sprites['serif' + elements.characterData.name].height,
         '32px sans-serif',
-        'white'
+        'black'
       );
       resolve();
     });
@@ -65,7 +65,7 @@ export default class CharacterView extends ObjectView {
     this.showSerif(serif);
   }
 
-  showSerif(text) {
+  showSerif(serif) {
     this.labels['serif' + this.characterData.name].text = serif;
     this.showSprite('serif' + this.characterData.name);
     this.showLabel('serif' + this.characterData.name);
@@ -79,10 +79,10 @@ export default class CharacterView extends ObjectView {
   }
 
   getCharaSpriteWidth() {
-    return this.sprites[this.player.characterData.getSpriteKey('normal')].width;
+    return this.sprites[this.characterData.getSpriteKey('normal')].width;
   }
 
   getCharaSpriteHeight() {
-    return this.sprites[this.player.characterData.getSpriteKey('normal')].height;
+    return this.sprites[this.characterData.getSpriteKey('normal')].height;
   }
 }

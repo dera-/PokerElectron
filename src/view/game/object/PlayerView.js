@@ -23,7 +23,7 @@ export default class PlayerView extends ObjectView {
       );
       this.initializeLabel(
         'player_bet_chip_value_' + playerId,
-        this.sprites['player_bet_chip_' + playerId].x + elements.common_interval,
+        this.sprites['player_bet_chip_' + playerId].x + this.sprites['player_bet_chip_' + playerId].width + elements.common_interval,
         this.sprites['player_bet_chip_' + playerId].y,
         '36px sans-serif',
         'white'
@@ -45,7 +45,7 @@ export default class PlayerView extends ObjectView {
       this.initializeLabel(
         'player_stack_' + playerId,
         elements.x_place,
-        elements.y_place + this.sprites[this.player.characterData.getSpriteKey('normal')].height - 36,
+        elements.y_place + this.sprites[this.player.characterData.getSpriteKey('normal')].height + elements.common_interval,
         '36px sans-serif',
         'white'
       );
@@ -113,7 +113,7 @@ export default class PlayerView extends ObjectView {
   }
 
   changeStackText(stackValue) {
-    this.labels['player_stack_' + this.playerId].text = '残り：' + stackValue;
+    this.labels['player_stack_' + this.player.id].text = '残り：' + stackValue;
   }
 
   actionDraw(id, action) {
@@ -130,7 +130,7 @@ export default class PlayerView extends ObjectView {
     let actionSerif = this.getActionSerif(action.name);
     if (actionSerif !== '') {
       this.currentActionSerif = actionSerif;
-      this.characterView.showSerif(serif);
+      this.characterView.showSerif(actionSerif);
     }
   }
 
@@ -240,6 +240,9 @@ export default class PlayerView extends ObjectView {
   }
 
   getDealerPosition() {
-    return position = {x: this.sprites['player_bet_chip_' + playerId].x , y: this.dealerPositionY};
+    return {
+      x: this.sprites['player_bet_chip_' + this.player.id].x + 3 * this.sprites['player_bet_chip_' + this.player.id].width ,
+      y: this.sprites['player_bet_chip_' + this.player.id].y
+    };
   }
 }

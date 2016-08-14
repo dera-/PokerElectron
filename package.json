@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "electron index.js",
+    "start2": "electron rein_poker.asar",
     "compile": "webpack"
   },
   "repository": {
