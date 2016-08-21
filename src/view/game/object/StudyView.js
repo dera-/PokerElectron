@@ -1,49 +1,53 @@
 import ObjectView from '../../ObjectView';
 import * as MachineStudy from '../../../const/game/learn/MachineStudy';
+import ButtonView from '../../object/ButtonView';
 
 export default class StudyView extends ObjectView {
   initializeElements(elements) {
     return new Promise((resolve, reject) => {
-      this.studyStatus = MachineStudy.STUDY_NONE;
-      Object.keys(this.sprites).forEach(key => {
-        this.initializeLabel(
-          key,
-          this.sprites[key].x + 0.1 * this.sprites[key].width,
-          this.sprites[key].y + 0.25 * this.sprites[key].height,
-          '36px sans-serif',
-          'white'
-        );
-      });
-      resolve();
+      this.praiseButtonView = new ButtonView();
+      resolve(this.praiseButtonView.initialize({praise: this.sprites['praise']}, {praise: new Label('ほめる')}, {name: 'praise'}));
     }).then(() => {
-      return this.initializeSpriteEvents();
+      this.scoldButtonView = new ButtonView();
+      return this.scoldButtonView.initialize({scold: this.sprites['scold']}, {scold: new Label('しかる')}, {name: 'scold'});
     }).then(()=>{
+      this.skipButtonView = new ButtonView();
+      return this.skipButtonView.initialize({skip: this.sprites['skip']}, {skip: new Label('スキップ')}, {name: 'skip'});
+    }).then(()=>{
+      this.removeSprite('praise');
+      this.removeSprite('scold');
+      this.removeSprite('skip');
       return Promise.resolve();
     });
   }
 
-  initializeSpriteEvents() {
-    return new Promise((resolve, reject) => {
-      console.log('initializeSpriteEvents');
-      this.sprites['praise'].addEventListener('touchend', () => {
-        this.studyStatus = MachineStudy.STUDY_PRAISE;
-      });
-      this.sprites['scold'].addEventListener('touchend', () => {
-        this.studyStatus = MachineStudy.STUDY_SCOLD;
-      });
-      this.sprites['skip'].addEventListener('touchend', () => {
-        this.studyStatus = MachineStudy.STUDY_SKIP;
-      });
-      resolve();
-    });
+  showFirst() {
+    this.praiseButtonView.showFirst();
+    this.scoldButtonView.showFirst();
+    this.skipButtonView.showFirst();
   }
 
-  showFirst() {
-    this.studyStatus = MachineStudy.STUDY_NONE;
-    this.showAll();
+  hideAll() {
+    this.praiseButtonView.hideAll();
+    this.scoldButtonView.hideAll();
+    this.skipButtonView.hideAll();
   }
 
   getStudyStatus() {
-    return this.studyStatus;
+    if (this.praiseButtonView.isClicked()) {
+      return MachineStudy.STUDY_PRAISE;
+    } else if (this.scoldButtonView.isClicked()) {
+      return MachineStudy.STUDY_SCOLD;
+    } else if (this.skipButtonView.isClicked()) {
+      return MachineStudy.STUDY_SKIP;
+    } else {
+      return MachineStudy.STUDY_NONE;
+    }
+  }
+
+  resetStudyStatus() {
+    this.praiseButtonView.reset();
+    this.scoldButtonView.reset();
+    this.skipButtonView.reset();
   }
 }

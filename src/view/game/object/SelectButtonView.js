@@ -19,8 +19,8 @@ export default class SelectButtonView extends ObjectView {
   }
 
   showFirst() {
-    this.showSprite('button_' + this.name);
     this.showLabel('button_' + this.name);
+    this.showSprite('button_' + this.name);
   }
 
   changeText(buttonText) {

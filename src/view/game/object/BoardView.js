@@ -16,6 +16,7 @@ export default class BoardView extends ObjectView {
       );
       this.labels['pot_value'].color = 'white';
       this.labels['pot_value'].font = '40px sans-serif';
+      this.labels['pot_value'].width = 0.3 * Conf.main.width;
       resolve();
     });
   }
@@ -26,8 +27,8 @@ export default class BoardView extends ObjectView {
 
   // ボードにカードをオープンする描画
   setCardsDraw(cardSprites) {
-    const startX = this.sprites['poker_table'].x + 0.15 * Conf.main.width;
-    const startY = this.sprites['poker_table'].y + 0.2 * Conf.main.height;
+    const startX = this.sprites['poker_table'].x + 0.175 * Conf.main.width;
+    const startY = this.sprites['poker_table'].y + 0.275 * Conf.main.height;
     const interval = 0.03 * Conf.main.width;
     cardSprites.forEach(cardSprite => {
       cardSprite.x = startX + this.boardCardNums * (cardSprite.width + interval);

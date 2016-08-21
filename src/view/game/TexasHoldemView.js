@@ -154,10 +154,10 @@ export default class TexasHoldemView extends BaseView {
       const properties = {
         name: 'rightup',
         x: 0.6 * Conf.main.width,
-        y: 0.05 * Conf.main.height,
-        interval: 0.04 * Conf.main.height,
+        y: 0.01 * Conf.main.width,
+        interval: 0.04 * Conf.main.width,
         color: 'white',
-        font: '28px sans-serif'
+        font: '36px sans-serif'
       };
       this.informationView = new InformationView();
       resolve(this.informationView.initialize({}, labels, properties));
@@ -198,7 +198,7 @@ export default class TexasHoldemView extends BaseView {
         let xPlace, yPlace, chipPlaceInterval, relativeDealerPositionY;
         const chipSprite = SpriteFactory.getClone(this.sprites['chip']);
         xPlace = commonInterval;
-        yPlace = 0.65 * Conf.main.height - 0.64 * Conf.main.height * index;
+        yPlace = 0.7 * Conf.main.height - 0.69 * Conf.main.height * index;
         if (index === 0) {
           chipPlaceInterval = -1 * chipSprite.height - commonInterval;
           relativeDealerPositionY = -1 * this.sprites['deeler_button'].height - commonInterval;
@@ -213,10 +213,8 @@ export default class TexasHoldemView extends BaseView {
         sprites['player_bet_chip_' + player.id] = chipSprite;
         if (index === 0) {
           sprites['serif' + player.characterData.name] = this.sprites['fukidashi_shita'];
-          sprites['serif' + player.characterData.name].y = this.sprites['fukidashi_shita'].y;
         } else {
           sprites['serif' + player.characterData.name] = this.sprites['fukidashi_ue'];
-          sprites['serif' + player.characterData.name].y = this.sprites['fukidashi_ue'].y;
         }
         player.characterData.getSpriteData().forEach(data => {
           sprites[data.sprite_key] = this.sprites[data.sprite_key];
@@ -395,6 +393,7 @@ export default class TexasHoldemView extends BaseView {
   }
 
   studySerifsDrawErase() {
+    this.studyView.resetStudyStatus();
     this.playerViews.forEach(view => {
       view.studySerifDrawErase();
     });

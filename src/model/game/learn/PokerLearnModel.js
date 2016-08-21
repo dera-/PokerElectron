@@ -20,27 +20,16 @@ export default class PokerLearnModel {
     let qValueFactory = new QValueFactory();
     this.initialStack = initialStack;
     if (dataFilePrefix !== '') {
-      console.log("ファイル読み込みやつ"+dataFilePrefix);
       const preFlopQValuesData = require("raw!../../../data/" + dataFilePrefix + "PreFlopQValues.txt").split('\n');
       const flopQValuesData = require("raw!../../../data/" + dataFilePrefix + "FlopQValues.txt").split('\n');
       this.preFlopQValueMap = qValueFactory.generateMapByCsv(preFlopQValuesData);
       this.flopQValueMap = qValueFactory.generateMapByCsv(flopQValuesData);
       this.turnQValueMap = qValueFactory.generateMapByCsv(flopQValuesData);
       this.riverQValueMap = qValueFactory.generateMapByCsv(flopQValuesData);
-      console.log(preFlopQValuesData);
-      console.log(flopQValuesData);
-      console.log(this.preFlopQValueMap);
-      console.log(this.flopQValueMap);
-      console.log(this.turnQValueMap);
-      console.log(this.riverQValueMap);
     } else {
-      console.log('preflop_init');
       this.preFlopQValueMap = qValueFactory.generateMapForPreFlopState();
-      console.log('flop_init');
       this.flopQValueMap = qValueFactory.generateMapForOpenedBoardState();
-      console.log('turn_init');
       this.turnQValueMap = qValueFactory.generateMapForOpenedBoardState();
-      console.log('river_init');
       this.riverQValueMap = qValueFactory.generateMapForOpenedBoardState();
     }
     this.preFlopActionHistory = [];

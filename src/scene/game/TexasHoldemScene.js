@@ -109,6 +109,8 @@ export default class TexasHoldemScene extends BaseScene {
       this.view.moveStudyView();
       this.pushStatus(TexasHoldemStatus.STATUS_STUDY);
     } else if (status === TexasHoldemStatus.STATUS_STUDY_RESULT) {
+      const study = this.view.getCurrentStudyAction();
+      console.log('study_result: ' + study);
       this.view.studySerifsDraw(this.studentId, this.view.getCurrentStudyAction() === MachineStudy.STUDY_PRAISE);
       setTimeout(() => {
         this.view.studySerifsDrawErase();

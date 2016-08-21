@@ -2,20 +2,32 @@ import SceneRepository from '../repository/SceneRepository';
 
 export default class ObjectView {
   initialize(sprites, labels, elements = {}) {
+    return Promise.resolve().then(() => {
+      return this.initializeSprites(sprites, elements);
+    }).then(() => {
+      return this.initializeLabels(labels, elements);
+    }).then(() => {
+      return this.initializeElements(elements);
+    });
+  }
+
+  initializeSprites(sprites, elements) {
     return new Promise((resolve, reject) => {
       this.sprites = {};
       Object.keys(sprites).forEach(key => {
         this.sprites[key] = sprites[key];
       });
       resolve();
-    }).then(() => {
+    });
+  }
+
+  initializeLabels(labels, elements) {
+    return new Promise((resolve, reject) => {
       this.labels = {};
       Object.keys(labels).forEach(key => {
         this.labels[key] = labels[key];
       });
-      return Promise.resolve();
-    }).then(() => {
-      return this.initializeElements(elements);
+      resolve();
     });
   }
 

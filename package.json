@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "electron index.js",
-    "start2": "electron rein_poker.asar",
-    "compile": "webpack"
+    "compile": "webpack",
+    "compile_diff": "webpack --progress --colors --watch"
   },
   "repository": {
     "type": "git",

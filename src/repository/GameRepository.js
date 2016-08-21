@@ -27,7 +27,6 @@ export default class GameRepository {
       }).then(sceneObject => {
         PlayerModelRepository.register('ai');
         PlayerModelRepository.register('kyouka');
-        SceneRepository.popScene();
         SceneRepository.pushScene(sceneObject.getScene());
         return Promise.resolve();
       });

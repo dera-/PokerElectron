@@ -30,8 +30,8 @@ export default class AiStatusDisplayScene extends BaseScene {
     this.view.setTeachedCount(this.service.getTeachedCount());
     this.view.setWinningRate(this.service.getWinningRate());
     this.view.setRightFoldRate(this.service.getRightFoldRate());
-    this.view.setCardSprite(this.service.getBestHand());
     this.view.show();
+    this.view.cardSpriteDraw(this.service.getBestHand());
   }
 
   touchEndEvent() {

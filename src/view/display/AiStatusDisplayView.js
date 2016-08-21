@@ -29,16 +29,16 @@ export default class AiStatusDisplayView extends BaseView {
       const width = Conf.main.width;
       const height = Conf.main.height;
       this.labels = {};
-      this.labels['ai_name'] = this.getValueLabel(0.45 * width, 0.05 * height, this.player.characterData.name);
-      this.labels['player_type_section'] = this.getSectionLabel('プレイスタイル：', 0.45 * width, 0.2 * height);
-      this.labels['player_type_value'] = this.getValueLabel(0.6 * width, 0.25 * height, NONE_POKER_STYLE);
-      this.labels['teached_count_section'] = this.getSectionLabel('教えた数：', 0.45 * width, 0.35 * height);
-      this.labels['teached_count_value'] = this.getValueLabel(0.6 * width, 0.4 * height, '0回');
-      this.labels['winning_rate_section'] = this.getSectionLabel('ポッド獲得率：', 0.45 * width, 0.5 * height);
-      this.labels['winning_rate_value'] = this.getValueLabel(0.6 * width, 0.55 * height, '0%');
-      this.labels['right_fold_rate_section'] = this.getSectionLabel('正しいフォールド率：', 0.45 * width, 0.65 * height);
-      this.labels['right_fold_rate_value'] = this.getValueLabel(0.6 * width, 0.7 * height, '0%');
-      this.labels['favorite_hand_section'] = this.getSectionLabel('好きなハンド：', 0.45 * width, 0.85 * height);
+      this.labels['ai_name'] = this.getValueLabel(0.45 * width, 0.05 * height, this.player.characterData.displayName);
+      this.labels['player_type_section'] = this.getSectionLabel('プレイスタイル：', 0.45 * width, 0.15 * height);
+      this.labels['player_type_value'] = this.getValueLabel(0.6 * width, 0.2 * height, NONE_POKER_STYLE);
+      this.labels['teached_count_section'] = this.getSectionLabel('教えた数：', 0.45 * width, 0.3 * height);
+      this.labels['teached_count_value'] = this.getValueLabel(0.6 * width, 0.35 * height, '0回');
+      this.labels['winning_rate_section'] = this.getSectionLabel('ポッド獲得率：', 0.45 * width, 0.45 * height);
+      this.labels['winning_rate_value'] = this.getValueLabel(0.6 * width, 0.5 * height, '0%');
+      this.labels['right_fold_rate_section'] = this.getSectionLabel('正しいフォールド率：', 0.45 * width, 0.6 * height);
+      this.labels['right_fold_rate_value'] = this.getValueLabel(0.6 * width, 0.65 * height, '0%');
+      this.labels['favorite_hand_section'] = this.getSectionLabel('好きなハンド：', 0.45 * width, 0.75 * height);
       resolve();
     });
   }
@@ -101,13 +101,13 @@ export default class AiStatusDisplayView extends BaseView {
     this.labels['right_fold_rate_value'].text = value + '%';
   }
 
-  setCardSprite(cards) {
+  cardSpriteDraw(cards) {
     const cardSpriteKeys = ['display_card_trump/' + cards[0].getCardImageName(), 'display_card_trump/' + cards[1].getCardImageName()];
-    const interval = 0.03 * Conf.main.width;
+    const interval = 0.08 * Conf.main.width;
     let index = 0;
     cardSpriteKeys.forEach(key => {
-      this.sprites[key].x = 0.6 * Conf.main.width;
-      this.sprites[key].y = 0.75 * Conf.main.height + index * interval;
+      this.sprites[key].x = 0.6 * Conf.main.width + index * interval;
+      this.sprites[key].y = 0.75 * Conf.main.height;
       SceneRepository.addEntityToCurrentScene(key, this.sprites[key]);
       index++;
     });

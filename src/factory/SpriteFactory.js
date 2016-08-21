@@ -26,7 +26,9 @@ export default class SpriteFactory {
     const surface = new Surface(width, height);
     surface.context.beginPath();
     surface.context.fillStyle = fillStyle;
-    surface.context.fillRect(x, y, width, height);
+    surface.context.fillRect(0, 0, width, height);
+    sprite.x = x;
+    sprite.y = y;
     sprite.image = surface;
     return sprite;
   }

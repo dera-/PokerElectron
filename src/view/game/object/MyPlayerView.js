@@ -1,6 +1,6 @@
 import PlayerView from './PlayerView';
 import * as TexasHoldemAction from '../../../const/game/TexasHoldemAction';
-import SelectButtonView from './SelectButtonView';
+import ButtonView from '../../object/ButtonView';
 
 export default class MyPlayerView extends PlayerView {
   initializeElements(elements) {
@@ -11,33 +11,32 @@ export default class MyPlayerView extends PlayerView {
       this.sprites['bet_slider'].x = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
       return Promise.resolve();
     }).then(() => {
-      return this.initializeSelectButtonViews();
+      return this.initializeButtonViews();
     }).then(()=>{
       return this.registerEntityEvent();
     });
   }
 
-  initializeSelectButtonViews() {
+  initializeButtonViews() {
     return new Promise((resolve, reject) => {
-      const sprites = {'button_fold': this.sprites['fold']};
-      const labels = {'button_fold': new Label('フォールド')};
-      this.foldButtonView = new SelectButtonView();
+      const sprites = {'fold': this.sprites['fold']};
+      const labels = {'fold': new Label('フォールド')};
+      this.foldButtonView = new ButtonView();
       resolve(this.foldButtonView.initialize(sprites, labels, {name: 'fold'}));
     }).then(()=>{
-      const sprites = {'button_call': this.sprites['call']};
-      const labels = {'button_call': new Label('チェック')};
-      this.callButtonView = new SelectButtonView();
+      const sprites = {'call': this.sprites['call']};
+      const labels = {'call': new Label('チェック')};
+      this.callButtonView = new ButtonView();
       return Promise.resolve(this.callButtonView.initialize(sprites, labels, {name: 'call'}));
     }).then(()=>{
-      const sprites = {'button_raise': this.sprites['raise']};
-      const labels = {'button_raise': new Label('レイズ 0 (不可)')};
-      this.raiseButtonView = new SelectButtonView();
+      const sprites = {'raise': this.sprites['raise']};
+      const labels = {'raise': new Label('レイズ 0 (不可)')};
+      this.raiseButtonView = new ButtonView();
       return Promise.resolve(this.raiseButtonView.initialize(sprites, labels, {name: 'raise'}));
     }).then(()=>{
       this.removeSprite('fold');
       this.removeSprite('call');
       this.removeSprite('raise');
-      this.removeSprite('forbbiden_icon');
       return Promise.resolve();
     });
   }
@@ -50,7 +49,7 @@ export default class MyPlayerView extends PlayerView {
       this.sprites['bet_bar'].addEventListener('touchstart', event =>{
         this.moveBetSlider(event);
       });
-      this.raiseButtonView.getSprite().addEventListener('touchend', () => {
+      this.raiseButtonView.getEventSprite().addEventListener('touchend', () => {
         const minX = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
         const maxX = minX + this.sprites['bet_bar'].width;
         const betValue = Math.round(this.player.getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
@@ -65,7 +64,7 @@ export default class MyPlayerView extends PlayerView {
         this.betValue = betValue;
         this.currentAction = TexasHoldemAction.ACTION_RAISE;
       });
-      this.callButtonView.getSprite().addEventListener('touchend', () => {
+      this.callButtonView.getEventSprite().addEventListener('touchend', () => {
         const currentStack = this.player.getStack();
         if (currentStack < this.callValue) {
           this.betValue = currentStack;
@@ -74,7 +73,7 @@ export default class MyPlayerView extends PlayerView {
         }
         this.currentAction = TexasHoldemAction.ACTION_CALL;
       });
-      this.foldButtonView.getSprite().addEventListener('touchend', () => {
+      this.foldButtonView.getEventSprite().addEventListener('touchend', () => {
         this.currentAction = TexasHoldemAction.ACTION_FOLD;
       });
       resolve();

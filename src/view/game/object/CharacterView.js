@@ -9,8 +9,8 @@ export default class CharacterView extends ObjectView {
       this.expression = CharacterExpression.EXPRESSION_NORMAL;
       this.centerX = elements.center_x;
       this.centerY = elements.center_y;
-      Object.keys(this.sprites).forEach(key => {
-        this.initializeSprite(key, elements.x, elements.y);
+      elements.characterData.getSpriteData().forEach(data => {
+        this.initializeSprite(data.sprite_key, elements.x, elements.y);
       });
       this.initializeLabel(
         'serif' + elements.characterData.name,

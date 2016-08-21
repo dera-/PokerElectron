@@ -44,9 +44,9 @@ export default class PlayerView extends ObjectView {
       );
       this.initializeLabel(
         'player_stack_' + playerId,
-        elements.x_place,
-        elements.y_place + this.sprites[this.player.characterData.getSpriteKey('normal')].height + elements.common_interval,
-        '36px sans-serif',
+        this.labels['player_name_' + playerId].x + 0.6 * this.labels['player_name_' + playerId].width,
+        elements.y_place,
+        '48px sans-serif',
         'white'
       );
       this.dealerPositionY = this.sprites['player_bet_chip_' + playerId].y + elements.relative_dealer_position_y;
