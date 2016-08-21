@@ -12,25 +12,25 @@ export default class RankModel {
     const rank = Math.floor(this.strength);
     switch(rank) {
       case RankStrength.ROYAL_STRAIGHT_FLUSH:
-        return 'ROYAL STRAIGHT FLUSH';
+        return 'ロイヤルストレートフラッシュ';
       case RankStrength.STRAIGHT_FLUSH:
-        return 'STRAIGHT FLUSH';
+        return 'ストレートフラッシュ';
       case RankStrength.FOUR_CARD:
-        return 'FOUR CARD';
+        return 'フォーカード';
       case RankStrength.FULL_HOUSE:
-        return 'FULL_HOUSE';
+        return 'フルハウス';
       case RankStrength.FLUSH:
-        return 'FLUSH';
+        return 'フラッシュ';
       case RankStrength.STRAIGHT:
-        return 'STRAIGHT';
+        return 'ストレート';
       case RankStrength.THREE_CARD:
-        return 'THREE_CARD';
+        return 'スリーカード';
       case RankStrength.TWO_PAIR:
-        return 'TWO_PAIR';
+        return 'ツーペア';
       case RankStrength.ONE_PAIR:
-        return 'ONE_PAIR';
+        return 'ワンペア';
       default:
-        return 'NO_PAIR';
+        return 'ブタ';
     }
   }
 }

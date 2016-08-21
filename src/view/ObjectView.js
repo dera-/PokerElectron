@@ -109,7 +109,7 @@ export default class ObjectView {
   }
 
   // labelを整形
-  initializeLabel(key, x, y, font = null, color = null) {
+  initializeLabel(key, x, y, font = null, color = null, width = null) {
     if (false === this.labels.hasOwnProperty(key)) {
       return;
     }
@@ -119,6 +119,9 @@ export default class ObjectView {
     }
     if (color !== null) {
       this.labels[key].color = color;
+    }
+    if (width !== null) {
+      this.labels[key].width = width;
     }
   }
 }

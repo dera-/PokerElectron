@@ -155,6 +155,7 @@ export default class TexasHoldemView extends BaseView {
         name: 'rightup',
         x: 0.6 * Conf.main.width,
         y: 0.01 * Conf.main.width,
+        width: 0.25 * Conf.main.width,
         interval: 0.04 * Conf.main.width,
         color: 'white',
         font: '36px sans-serif'
