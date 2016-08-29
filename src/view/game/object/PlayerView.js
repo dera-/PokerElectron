@@ -30,8 +30,8 @@ export default class PlayerView extends ObjectView {
       );
       this.initializeLabel(
         'pot_get_message_' + playerId,
-        elements.x_place,
-        elements.y_place - this.sprites['serif' + this.player.characterData.name].height,
+        this.sprites['player_bet_chip_' + playerId].x,
+        this.sprites['player_bet_chip_' + playerId].y,
         '32px sans-serif',
         'white'
       );
@@ -180,14 +180,11 @@ export default class PlayerView extends ObjectView {
       return;
     }
     const pot = targets[0];
-    let message = 'ポッド獲得できず。。。',
-      messageColor = 'black';
+    let message = 'ポッド獲得できず。。。';
     if (pot.chip > 0) {
       message = pot.chip + '獲得！！';
-      messageColor = 'orange';
     }
     this.labels['pot_get_message_' + pot.id].text = message;
-    this.labels['pot_get_message_' + pot.id].color = messageColor;
   }
 
   moveChipDraw() {

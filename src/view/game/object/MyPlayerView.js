@@ -66,12 +66,17 @@ export default class MyPlayerView extends PlayerView {
       });
       this.callButtonView.getEventSprite().addEventListener('touchend', () => {
         const currentStack = this.player.getStack();
+        let action = TexasHoldemAction.ACTION_CALL;
+        if (this.betValue === this.callValue) {
+          action = TexasHoldemAction.ACTION_CHECK;
+        }
         if (currentStack < this.callValue) {
           this.betValue = currentStack;
         } else {
           this.betValue = this.callValue;
         }
-        this.currentAction = TexasHoldemAction.ACTION_CALL;
+        this.currentAction = action;
+        console.log('コール/チェックボタン：' + this.currentAction);
       });
       this.foldButtonView.getEventSprite().addEventListener('touchend', () => {
         this.currentAction = TexasHoldemAction.ACTION_FOLD;
