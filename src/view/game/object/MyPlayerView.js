@@ -58,7 +58,7 @@ export default class MyPlayerView extends PlayerView {
           this.currentAction = TexasHoldemAction.ACTION_ALLIN;
           return;
         }
-        if (betValue < this.bigBlind || betValue < 2 * this.callValue || betValue < this.betValue) {
+        if (betValue < this.bigBlind || betValue < 2 * this.callValue || betValue < this.player.getBetValue()) {
           return ;
         }
         this.betValue = betValue;
@@ -67,7 +67,7 @@ export default class MyPlayerView extends PlayerView {
       this.callButtonView.getEventSprite().addEventListener('touchend', () => {
         const currentStack = this.player.getStack();
         let action = TexasHoldemAction.ACTION_CALL;
-        if (this.betValue === this.callValue) {
+        if (this.player.getBetValue() === this.callValue) {
           action = TexasHoldemAction.ACTION_CHECK;
         }
         if (currentStack < this.callValue) {
@@ -104,7 +104,7 @@ export default class MyPlayerView extends PlayerView {
     const betValue = Math.round(this.player.getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
     if (betValue === this.player.getStack()) {
       this.raiseButtonView.changeText('オールイン');
-    } else if (betValue < this.bigBlind || betValue < 2 * this.callValue || betValue < this.betValue) {
+    } else if (betValue < this.bigBlind || betValue < 2 * this.callValue || betValue < this.player.getBetValue()) {
       this.raiseButtonView.changeText('レイズ ' + betValue + '(不可)');
     } else {
       this.raiseButtonView.changeText('レイズ ' + betValue);
@@ -122,7 +122,7 @@ export default class MyPlayerView extends PlayerView {
     let callValueText;
     if (callValue > this.player.getStack()) {
       callValueText = 'オールイン';
-    } else if (callValue === 0 || callValue === this.betValue) {
+    } else if (callValue === 0 || callValue === this.player.getBetValue()) {
       callValueText = 'チェック';
     } else {
       callValueText = 'コール ' + callValue;

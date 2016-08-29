@@ -192,13 +192,10 @@ export default class PokerLearnModel {
   getQValue(qvalues, callValue, currentBetValue) {
     let candidates = qvalues.filter((qvalue) => {
       let isPossibleAction;
-      if (callValue === 0) {
-        isPossibleAction = qvalue.actionId !== CALL_NUM;
+      if (callValue === currentBetValue) {
+        isPossibleAction = qvalue.actionId !== CALL_NUM && qvalue.actionId !== FOLD_NUM;
       } else {
         isPossibleAction = qvalue.actionId !== CHECK_NUM;
-      }
-      if (callValue === currentBetValue) {
-        isPossibleAction = isPossibleAction && qvalue.actionId !== FOLD_NUM
       }
       return isPossibleAction;
     }),

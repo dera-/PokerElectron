@@ -28,6 +28,10 @@ export default class PlayerModel {
     this.action = null;
   }
 
+  getBetValue() {
+    return this.action !== null ? this.action.value : 0;
+  }
+
   pay(value) {
     this.stack -= value;
   }
