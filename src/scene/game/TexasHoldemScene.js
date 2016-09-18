@@ -244,8 +244,10 @@ export default class TexasHoldemScene extends BaseScene {
   }
 
   returnToTitle() {
-    GameTitleSceneFactory.generateWithPromise().then(sceneObject => {
+    return new Promise((resolve, reject) => {
       SceneRepository.popScene();
+      resolve(GameTitleSceneFactory.generateWithPromise());
+    }).then(sceneObject => {
       SceneRepository.pushScene(sceneObject.getScene());
     });
   }

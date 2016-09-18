@@ -202,7 +202,7 @@ export default class PokerLearnModel {
       probabilities = QValueUtil.getQValueProbabilities(candidates),
       random = Math.random(),
       before = 0;
-    for (let i=0; i < probabilities.length; i++) {
+    for (let i = 0; i < probabilities.length; i++) {
       if (before <= random && random < before + probabilities[i]) {
         return candidates[i];
       } else {

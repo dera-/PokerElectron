@@ -44,7 +44,7 @@ export default class PlayerView extends ObjectView {
       );
       this.initializeLabel(
         'player_stack_' + playerId,
-        this.labels['player_name_' + playerId].x + 0.6 * this.labels['player_name_' + playerId].width,
+        this.labels['player_name_' + playerId].x + this.labels['player_name_' + playerId].width,
         elements.y_place,
         '48px sans-serif',
         'white'

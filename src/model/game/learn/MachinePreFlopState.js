@@ -1,13 +1,16 @@
 import MachineState from './MachineState';
 import {ALL_ACTIONS} from '../../../const/game/TexasHoldemAction';
+import {ALL_STACK_SIZE_TYPE} from '../../../const/game/learn/StackSize';
+import StackUtil from '../../../util/game/learn/StackUtil';
 
 export default class MachinePreFlopState extends MachineState {
-  constructor(id, handTop, handBottom, isSuited, enemyAction) {
+  constructor(id, handTop, handBottom, isSuited, enemyAction, stackSizeType) {
     super(id);
     this.handTop = handTop;
     this.handBottom = handBottom;
     this.isSuited = isSuited;
     this.enemyAction = enemyAction;
+    this.stackSizeType = stackSizeType;
   }
 
   static generateAllStates() {
@@ -19,11 +22,13 @@ export default class MachinePreFlopState extends MachineState {
         cardPairs.push({top:topNum, bottom:bottomNum});
       }
     }
-    cardPairs.forEach((pair)=>{
-      for (let enemyAction of ALL_ACTIONS) {
-        states.push(new MachinePreFlopState(id, pair.top, pair.bottom, true, enemyAction));
-        states.push(new MachinePreFlopState(id + 1, pair.top, pair.bottom, false, enemyAction));
-        id += 2;
+    cardPairs.forEach((pair) => {
+      for (let stackSizeType of ALL_STACK_SIZE_TYPE) {
+        for (let enemyAction of ALL_ACTIONS) {
+          states.push(new MachinePreFlopState(id, pair.top, pair.bottom, true, enemyAction, stackSizeType));
+          states.push(new MachinePreFlopState(id + 1, pair.top, pair.bottom, false, enemyAction, stackSizeType));
+          id += 2;
+        }
       }
     });
     return states;
@@ -32,8 +37,9 @@ export default class MachinePreFlopState extends MachineState {
   static getId(myHand, myStack, enemyStack, myAction, enemyAction) {
     let sortedMyHand = myHand.sort((card1, card2) => card1.number - card2.number),
       isSuited = sortedMyHand[0].suit === sortedMyHand[1].suit,
+      stackSizeType = StackUtil.getStackSizeType(myStack, enemyStack),
       searched = PRE_FLOP_STATES.filter((state) => {
-        return sortedMyHand[0].number === state.handBottom && sortedMyHand[1].number === state.handTop && isSuited === state.isSuited && enemyAction === state.enemyAction;
+        return sortedMyHand[0].number === state.handBottom && sortedMyHand[1].number === state.handTop && isSuited === state.isSuited && enemyAction === state.enemyAction && stackSizeType === state.stackSizeType;
       });
     if (searched.length === 0) {
       throw new Error('状態IDが見つかりませんでした');
@@ -44,8 +50,9 @@ export default class MachinePreFlopState extends MachineState {
   // 対象の状態に似たような状態の取得
   static getSimilarIds(myHand, myStack, enemyStack, myAction, enemyAction) {
     let sortedMyHand = myHand.sort((card1, card2) => card1.number - card2.number),
+      stackSizeType = StackUtil.getStackSizeType(myStack, enemyStack),
       searched = PRE_FLOP_STATES.filter((state) => {
-        return sortedMyHand[0].number - 1 <= state.handBottom && state.handBottom <= sortedMyHand[0].number + 1 && sortedMyHand[1].number - 1 <= state.handTop && state.handTop <= sortedMyHand[1].number + 1 && enemyAction === state.enemyAction;
+        return sortedMyHand[0].number - 1 <= state.handBottom && state.handBottom <= sortedMyHand[0].number + 1 && sortedMyHand[1].number - 1 <= state.handTop && state.handTop <= sortedMyHand[1].number + 1 && enemyAction === state.enemyAction && stackSizeType === state.stackSizeType;
       });
     if (searched.length === 0) {
       throw new Error('状態IDが見つかりませんでした');
