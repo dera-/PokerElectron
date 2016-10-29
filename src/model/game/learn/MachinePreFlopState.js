@@ -19,7 +19,7 @@ export default class MachinePreFlopState extends MachineState {
         cardPairs.push({top:topNum, bottom:bottomNum});
       }
     }
-    cardPairs.forEach((pair)=>{
+    cardPairs.forEach((pair) => {
       for (let enemyAction of ALL_ACTIONS) {
         states.push(new MachinePreFlopState(id, pair.top, pair.bottom, true, enemyAction));
         states.push(new MachinePreFlopState(id + 1, pair.top, pair.bottom, false, enemyAction));
@@ -44,8 +44,9 @@ export default class MachinePreFlopState extends MachineState {
   // 対象の状態に似たような状態の取得
   static getSimilarIds(myHand, myStack, enemyStack, myAction, enemyAction) {
     let sortedMyHand = myHand.sort((card1, card2) => card1.number - card2.number),
+      isPocketHand = sortedMyHand[0].number === sortedMyHand[1].number,
       searched = PRE_FLOP_STATES.filter((state) => {
-        return sortedMyHand[0].number - 1 <= state.handBottom && state.handBottom <= sortedMyHand[0].number + 1 && sortedMyHand[1].number - 1 <= state.handTop && state.handTop <= sortedMyHand[1].number + 1 && enemyAction === state.enemyAction;
+        return sortedMyHand[0].number - 1 <= state.handBottom && state.handBottom <= sortedMyHand[0].number + 1 && sortedMyHand[1].number - 1 <= state.handTop && state.handTop <= sortedMyHand[1].number + 1 && isPocketHand === (state.handBottom === state.handTop) && enemyAction === state.enemyAction;
       });
     if (searched.length === 0) {
       throw new Error('状態IDが見つかりませんでした');

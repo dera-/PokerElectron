@@ -18,7 +18,7 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
   }
 
   learnDirect(reward) {
-    this.pokerLearnModel.updateCurrentSimilarQValues(reward);
+    //this.pokerLearnModel.updateCurrentSimilarQValues(reward);
     this.teachedCount++;
     console.log('direct_learn:' + this.teachedCount);
   }
@@ -78,5 +78,10 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
 
   save() {
     this.pokerLearnModel.saveQvaluesData();
+  }
+
+  changeInitialiStack(money) {
+    super.changeInitialiStack(money);
+    this.pokerLearnModel.setInitialStack(money);
   }
 }

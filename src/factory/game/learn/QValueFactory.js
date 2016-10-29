@@ -1,18 +1,30 @@
 import QValue from '../../../model/game/learn/QValue';
 import MachineAction from '../../../model/game/learn/MachineAction';
 import MachineOpenedBoardState from '../../../model/game/learn/MachineOpenedBoardState';
+import MachineRiverState from '../../../model/game/learn/MachineRiverState';
 import MachinePreFlopState from '../../../model/game/learn/MachinePreFlopState';
 import * as MachineActionNumber from '../../../const/game/learn/MachineActionNumber';
+import * as TexasHoldemPhase from '../../../const/game/TexasHoldemPhase';
 import QValueUtil from '../../../util/game/learn/QValueUtil';
 const MapForEs6 = Map
 
 export default class QvalueFactory {
-  generateMapForPreFlopState() {
-    return this.generateMap(MachinePreFlopState.getStatesCount(), MachineAction.getActionsCount());
+  constructor(phase) {
+    this.phase = phase;
   }
 
-  generateMapForOpenedBoardState() {
-    return this.generateMap(MachineOpenedBoardState.getStatesCount(), MachineAction.getActionsCount());
+  generateInitialMap() {
+    switch(this.phase) {
+      case TexasHoldemPhase.PHASE_PRE_FLOP:
+        return this.generateMap(MachinePreFlopState.getStatesCount(), MachineAction.getActionsCount());
+      case TexasHoldemPhase.PHASE_FLOP:
+      case TexasHoldemPhase.PHASE_TURN:
+        return this.generateMap(MachineOpenedBoardState.getStatesCount(), MachineAction.getActionsCount());
+      case TexasHoldemPhase.PHASE_RIVER:
+        return this.generateMap(MachineRiverState.getStatesCount(), MachineAction.getActionsCount());
+      default:
+        return new MapForEs6();
+    }
   }
 
   generateMap(statesCount, actionsCount) {

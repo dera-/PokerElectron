@@ -1,6 +1,7 @@
 import QValue from './QValue';
 import MachinePreFlopState from './MachinePreFlopState';
 import MachineOpenedBoardState from './MachineOpenedBoardState';
+import MachineRiverState from './MachineRiverState';
 import MachineAction from './MachineAction';
 import QValueFactory from '../../../factory/game/learn/QValueFactory';
 import {PHASE_PRE_FLOP, PHASE_FLOP, PHASE_TURN, PHASE_RIVER} from '../../../const/game/TexasHoldemPhase';
@@ -11,27 +12,19 @@ import ActionUtil from '../../../util/game/learn/ActionUtil';
 import QValueUtil from '../../../util/game/learn/QValueUtil';
 import CardModel from '../CardModel';
 import * as CardSuit from '../../../const/game/CardSuit';
+import FileUtil from '../../../util/FileUtil';
 
 const REWARD = 10;
 const PENALTY = -10;
 
 export default class PokerLearnModel {
   constructor(initialStack, dataFilePrefix = '') {
-    let qValueFactory = new QValueFactory();
     this.initialStack = initialStack;
-    if (dataFilePrefix !== '') {
-      const preFlopQValuesData = require("raw!../../../data/" + dataFilePrefix + "PreFlopQValues.txt").split('\n');
-      const flopQValuesData = require("raw!../../../data/" + dataFilePrefix + "FlopQValues.txt").split('\n');
-      this.preFlopQValueMap = qValueFactory.generateMapByCsv(preFlopQValuesData);
-      this.flopQValueMap = qValueFactory.generateMapByCsv(flopQValuesData);
-      this.turnQValueMap = qValueFactory.generateMapByCsv(flopQValuesData);
-      this.riverQValueMap = qValueFactory.generateMapByCsv(flopQValuesData);
-    } else {
-      this.preFlopQValueMap = qValueFactory.generateMapForPreFlopState();
-      this.flopQValueMap = qValueFactory.generateMapForOpenedBoardState();
-      this.turnQValueMap = qValueFactory.generateMapForOpenedBoardState();
-      this.riverQValueMap = qValueFactory.generateMapForOpenedBoardState();
-    }
+    this.dataFilePrefix = dataFilePrefix;
+    this.preFlopQValueMap = this.getQValueMap(PHASE_PRE_FLOP, FileUtil.readData(dataFilePrefix + 'pre_flop.csv').split('\n'));
+    this.flopQValueMap = this.getQValueMap(PHASE_FLOP, FileUtil.readData(dataFilePrefix + 'flop.csv').split('\n'));
+    this.turnQValueMap = this.getQValueMap(PHASE_TURN, FileUtil.readData(dataFilePrefix + 'turn.csv').split('\n'));
+    this.riverQValueMap = this.getQValueMap(PHASE_RIVER, FileUtil.readData(dataFilePrefix + 'river.csv').split('\n'));
     this.preFlopActionHistory = [];
     this.flopActionHistory = [];
     this.turnActionHistory = [];
@@ -45,6 +38,19 @@ export default class PokerLearnModel {
     this.riverActionValues = {};
   }
 
+  getQValueMap(phase, data) {
+    const qValueFactory = new QValueFactory(phase);
+    if (data.length <= 1) {
+      return qValueFactory.generateInitialMap();
+    } else {
+      return qValueFactory.generateMapByCsv(data);
+    }
+  }
+
+  setInitialStack(initialStack) {
+    this.initialStack = initialStack;
+  }
+
   updateQValues(chip, isLoose) {
     let value = this.getResultValue(chip, isLoose),
       lambdaValue = QValue.getLambdaValue(),
@@ -52,9 +58,9 @@ export default class PokerLearnModel {
       valueForFrop = value * Math.pow(lambdaValue, this.riverActionHistory.length + this.turnActionHistory.length),
       valueForPreFlop = value * Math.pow(lambdaValue, this.riverActionHistory.length + this.turnActionHistory.length + this.flopActionHistory.length);
     this.updateQValuesForOnePhase(value, this.riverActionHistory);
-    this.updateQValuesForOnePhase(value, this.turnActionHistory);
-    this.updateQValuesForOnePhase(value, this.flopActionHistory);
-    this.updateQValuesForOnePhase(value, this.preFlopActionHistory);
+    this.updateQValuesForOnePhase(valueForTurn, this.turnActionHistory);
+    this.updateQValuesForOnePhase(valueForFrop, this.flopActionHistory);
+    this.updateQValuesForOnePhase(valueForPreFlop, this.preFlopActionHistory);
   }
 
   updateQValue(actionPhase, chip, isLoose) {
@@ -95,6 +101,8 @@ export default class PokerLearnModel {
 
   getResultValue(chip, isLoose) {
     let result = isLoose ? PENALTY : REWARD;
+    console.log('initialStack:'+this.initialStack);
+    console.log('result:'+(result * chip / this.initialStack));
     return result * chip / this.initialStack;
   }
 
@@ -146,15 +154,15 @@ export default class PokerLearnModel {
         this.turnActionHistory.unshift(qvalue);
         break;
       case PHASE_RIVER:
-        stateId = MachineOpenedBoardState.getId(myHand, boardCards, myStack, enemyStack, myActionName, enemyActionName);
-        similarStateIds = MachineOpenedBoardState.getSimilarIds(myHand, boardCards, myStack, enemyStack, myActionName, enemyActionName);
+        stateId = MachineRiverState.getId(myHand, boardCards, myStack, enemyStack, myActionName, enemyActionName);
+        similarStateIds = MachineRiverState.getSimilarIds(myHand, boardCards, myStack, enemyStack, myActionName, enemyActionName);
         currrentMap = this.riverQValueMap;
         qvalues = this.riverQValueMap.get(stateId);
         qvalue = this.getQValue(qvalues, callValue, ActionUtil.getNoBetValue(myAction));
         this.riverActionHistory.unshift(qvalue);
         break;
     }
-    console.log(qvalue);
+    console.log('Q値:' + qvalue);
     machineAction = MachineAction.getMachineAction(qvalue.actionId);
     // 類似QValueの取得
     this.currentSimilarQValues = [];
@@ -214,6 +222,20 @@ export default class PokerLearnModel {
   }
 
   saveQvaluesData() {
+    this.writeMapData(this.preFlopQValueMap, this.dataFilePrefix + 'pre_flop.csv');
+    this.writeMapData(this.flopQValueMap, this.dataFilePrefix + 'flop.csv');
+    this.writeMapData(this.turnQValueMap, this.dataFilePrefix + 'turn.csv');
+    this.writeMapData(this.riverQValueMap, this.dataFilePrefix + 'river.csv');
+  }
+
+  writeMapData(map, filePath) {
+    let data = '';
+    for (let values of map.values()) {
+      values.forEach(value => {
+        data += value.getCsvData() + '\n';
+      });
+    }
+    FileUtil.writeDataAsync(data, filePath);
   }
 
   getBestPreFlopStateId() {

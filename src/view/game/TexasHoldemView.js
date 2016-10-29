@@ -35,7 +35,11 @@ export default class TexasHoldemView extends BaseView {
     }).then(initialInformation => {
       return this.initializeStudyView(initialInformation);
     }).then(initialInformation => {
-      return this.initializeButtonView(initialInformation);
+      return this.initializeReturnButtonView(initialInformation);
+    }).then(initialInformation => {
+      return this.initializeSaveButtonView(initialInformation);
+    }).then(initialInformation => {
+      return this.initializeWaitingMessageView(initialInformation);
     });
   }
 
@@ -64,7 +68,7 @@ export default class TexasHoldemView extends BaseView {
     });
   }
 
-  initializeButtonView(initialInformation) {
+  initializeReturnButtonView(initialInformation) {
     return new Promise((resolve, reject) => {
       const sprites = {
         'return_to_title': this.sprites['return_to_title']
@@ -74,6 +78,21 @@ export default class TexasHoldemView extends BaseView {
       };
       this.returnToTitleButtonView = new ButtonView();
       resolve(this.returnToTitleButtonView.initialize(sprites, {}, properties));
+    }).then(() => {
+      return Promise.resolve(initialInformation);
+    });
+  }
+
+  initializeSaveButtonView(initialInformation) {
+    return new Promise((resolve, reject) => {
+      const sprites = {
+        'save_learn_data': this.sprites['save_learn_data']
+      };
+      const properties = {
+        'name': 'save_learn_data'
+      };
+      this.saveLearnDataButtonView = new ButtonView();
+      resolve(this.saveLearnDataButtonView.initialize(sprites, {}, properties));
     }).then(() => {
       return Promise.resolve(initialInformation);
     });
@@ -163,6 +182,31 @@ export default class TexasHoldemView extends BaseView {
       this.informationView = new InformationView();
       resolve(this.informationView.initialize({}, labels, properties));
     }).then(()=>{
+      return Promise.resolve(initialInformation);
+    });
+  }
+
+  initializeWaitingMessageView(initialInformation) {
+    return new Promise((resolve, reject) => {
+      const sprites = {
+        'black_back': SpriteFactory.getRect(0, 0, Conf.main.width, Conf.main.height, "rgba(0, 0, 0, 0.75)"),
+      };
+      const labels = {
+        'main_info_waiting_save': new Label('学習データをセーブ中です'),
+        'sub_info_waiting_save': new Label('少々お待ちください')
+      };
+      const properties = {
+        name: 'waiting_save',
+        x: 0.35 * Conf.main.width,
+        y: 0.25 * Conf.main.width,
+        width: 0.3 * Conf.main.width,
+        interval: 0.04 * Conf.main.width,
+        color: 'white',
+        font: '48px sans-serif'
+      };
+      this.waitingMessageView = new InformationView();
+      resolve(this.waitingMessageView.initialize(sprites, labels, properties));
+    }).then(() => {
       return Promise.resolve(initialInformation);
     });
   }
@@ -272,6 +316,7 @@ export default class TexasHoldemView extends BaseView {
     });
     this.informationView.showFirst();
     this.returnToTitleButtonView.showAll();
+    this.saveLearnDataButtonView.showAll();
   }
 
   // ディーラーポジションを決める描画
@@ -363,7 +408,7 @@ export default class TexasHoldemView extends BaseView {
     });
   }
 
-  // 最終的に買ったか負けたかの表示
+  // 最終的に勝ったかか負けたかの表示
   gameResultDraw(isWin, existNext) {
     if (isWin) {
       this.currentSelectWindow = this.winView;
@@ -372,6 +417,17 @@ export default class TexasHoldemView extends BaseView {
     }
     this.currentSelectWindow.nextDraw(isWin && existNext);
     this.currentSelectWindow.showFirst();
+  }
+
+  saveDraw() {
+    console.log('セーブ中の画面表示');
+    this.waitingMessageView.showFirst();
+  }
+
+  saveDrawErase() {
+    console.log('セーブ中の画面を閉じる');
+    this.waitingMessageView.hideAll();
+    this.saveLearnDataButtonView.reset();
   }
 
   getPlayerDicision() {
@@ -494,6 +550,10 @@ export default class TexasHoldemView extends BaseView {
 
   isReturnToTitle() {
     return this.returnToTitleButtonView.isClicked();
+  }
+
+  isSaveLearnData() {
+    return this.saveLearnDataButtonView.isClicked();
   }
 
   resetBoard() {
