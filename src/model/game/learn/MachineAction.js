@@ -1,5 +1,5 @@
 import {ACTION_ALLIN, ACTION_RAISE, ACTION_CALL, ACTION_CHECK, ACTION_FOLD}  from '../../../const/game/TexasHoldemAction';
-import {ALLIN_NUM, BIG_RAISE_NUM, MIDDLE_RAISE_NUM, SMALL_RAISE_NUM, CALL_NUM, CHECK_NUM, FOLD_NUM} from '../../../const/game/learn/MachineActionNumber';
+import {BIG_RAISE_NUM, MIDDLE_RAISE_NUM, SMALL_RAISE_NUM, CALL_NUM, CHECK_NUM, FOLD_NUM} from '../../../const/game/learn/MachineActionNumber';
 
 const WEAK = -1;
 const MEDIUM = 0;
@@ -14,7 +14,6 @@ export default class MachineAction {
 
   static generateAllActions() {
     let actions = [];
-    actions.push(new MachineAction(ALLIN_NUM, ACTION_ALLIN));
     actions.push(new MachineAction(BIG_RAISE_NUM, ACTION_RAISE, STRONG));
     actions.push(new MachineAction(MIDDLE_RAISE_NUM, ACTION_RAISE, MEDIUM));
     actions.push(new MachineAction(SMALL_RAISE_NUM, ACTION_RAISE, WEAK));

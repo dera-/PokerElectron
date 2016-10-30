@@ -1,5 +1,5 @@
 import MachineState from './MachineState';
-import {ALL_ACTIONS} from '../../../const/game/TexasHoldemAction';
+import {ENEMY_ACTIONS} from '../../../const/game/TexasHoldemAction';
 
 export default class MachinePreFlopState extends MachineState {
   constructor(id, handTop, handBottom, isSuited, enemyAction) {
@@ -20,7 +20,7 @@ export default class MachinePreFlopState extends MachineState {
       }
     }
     cardPairs.forEach((pair) => {
-      for (let enemyAction of ALL_ACTIONS) {
+      for (let enemyAction of ENEMY_ACTIONS) {
         states.push(new MachinePreFlopState(id, pair.top, pair.bottom, true, enemyAction));
         states.push(new MachinePreFlopState(id + 1, pair.top, pair.bottom, false, enemyAction));
         id += 2;

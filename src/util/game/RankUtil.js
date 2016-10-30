@@ -1,5 +1,5 @@
 import {SPADE, HEART, DIAMOND, CLOVER} from '../../const/game/CardSuit';
-import {STRONG_RANK, ROYAL_STRAIGHT_FLUSH, STRAIGHT_FLUSH, FOUR_CARD, STRONG_RANK, FULL_HOUSE, FLUSH, STRAIGHT, THREE_CARD, TWO_PAIR, ONE_PAIR, NO_PAIR, HIGH_THREE_CARD, MIDDLE_THREE_CARD, LOW_THREE_CARD, HIGH_TWO_PAIR, MIDDLE_TWO_PAIR, LOW_TWO_PAIR, TWO_PAIR_TOP, ONE_PAIR_A, ONE_PAIR_K, ONE_PAIR_Q, ONE_PAIR_TOP, ONE_PAIR_MIDDLE, ONE_PAIR_LOW, NO_PAIR_A, NO_PAIR_K, NO_PAIR_Q, NO_PAIR_HIGH, NO_PAIR_MIDDLE, NO_PAIR_LOW} from '../../const/game/RankStrength';
+import {ROYAL_STRAIGHT_FLUSH, STRAIGHT_FLUSH, FOUR_CARD, STRONG_RANK, FULL_HOUSE, FLUSH, STRAIGHT, THREE_CARD, TWO_PAIR, ONE_PAIR, NO_PAIR, HIGH_THREE_CARD, MIDDLE_THREE_CARD, LOW_THREE_CARD, HIGH_TWO_PAIR, MIDDLE_TWO_PAIR, LOW_TWO_PAIR, TWO_PAIR_TOP, ONE_PAIR_A, ONE_PAIR_K, ONE_PAIR_Q, ONE_PAIR_TOP, ONE_PAIR_MIDDLE, ONE_PAIR_LOW, NO_PAIR_A, NO_PAIR_K, NO_PAIR_Q, NO_PAIR_HIGH, NO_PAIR_MIDDLE, NO_PAIR_LOW} from '../../const/game/RankStrength';
 import Rank from '../../model/game/RankModel';
 
 export default class RankUtil {
@@ -293,6 +293,8 @@ export default class RankUtil {
 
   static isTwoOver(hands, board) {
     const sortedCards = RankUtil.getSortedCards(board);
+    const topCardNumber = sortedCards[sortedCards.length-1].number;
+    return hands[0].number > topCardNumber && hands[1].number > topCardNumber;
   }
 
   static getRealRank(hands, board) {
@@ -345,45 +347,30 @@ export default class RankUtil {
       }
     }
   }
+
   static getRealRankForMidstream(hands, board) {
-    let rank = RankUtil.getRank(hands, board),
-      highCardThreshold = 12,
-      middleCardThreshold = 7;
+    const rank = RankUtil.getRank(hands, board);
     if (rank.strength >= FOUR_CARD) {
-        return STRAIGHT_FLUSH
+        return STRONG_RANK;
     } else if (rank.strength >= THREE_CARD) {
       return rank.strength;
     } else if (rank.strength === TWO_PAIR) {
-      if (rank.top >= highCardThreshold) {
-        return HIGH_THREE_CARD;
-      } else if (rank.top >= middleCardThreshold) {
-        return MIDDLE_THREE_CARD;
+      if (RankUtil.isTopHit(hands, board)) {
+        return TWO_PAIR_TOP;
       } else {
-        return LOW_THREE_CARD;
+        return TWO_PAIR;
       }
     } else if (rank.strength === ONE_PAIR) {
-      if (rank.top === 14) {
-        return ONE_PAIR_A;
-      } else if (rank.top === 13) {
-        return ONE_PAIR_K;
-      } else if (rank.top === 12) {
-        return ONE_PAIR_Q;
-      } else if (rank.top >= middleCardThreshold) {
-        return ONE_PAIR_MIDDLE;
+      if (RankUtil.isTopHit(hands, board)) {
+        return ONE_PAIR_TOP;
       } else {
-        return ONE_PAIR_LOW;
+        return ONE_PAIR;
       }
     } else {
-      if (rank.kickers[0] === 14) {
-        return NO_PAIR_A;
-      } else if (rank.kickers[0] === 13) {
-        return NO_PAIR_K;
-      } else if (rank.kickers[0] === 12) {
-        return NO_PAIR_Q;
-      } else if (rank.kickers[0] >= middleCardThreshold) {
-        return NO_PAIR_MIDDLE;
+      if (RankUtil.isTwoOver(hands, board)) {
+        return NO_PAIR_HIGH;
       } else {
-        return NO_PAIR_LOW;
+        return NO_PAIR;
       }
     }
   }

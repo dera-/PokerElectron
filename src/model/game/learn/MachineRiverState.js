@@ -1,7 +1,7 @@
 import MachineState from './MachineState';
 import {ALL_REAL_RANK_STRENGTH} from '../../../const/game/RankStrength';
 import {ALL_BOARD_PATTERNS} from '../../../const/game/learn/BoardType';
-import {ALL_ACTIONS} from '../../../const/game/TexasHoldemAction';
+import {ENEMY_ACTIONS} from '../../../const/game/TexasHoldemAction';
 import RankUtil from '../../../util/game/RankUtil';
 import BoardUtil from '../../../util/game/learn/BoardUtil';
 
@@ -20,7 +20,7 @@ export default class MachineRiverState extends MachineState {
     for (let rank of ALL_REAL_RANK_STRENGTH) {
       for (let boardType of ALL_BOARD_PATTERNS) {
         for (let used = 0; used <= 2; used++) {
-          for (let enemyAction of ALL_ACTIONS) {
+          for (let enemyAction of ENEMY_ACTIONS) {
             states.push(new MachineRiverState(id, rank, used, boardType, enemyAction));
             id++;
           }

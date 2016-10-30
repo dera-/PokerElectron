@@ -6,7 +6,7 @@ import MachineAction from './MachineAction';
 import QValueFactory from '../../../factory/game/learn/QValueFactory';
 import {PHASE_PRE_FLOP, PHASE_FLOP, PHASE_TURN, PHASE_RIVER} from '../../../const/game/TexasHoldemPhase';
 import {ACTION_ALLIN, ACTION_RAISE, ACTION_CALL, ACTION_CHECK, ACTION_FOLD, ACTION_NONE} from '../../../const/game/TexasHoldemAction';
-import {ALLIN_NUM, BIG_RAISE_NUM, MIDDLE_RAISE_NUM, SMALL_RAISE_NUM, CALL_NUM, CHECK_NUM, FOLD_NUM} from '../../../const/game/learn/MachineActionNumber';
+import {BIG_RAISE_NUM, MIDDLE_RAISE_NUM, SMALL_RAISE_NUM, CALL_NUM, CHECK_NUM, FOLD_NUM} from '../../../const/game/learn/MachineActionNumber';
 import ActionModel from '../ActionModel';
 import ActionUtil from '../../../util/game/learn/ActionUtil';
 import QValueUtil from '../../../util/game/learn/QValueUtil';
@@ -120,7 +120,7 @@ export default class PokerLearnModel {
       myStack = player.getStack(),
       enemyStack = enemy.getStack(),
       myActionName = myAction === null ? ACTION_NONE : myAction.name,
-      enemyActionName = enemyAction === null ? ACTION_NONE : enemyAction.name,
+      enemyActionName = enemyAction === null ? ACTION_NONE : enemyAction.getActionNameForEnemy(myActionName),
       boardCards = board.getOpenedCards(),
       stateId,
       qvalues,
@@ -186,8 +186,6 @@ export default class PokerLearnModel {
       } else {
         return new ActionModel(ACTION_CALL, callValue);
       }
-    } else if (machineAction.id === ALLIN_NUM) {
-      return new ActionModel(ACTION_ALLIN, player.getStack());
     }
     betValue = ActionUtil.getMachineBetValue(machineAction.id, potValue, callValue);
     if (betValue >= player.getStack()) {
@@ -276,7 +274,6 @@ export default class PokerLearnModel {
   getActionValues(map) {
     const values = {};
     const MAX_THRESHOLD = 10000000;
-    values[ALLIN_NUM] = 0;
     values[BIG_RAISE_NUM] = 0;
     values[MIDDLE_RAISE_NUM] = 0;
     values[SMALL_RAISE_NUM] = 0;
@@ -310,7 +307,7 @@ export default class PokerLearnModel {
     Object.keys(actionValues).forEach(key => {
       console.log(key);
       total += actionValues[key];
-      if (key == ALLIN_NUM || key == BIG_RAISE_NUM || key == MIDDLE_RAISE_NUM || key == SMALL_RAISE_NUM) {
+      if (key == BIG_RAISE_NUM || key == MIDDLE_RAISE_NUM || key == SMALL_RAISE_NUM) {
         actionRate.raise += actionValues[key];
       } else if (key == CALL_NUM || key == CHECK_NUM) {
         actionRate.call += actionValues[key];

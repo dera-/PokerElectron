@@ -1,7 +1,7 @@
 import MachineState from './MachineState';
-import {ALL_REAL_RANK_STRENGTH} from '../../../const/game/RankStrength';
+import {ALL_REAL_RANK_STRENGTH_FOR_MIDSTREAM} from '../../../const/game/RankStrength';
 import {ALL_BOARD_PATTERNS} from '../../../const/game/learn/BoardType';
-import {ALL_ACTIONS} from '../../../const/game/TexasHoldemAction';
+import {ENEMY_ACTIONS} from '../../../const/game/TexasHoldemAction';
 import RankUtil from '../../../util/game/RankUtil';
 import BoardUtil from '../../../util/game/learn/BoardUtil';
 
@@ -19,10 +19,10 @@ export default class MachineOpenedBoardState extends MachineState {
   static generateAllStates() {
     let states = [],
       id = 1;
-    for (let rank of ALL_REAL_RANK_STRENGTH) {
+    for (let rank of ALL_REAL_RANK_STRENGTH_FOR_MIDSTREAM) {
       for (let boardType of ALL_BOARD_PATTERNS) {
         for (let used = 0; used <= 2; used++) {
-          for (let enemyAction of ALL_ACTIONS) {
+          for (let enemyAction of ENEMY_ACTIONS) {
             states.push(new MachineOpenedBoardState(id, rank, used, true, true, boardType, enemyAction));
             states.push(new MachineOpenedBoardState(id + 1, rank, used, true, false, boardType, enemyAction));
             states.push(new MachineOpenedBoardState(id + 2, rank, used, false, true, boardType, enemyAction));
@@ -36,7 +36,7 @@ export default class MachineOpenedBoardState extends MachineState {
   }
 
   static getId(myHand, boardCards, myStack, enemyStack, myAction, enemyAction) {
-    let rank = RankUtil.getRealRank(myHand, boardCards),
+    let rank = RankUtil.getRealRankForMidstream(myHand, boardCards),
       usedHandsCount = RankUtil.getUsedHandsCount(rank, myHand, boardCards),
       isFlushDraw = RankUtil.isFlushDraw(myHand, boardCards),
       isStraightDraw = RankUtil.isStraightDraw(myHand.concat(boardCards), 4),
@@ -52,7 +52,7 @@ export default class MachineOpenedBoardState extends MachineState {
 
   // 対象の状態に似たような状態の取得
   static getSimilarIds(myHand, boardCards, myStack, enemyStack, myAction, enemyAction) {
-    let rank = RankUtil.getRealRank(myHand, boardCards),
+    let rank = RankUtil.getRealRankForMidstream(myHand, boardCards),
       usedHandsCount = RankUtil.getUsedHandsCount(rank, myHand, boardCards),
       boardType = BoardUtil.getBoardType(boardCards),
       searched = ALL_STATES.filter((state) => {
