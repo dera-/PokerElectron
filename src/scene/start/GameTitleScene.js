@@ -46,7 +46,6 @@ export default class GameTitleScene extends BaseScene {
         break;
       case MODE.EXIT:
         window.close();
-        //window.open('about:blank', '_self').close();
         break;
       default:
         return;

@@ -206,6 +206,8 @@ export default class TexasHoldemScene extends BaseScene {
     const studyStatus = this.view.getCurrentStudyAction();
     if (this.view.isReturnToTitle()) {
       this.returnToTitle();
+    } else if (this.view.isSaveLearnData()) {
+      this.saveLearnData();
     } else if (status === BaseStatus.STATUS_WAITING) {
       this.popStatus();
     } else if (status === TexasHoldemStatus.STATUS_PLAYER_THINKING && action !== BaseAction.ACTION_NONE) {
@@ -248,5 +250,13 @@ export default class TexasHoldemScene extends BaseScene {
       SceneRepository.popScene();
       SceneRepository.pushScene(sceneObject.getScene());
     });
+  }
+
+  saveLearnData() {
+    this.view.saveDraw();
+    setTimeout(() => {
+      this.service.saveLearnedResult(this.studentId);
+      this.view.saveDrawErase();
+    }, 0);
   }
 }

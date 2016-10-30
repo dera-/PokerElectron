@@ -345,6 +345,14 @@ export default class TexasHoldemService extends BaseService {
     });
   }
 
+  saveLearnedResult(id = null) {
+    this.players.forEach(player => {
+      if (player instanceof MachineLearnPlayerModel && (id === null || id === player.id)) {
+        player.save();
+      }
+    });
+  }
+
   isWinByResult(playerId) {
     return this.getWinners().some(player => player.id === playerId);
   }
