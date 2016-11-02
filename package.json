@@ -6,7 +6,8 @@
   "scripts": {
     "start": "electron index.js",
     "compile": "webpack",
-    "compile_diff": "webpack --progress --colors --watch"
+    "compile_diff": "webpack --progress --colors --watch",
+    "compile_simulation": "babel sim --out-dir sim_dist --source-maps"
   },
   "repository": {
     "type": "git",
@@ -18,7 +19,7 @@
     "url": "https://github.com/dera-/PokerElectron/issues"
   },
   "homepage": "https://github.com/dera-/PokerElectron",
-  "private": true,  
+  "private": true,
   "dependencies": {
     "electron": "^1.4.3",
     "electron-packager": "^7.1.0",

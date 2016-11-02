@@ -1,6 +1,6 @@
 const ipc = window.require('electron').ipcRenderer;
 
-export default class FileUtil {
+export default class FileAccess {
   static writeDataAsync(data, filePath) {
     ipc.send('write-file', data, filePath);
   }

@@ -12,7 +12,7 @@ import ActionUtil from '../../../util/game/learn/ActionUtil';
 import QValueUtil from '../../../util/game/learn/QValueUtil';
 import CardModel from '../CardModel';
 import * as CardSuit from '../../../const/game/CardSuit';
-import FileUtil from '../../../util/FileUtil';
+import FileAccess from '../../../process/FileAccess';
 
 const REWARD = 10;
 const PENALTY = -10;
@@ -21,10 +21,10 @@ export default class PokerLearnModel {
   constructor(initialStack, dataFilePrefix = '') {
     this.initialStack = initialStack;
     this.dataFilePrefix = dataFilePrefix;
-    this.preFlopQValueMap = this.getQValueMap(PHASE_PRE_FLOP, FileUtil.readData(dataFilePrefix + 'pre_flop.csv').split('\n'));
-    this.flopQValueMap = this.getQValueMap(PHASE_FLOP, FileUtil.readData(dataFilePrefix + 'flop.csv').split('\n'));
-    this.turnQValueMap = this.getQValueMap(PHASE_TURN, FileUtil.readData(dataFilePrefix + 'turn.csv').split('\n'));
-    this.riverQValueMap = this.getQValueMap(PHASE_RIVER, FileUtil.readData(dataFilePrefix + 'river.csv').split('\n'));
+    this.preFlopQValueMap = this.getQValueMap(PHASE_PRE_FLOP, FileAccess.readData(dataFilePrefix + 'pre_flop.csv').split('\n'));
+    this.flopQValueMap = this.getQValueMap(PHASE_FLOP, FileAccess.readData(dataFilePrefix + 'flop.csv').split('\n'));
+    this.turnQValueMap = this.getQValueMap(PHASE_TURN, FileAccess.readData(dataFilePrefix + 'turn.csv').split('\n'));
+    this.riverQValueMap = this.getQValueMap(PHASE_RIVER, FileAccess.readData(dataFilePrefix + 'river.csv').split('\n'));
     this.preFlopActionHistory = [];
     this.flopActionHistory = [];
     this.turnActionHistory = [];
@@ -233,7 +233,7 @@ export default class PokerLearnModel {
         data += value.getCsvData() + '\n';
       });
     }
-    FileUtil.writeDataAsync(data, filePath);
+    FileAccess.writeDataAsync(data, filePath);
   }
 
   getBestPreFlopStateId() {
