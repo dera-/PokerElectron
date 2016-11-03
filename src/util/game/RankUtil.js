@@ -114,7 +114,6 @@ export default class RankUtil {
     } else if(pairs.length === 1) {
       return new Rank(ONE_PAIR, pairs[0], 0, others.slice(0, 3));
     }
-    console.log(others.slice(0, 5));
     return new Rank(NO_PAIR, 0, 0, others.slice(0, 5));
   }
 

@@ -26,20 +26,11 @@ export default class TexasHoldemSimulationScene {
 
   oneGame(gameService) {
     let num = 0;
-    while(false === gameService.isFinished()) {
-      this.onePlay(gameService);
-      gameService.deleteDeadPlayer();
-      num++;
-    }
-    const winLooseString = gameService.isSurvive(this.testman.id) ? '○' : '×';
-    console.log(winLooseString + ',' + num);
-  }
-
-  onePlay(gameService) {
     this.status = TexasHoldemStatus.STATUS_GAME_START;
     while (this.status !== TexasHoldemStatus.STATUS_GAME_END) {
       if (this.status === TexasHoldemStatus.STATUS_GAME_START || this.status === TexasHoldemStatus.STATUS_GAME_CONTINUE) {
         // ゲーム開始時
+        num++;
         gameService.initializeGame(this.status === TexasHoldemStatus.STATUS_GAME_CONTINUE);
         gameService.dealCards();
         this.pushStatus(TexasHoldemStatus.STATUS_START_PHASE);
@@ -57,7 +48,7 @@ export default class TexasHoldemSimulationScene {
         if (gameService.isEndCurrentPhase()) {
           this.pushStatus(TexasHoldemStatus.STATUS_NEXT_PHASE);
         } else {
-          this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_THINKING);
+          this.pushStatus(TexasHoldemStatus.STATUS_AI_THINKING);
         }
       } else if (this.status === TexasHoldemStatus.STATUS_NEXT_PHASE) {
         // 次のフェーズへ移行
@@ -91,6 +82,8 @@ export default class TexasHoldemSimulationScene {
         }
       }
     }
+    const winLooseString = gameService.isSurvive(this.testman.id) ? '○' : '×';
+    console.log(winLooseString + ',' + num);
   }
 
   pushStatus(status) {

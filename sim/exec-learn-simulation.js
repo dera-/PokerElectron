@@ -5,9 +5,9 @@ if (process.argv.length !== 6) {
 } else {
   const scene = new TexasHoldemSimulationScene(
     process.argv[2],
-    process.argv[3],
-    process.argv[4],
-    process.argv[5]
+    parseInt(process.argv[3], 10),
+    parseInt(process.argv[4], 10),
+    parseInt(process.argv[5], 10)
   );
   scene.run();
 }
