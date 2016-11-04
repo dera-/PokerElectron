@@ -5,7 +5,6 @@ import * as TexasHoldemAction from '../../const/game/TexasHoldemAction';
 import * as BaseAction from '../../const/BaseAction';
 import TexasHoldemService from '../../service/game/TexasHoldemService';
 import TexasHoldemView from '../../view/game/TexasHoldemView';
-import FileModel from '../../model/FileModel';
 import * as PlayerDicision from '../../const/game/PlayerDicision';
 import * as MachineStudy from '../../const/game/learn/MachineStudy';
 import * as GameMode from '../../const/game/GameMode';

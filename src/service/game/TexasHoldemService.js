@@ -114,7 +114,7 @@ export default class TexasHoldemService extends BaseService {
 
   startPhase() {
     const openedCards = [];
-    console.log("actionPhase:" + this.actionPhase);
+    //console.log("actionPhase:" + this.actionPhase);
     //ボードにカードを公開する
     if (this.actionPhase === TexasHoldemPhase.PHASE_FLOP) {
       // とりあえず、バーンカードは無しで。。
@@ -195,12 +195,12 @@ export default class TexasHoldemService extends BaseService {
   nextActionPlayer() {
     // オリジナルレイザーが変わった場合
     const currentPlayerAction = this.getCurrentPlayerAction();
-    console.log(currentPlayerAction);
+    //console.log(currentPlayerAction);
     if (currentPlayerAction.name === TexasHoldemAction.ACTION_RAISE ||
       (currentPlayerAction.name === TexasHoldemAction.ACTION_ALLIN && currentPlayerAction.value > this.currentCallValue)) {
       this.originalRaiserIndex = this.currentPlayerIndex;
       this.currentCallValue = currentPlayerAction.value;
-      console.log('raise_value:' + this.currentCallValue);
+      //console.log('raise_value:' + this.currentCallValue);
     }
     this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
   }
@@ -263,7 +263,7 @@ export default class TexasHoldemService extends BaseService {
     this.players.forEach((player)=>{
       let action = player.getAction(),
         value = action === null ? 0 : action.value;
-      console.log(player.id + ':' + value);
+      //console.log(player.id + ':' + value);
       this.board.addChip(player.id, value);
       player.pay(value);
     });
@@ -320,13 +320,13 @@ export default class TexasHoldemService extends BaseService {
       if (player instanceof MachineLearnPlayerModel && player.id === id) {
         const reward = player.getInitialStack();
         if (studyStatus === MachineStudy.STUDY_PRAISE) {
-          console.log('ほめる');
+          //console.log('ほめる');
           player.learnDirect(reward);
         } else if (studyStatus === MachineStudy.STUDY_SCOLD) {
-          console.log('しかる');
+          //console.log('しかる');
           player.learnDirect(-1 * reward);
         } else {
-          console.log('何もしない');
+          //console.log('何もしない');
         }
       }
     });

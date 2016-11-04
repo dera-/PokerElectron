@@ -114,7 +114,6 @@ export default class RankUtil {
     } else if(pairs.length === 1) {
       return new Rank(ONE_PAIR, pairs[0], 0, others.slice(0, 3));
     }
-    console.log(others.slice(0, 5));
     return new Rank(NO_PAIR, 0, 0, others.slice(0, 5));
   }
 
@@ -247,13 +246,20 @@ export default class RankUtil {
   /**
    * rank2の方が強ければ-1, rank1の方が強ければ1, 同じならば0
    */
-  static compareRanks(rank1, rank2) {
+  static compareRanks(rank1, rank2, ignoreKicker = false) {
     if (rank1.strength !== rank2.strength) {
       return rank2.strength < rank1.strength ? 1 : -1;
     } else if (rank1.top !== rank2.top) {
       return rank2.top < rank1.top ? 1 : -1;
     } else if (rank1.bottom !== rank2.bottom) {
       return rank2.bottom < rank1.bottom ? 1 : -1;
+    } else if (ignoreKicker) {
+      if (rank1.top >= ONE_PAIR) {
+        return 0;
+      } else if (rank1.kickers[0] !== rank2.kickers[0]) {
+        return rank2.kickers[0] < rank1.kickers[0] ? 1 : -1;
+      }
+      return 0;
     }
     for (let i = 0; i < rank1.kickers.length; i++) {
       if (rank1.kickers[i] !== rank2.kickers[i]) {
@@ -271,9 +277,9 @@ export default class RankUtil {
     const noHandRank = RankUtil.getRank([], board);
     const oneHandRank = RankUtil.getRank([hands[0]], board);
     const otherHandRank = RankUtil.getRank([hands[1]], board);
-    if (RankUtil.compareRanks(realRank, noHandRank) === 0) {
+    if (RankUtil.compareRanks(realRank, noHandRank, true) === 0) {
       return 0;
-    } else if (RankUtil.compareRanks(realRank, oneHandRank) === 0 || RankUtil.compareRanks(realRank, otherHandRank) === 0) {
+    } else if (RankUtil.compareRanks(realRank, oneHandRank, true) === 0 || RankUtil.compareRanks(realRank, otherHandRank, true) === 0) {
       return 1;
     } else {
       return 2;
