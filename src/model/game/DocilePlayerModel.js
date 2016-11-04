@@ -10,7 +10,6 @@ import BoardUtil from '../../util/game/learn/BoardUtil';
 export default class DocilePlayerModel extends AiPlayerModel {
   // override
   decideAction(actionPhase, enemyPlayerModel, board, callValue) {
-    console.log("正直者AI稼働中");
     const random = Math.round();
     const payValue = this.action === null ? 0 : this.action.value;
     if (actionPhase === TexasHoldemPhase.PHASE_PRE_FLOP) {

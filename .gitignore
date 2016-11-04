@@ -4,3 +4,5 @@ htdocs/js
 htdocs/image
 src/config
 my_data/*.csv
+sim_dist/**/*.js
+sim_dist/**/*.js.map
