@@ -7,8 +7,9 @@ import AudioRepository from '../repository/AudioRepository';
 
 // viewクラスのインターフェース的なサムシング
 export default class BaseView {
-  async initialize(imagesData = [], bgmPath = '') {
+  async initialize(imagesData = [], bgmPath = '', soundsData = []) {
     this.sprites = await this.generateSprites(imagesData);
+    this.sounds = await this.generateSounds(soundsData);
     if (bgmPath !== '') {
       this.bgm = await AudioRepository.getAudioWithPromise(bgmPath);
     } else {
@@ -52,6 +53,14 @@ export default class BaseView {
       sprites[data.name] = sprite;
     }
     return sprites;
+  }
+
+  async generateSounds(soundsData) {
+    const sounds = {};
+    for (let data of soundsData) {
+      sounds[data.name] = await AudioRepository.getAudioWithPromise(data.path);
+    }
+    return sounds;
   }
 
   playBgm() {

@@ -2,18 +2,16 @@ import BaseView from '../BaseView';
 import Conf from '../../config/conf.json';
 import SpritesConf from '../../config/start/sprites.json';
 import SerifsConf from '../../config/start/serifs.json';
+import SoundsConfig from '../../config/start/sounds.json';
 import * as MODE from '../../const/start/Mode';
 import SceneRepository from '../../repository/SceneRepository';
 
 export default class GameTitleView extends BaseView {
-  initializeGameTitleView() {
-    return this.initialize(SpritesConf.images).then(() => {
-      return this.initializeProperties();
-    }).then(() => {
-      return this.initializeLabels();
-    }).then(() =>{
-      return this.initializeEvents()
-    });
+  async initializeGameTitleView() {
+    this.decidedMode = MODE.NOT_DICIDED;
+    await this.initialize(SpritesConf.images, '', SoundsConfig.sounds);
+    await this.initializeLabels();
+    await this.initializeEvents();
   }
 
   initializeLabels() {
@@ -30,28 +28,26 @@ export default class GameTitleView extends BaseView {
     });
   }
 
-  initializeProperties() {
-    return new Promise((resolve, reject) => {
-      this.decidedMode = MODE.NOT_DICIDED;
-      resolve();
-    });
-  }
-
   initializeEvents() {
     return new Promise((resolve, reject) => {
       this.sprites['mode_study'].addEventListener('touchend',() => {
+        this.sounds['decide'].play();
         this.decidedMode = MODE.STUDY;
       });
       this.sprites['mode_battle'].addEventListener('touchend',() => {
+        this.sounds['decide'].play();
         this.decidedMode = MODE.BATTLE;
       });
       this.sprites['mode_ai_battle'].addEventListener('touchend',() => {
+        this.sounds['decide'].play();
         this.decidedMode = MODE.AI_BATTLE;
       });
       this.sprites['mode_ai_status'].addEventListener('touchend',() => {
+        this.sounds['decide'].play();
         this.decidedMode = MODE.AI_STATUS;
       });
       this.sprites['mode_exit'].addEventListener('touchend',() => {
+        this.sounds['exit'].play();
         this.decidedMode = MODE.EXIT;
       });
       resolve();
