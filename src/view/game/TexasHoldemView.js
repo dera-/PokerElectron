@@ -18,29 +18,18 @@ import ButtonView from '../object/ButtonView'
 
 const commonInterval = 0.01 * Conf.main.width;
 export default class TexasHoldemView extends BaseView {
-  initializeTexasHoldemView(players, initialBlind, stageData) {
-    return this.initialize(this.getImages(SpritesConf.images, players)).then(() => {
-      return SpriteFactory.generateWithPromise(0, 0, stageData.back_ground);
-    }).then((backGroundSprite)=>{
-      this.sprites['back_ground'] = backGroundSprite;
-      return this.initializeProperties(players, initialBlind);
-    }).then(initialInformation => {
-      return this.initializeBordView(initialInformation);
-    }).then(initialInformation => {
-      return this.initializePlayerViews(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeInformationView(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeSelectWindowViews(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeStudyView(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeReturnButtonView(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeSaveButtonView(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeWaitingMessageView(initialInformation);
-    });
+  async initializeTexasHoldemView(players, initialBlind, stageData) {
+    await this.initialize(this.getImages(SpritesConf.images, players), stageData.bgm);
+    this.sprites['back_ground'] = await SpriteFactory.generateWithPromise(0, 0, stageData.back_ground);
+    const initialInformation = await this.initializeProperties(players, initialBlind);
+    await this.initializeBordView(initialInformation);
+    await this.initializePlayerViews(initialInformation);
+    await this.initializeInformationView(initialInformation);
+    await this.initializeSelectWindowViews(initialInformation);
+    await this.initializeStudyView(initialInformation);
+    await this.initializeReturnButtonView(initialInformation);
+    await this.initializeSaveButtonView(initialInformation);
+    await this.initializeWaitingMessageView(initialInformation);
   }
 
   getImages(images, players) {

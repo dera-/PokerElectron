@@ -66,6 +66,7 @@ export default class BaseScene {
       // 毎フレーム行われる処理
       scene.addEventListener('enterframe', () => {
         //console.log(this.getCurrentStatus());
+        this.view.playBgm();
         this.run(this.getCurrentStatus());
       });
       // シーン終了時の処理
@@ -91,7 +92,9 @@ export default class BaseScene {
 
   start() {}
   run(status) {}
-  end() {}
+  end() {
+    this.view.stopBgm();
+  }
   touchStartEvent() {}
   touchMoveEvent() {}
   touchEndEvent() {}

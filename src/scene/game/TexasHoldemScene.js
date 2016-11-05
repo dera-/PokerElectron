@@ -50,7 +50,8 @@ export default class TexasHoldemScene extends BaseScene {
     });
   }
 
-  start(status) {
+  start() {
+    super.start();
     this.view.showFirst();
     this.pushStatus(TexasHoldemStatus.STATUS_GAME_START);
   }

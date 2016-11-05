@@ -25,7 +25,8 @@ export default class AiStatusDisplayScene extends BaseScene {
     });
   }
 
-  start(status) {
+  start() {
+    super.start();
     this.view.setPlayerType(this.service.getPlayStyle());
     this.view.setTeachedCount(this.service.getTeachedCount());
     this.view.setWinningRate(this.service.getWinningRate());

@@ -3,11 +3,18 @@ import * as BaseAction from '../const/BaseAction';
 import SpriteFactory from '../factory/SpriteFactory';
 import ImageRepository from '../repository/ImageRepository';
 import SceneRepository from '../repository/SceneRepository';
+import AudioRepository from '../repository/AudioRepository';
 
 // viewクラスのインターフェース的なサムシング
 export default class BaseView {
-  initialize(imagesData = []) {
-    this.initializeSprites(imagesData);
+  async initialize(imagesData = [], bgmPath = '') {
+    this.sprites = await this.generateSprites(imagesData);
+    if (bgmPath !== '') {
+      this.bgm = await AudioRepository.getAudioWithPromise(bgmPath);
+    } else {
+      this.bgm = null;
+    }
+    console.log(this.bgm);
   }
 
   getSprite(key) {
@@ -18,8 +25,8 @@ export default class BaseView {
     return Object.keys(this.sprites).map(key => this.sprites[key]);
   }
 
-  async initializeSprites(imagesData) {
-    this.sprites = {};
+  async generateSprites(imagesData) {
+    const sprites = {};
     let datas = [];
     imagesData.forEach(data => {
       if (data.image_path instanceof Array) {
@@ -42,8 +49,23 @@ export default class BaseView {
     });
     for (let data of datas) {
       let sprite = await SpriteFactory.generateWithPromise(data.x, data.y, data.fileName);
-      this.sprites[data.name] = data.sprite;
+      sprites[data.name] = sprite;
     }
+    return sprites;
+  }
+
+  playBgm() {
+    if (this.bgm === null) {
+      return;
+    }
+    this.bgm.play();
+  }
+
+  stopBgm() {
+    if (this.bgm === null) {
+      return;
+    }
+    this.bgm.stop();
   }
 
   showFirst() {}
