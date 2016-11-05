@@ -7,7 +7,7 @@ import SceneRepository from '../repository/SceneRepository';
 // viewクラスのインターフェース的なサムシング
 export default class BaseView {
   initialize(imagesData = []) {
-    return this.initializeSprites(imagesData)
+    this.initializeSprites(imagesData);
   }
 
   getSprite(key) {
@@ -18,48 +18,32 @@ export default class BaseView {
     return Object.keys(this.sprites).map(key => this.sprites[key]);
   }
 
-  initializeSprites(imagesData) {
+  async initializeSprites(imagesData) {
     this.sprites = {};
-    return new Promise((resolve, reject) => {
-      let datas = [];
-      imagesData.forEach(data => {
-        if (data.image_path instanceof Array) {
-          datas = datas.concat(data.image_path.map(fileName => {
-            return {
-              name: data.name + '_' + fileName,
-              x: Conf.main.width * data.x,
-              y: Conf.main.height * data.y,
-              fileName: fileName
-            }
-          }));
-        } else {
-          datas.push({
-            name: data.name,
+    let datas = [];
+    imagesData.forEach(data => {
+      if (data.image_path instanceof Array) {
+        datas = datas.concat(data.image_path.map(fileName => {
+          return {
+            name: data.name + '_' + fileName,
             x: Conf.main.width * data.x,
             y: Conf.main.height * data.y,
-            fileName: data.image_path
-          });
-        }
-      });
-      resolve(datas);
-    }).then(datas => Promise.all(datas.map(data => SpriteFactory.generateWithPromise(
-        data.x,
-        data.y,
-        data.fileName
-      ).then(sprite =>{
-        return {
+            fileName: fileName
+          }
+        }));
+      } else {
+        datas.push({
           name: data.name,
-          sprite: sprite
-        };
-      })
-    ))).then(datas => {
-      //console.log(datas);
-      datas.forEach(data => {
-        //console.log(data.sprite.image);
-        this.sprites[data.name] = data.sprite;
-      });
-      return Promise.resolve();
+          x: Conf.main.width * data.x,
+          y: Conf.main.height * data.y,
+          fileName: data.image_path
+        });
+      }
     });
+    for (let data of datas) {
+      let sprite = await SpriteFactory.generateWithPromise(data.x, data.y, data.fileName);
+      this.sprites[data.name] = data.sprite;
+    }
   }
 
   showFirst() {}

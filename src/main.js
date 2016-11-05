@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import GameRepository from './repository/GameRepository.js';
 
 enchant();
