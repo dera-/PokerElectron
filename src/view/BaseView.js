@@ -77,5 +77,10 @@ export default class BaseView {
     this.bgm.stop();
   }
 
+  playSound(key) {
+    // TODO:要素の存在有無確認
+    this.sounds[key].play();
+  }
+
   showFirst() {}
 }

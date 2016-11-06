@@ -191,8 +191,12 @@ export default class TexasHoldemScene extends BaseScene {
     return targetStatuses.some(target => status === target);
   }
 
-  changeStatusByAutomaticTiming(nextStatus, time = 500) {
-    this.pushStatuses([nextStatus, BaseStatus.STATUS_WAITING]);
+  changeStatusByAutomaticTiming(nextStatus = '', time = 500) {
+    if (nextStatus === '') {
+      this.pushStatuses([BaseStatus.STATUS_WAITING]);
+    } else {
+      this.pushStatuses([nextStatus, BaseStatus.STATUS_WAITING]);
+    }
     setTimeout(() => {
       if (this.getCurrentStatus() === BaseStatus.STATUS_WAITING) {
         this.popStatus();
@@ -205,16 +209,20 @@ export default class TexasHoldemScene extends BaseScene {
     const status = this.getCurrentStatus();
     const studyStatus = this.view.getCurrentStudyAction();
     if (this.view.isReturnToTitle()) {
+      this.view.playSound('exit');
       this.returnToTitle();
     } else if (this.view.isSaveLearnData()) {
+      this.view.playSound('save');
       this.saveLearnData();
     } else if (status === BaseStatus.STATUS_WAITING) {
       this.popStatus();
     } else if (status === TexasHoldemStatus.STATUS_PLAYER_THINKING && action !== BaseAction.ACTION_NONE) {
+      this.view.playActionSound(action);
       this.service.setCurrentPlayerAction(action, this.view.getCurrentBetValue());
       this.popStatus();
       this.pushStatus(TexasHoldemStatus.STATUS_PLAYER_DESIDE);
     } else if (status === TexasHoldemStatus.STATUS_STUDY && studyStatus !== MachineStudy.STUDY_NONE) {
+      this.view.playStudySound(studyStatus);
       this.service.learnDirect(this.studentId, studyStatus);
       this.view.eraseStudyView();
       this.popStatus();
@@ -252,11 +260,12 @@ export default class TexasHoldemScene extends BaseScene {
     });
   }
 
+  // TODO:セーブ中の表示が出されるように修正を入れる
   saveLearnData() {
     this.view.saveDraw();
-    setTimeout(() => {
-      this.service.saveLearnedResult(this.studentId);
-      this.view.saveDrawErase();
-    }, 0);
+    this.service.saveLearnedResult(this.studentId);
+    this.view.saveFinishDraw();
+    this.changeStatusByAutomaticTiming();
+    this.view.saveDrawErase();
   }
 }

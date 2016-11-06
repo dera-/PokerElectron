@@ -7,6 +7,8 @@ export default class MyPlayerView extends PlayerView {
     super.initializeElements(elements).then(() => {
       this.betValue = 0;
       this.callValue = elements.initial_blind;
+      this.initialBlind = elements.initial_blind;
+      this.minimumRaiseValue = 2 * elements.initial_blind;
       this.currentAction = TexasHoldemAction.ACTION_NONE;
       this.sprites['bet_slider'].x = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
       return Promise.resolve();
@@ -34,9 +36,19 @@ export default class MyPlayerView extends PlayerView {
       this.raiseButtonView = new ButtonView();
       return Promise.resolve(this.raiseButtonView.initialize(sprites, labels, {name: 'raise'}));
     }).then(()=>{
+      const sprites = {'bet_up_button': this.sprites['bet_up_button']};
+      this.betUpButtonView = new ButtonView();
+      return Promise.resolve(this.betUpButtonView.initialize(sprites, {}, {name: 'bet_up_button'}));
+    }).then(()=>{
+      const sprites = {'bet_down_button': this.sprites['bet_down_button']};
+      this.betDownButtonView = new ButtonView();
+      return Promise.resolve(this.betDownButtonView.initialize(sprites, {}, {name: 'bet_down_button'}));
+    }).then(()=>{
       this.removeSprite('fold');
       this.removeSprite('call');
       this.removeSprite('raise');
+      this.removeSprite('bet_up_button');
+      this.removeSprite('bet_down_button');
       return Promise.resolve();
     });
   }
@@ -50,15 +62,13 @@ export default class MyPlayerView extends PlayerView {
         this.moveBetSlider(event);
       });
       this.raiseButtonView.getEventSprite().addEventListener('touchend', () => {
-        const minX = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
-        const maxX = minX + this.sprites['bet_bar'].width;
-        const betValue = Math.round(this.player.getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
-        if (betValue === this.player.getStack()) {
-          this.betValue = betValue;
+        const betValue = this.getBetValue();
+        if (betValue >= this.player.getStack()) {
+          this.betValue = this.player.getStack();
           this.currentAction = TexasHoldemAction.ACTION_ALLIN;
           return;
         }
-        if (betValue < this.bigBlind || betValue < 2 * this.callValue || betValue < this.player.getBetValue()) {
+        if (betValue < this.initialBlind || betValue < this.minimumRaiseValue || betValue < this.player.getBetValue()) {
           return ;
         }
         this.betValue = betValue;
@@ -81,6 +91,12 @@ export default class MyPlayerView extends PlayerView {
       this.foldButtonView.getEventSprite().addEventListener('touchend', () => {
         this.currentAction = TexasHoldemAction.ACTION_FOLD;
       });
+      this.betUpButtonView.getEventSprite().addEventListener('touchstart', () => {
+        this.moveBetSliderByButton(1);
+      });
+      this.betDownButtonView.getEventSprite().addEventListener('touchstart', () => {
+        this.moveBetSliderByButton(-1);
+      });
       resolve();
     });
   }
@@ -90,25 +106,45 @@ export default class MyPlayerView extends PlayerView {
     this.foldButtonView.showFirst();
     this.callButtonView.showFirst();
     this.raiseButtonView.showFirst();
+    this.betUpButtonView.showFirst();
+    this.betDownButtonView.showFirst();
   }
 
   moveBetSlider(event) {
     const minX = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
     const maxX = minX + this.sprites['bet_bar'].width;
     this.sprites['bet_slider'].x = event.x - this.sprites['bet_slider'].width / 2;
+    this.changeBetSliderPlace(minX, maxX);
+  }
+
+  moveBetSliderByButton(num) {
+    const minX = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
+    const maxX = minX + this.sprites['bet_bar'].width;
+    this.sprites['bet_slider'].x = this.sprites['bet_slider'].x + num * (maxX - minX) * 0.5 * (this.minimumRaiseValue - this.callValue) / (this.player.getStack() - this.minimumRaiseValue);
+    this.changeBetSliderPlace(minX, maxX);
+  }
+
+  changeBetSliderPlace(minX, maxX) {
     if (this.sprites['bet_slider'].x < minX) {
       this.sprites['bet_slider'].x = minX;
     } else if(this.sprites['bet_slider'].x > maxX) {
       this.sprites['bet_slider'].x = maxX;
     }
-    const betValue = Math.round(this.player.getStack() * (this.sprites['bet_slider'].x - minX) / (maxX - minX));
-    if (betValue === this.player.getStack()) {
+    const betValue = this.getBetValue();
+    if (betValue >= this.player.getStack()) {
       this.raiseButtonView.changeText('オールイン');
-    } else if (betValue < this.bigBlind || betValue < 2 * this.callValue || betValue < this.player.getBetValue()) {
+    } else if (betValue < this.initialBlind || betValue < this.minimumRaiseValue || betValue < this.player.getBetValue()) {
       this.raiseButtonView.changeText('レイズ ' + betValue + '(不可)');
     } else {
       this.raiseButtonView.changeText('レイズ ' + betValue);
     }
+  }
+
+  getBetValue() {
+    const minX = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
+    const maxX = minX + this.sprites['bet_bar'].width;
+    const rate = (this.sprites['bet_slider'].x - minX) / (maxX - minX);
+    return Math.round((this.player.getStack() - this.minimumRaiseValue) * rate + this.minimumRaiseValue);
   }
 
   getCurrentBetValue() {
@@ -116,18 +152,29 @@ export default class MyPlayerView extends PlayerView {
   }
 
   setCallValue(callValue) {
+    const beforeCallValue = this.callValue;
     if (callValue > this.callValue) {
       this.callValue = callValue;
+      this.minimumRaiseValue = 2 * callValue - beforeCallValue;
+    } else if (callValue === 0) {
+      this.minimumRaiseValue = this.initialBlind;
+    } else {
+      this.minimumRaiseValue = 2 * this.initialBlind;
     }
-    let callValueText;
+    let callValueText, raiseValueText;
     if (callValue > this.player.getStack()) {
+      this.minimumRaiseValue = this.player.getStack();
       callValueText = 'オールイン';
+      raiseValueText = 'オールイン';
     } else if (callValue === 0 || callValue === this.player.getBetValue()) {
       callValueText = 'チェック';
+      raiseValueText = 'レイズ ' + this.minimumRaiseValue;
     } else {
       callValueText = 'コール ' + callValue;
+      raiseValueText = 'レイズ ' + this.minimumRaiseValue;
     }
     this.callButtonView.changeText(callValueText);
+    this.raiseButtonView.changeText(raiseValueText);
   }
 
   setPlayerBetValue() {
@@ -144,13 +191,14 @@ export default class MyPlayerView extends PlayerView {
   resetAction() {
     this.currentAction = TexasHoldemAction.ACTION_NONE;
     this.sprites['bet_slider'].x = this.sprites['bet_bar'].x - this.sprites['bet_slider'].width / 2;
-    this.raiseButtonView.changeText('レイズ 0 (不可)');
+    this.raiseButtonView.changeText('レイズ ' + this.minimumRaiseValue);
   }
 
   resetOnePhase() {
     this.currentAction = TexasHoldemAction.ACTION_NONE;
     this.betValue = 0;
     this.callValue = 0;
+    this.minimumRaiseValue = 0;
     this.raiseButtonView.changeText('レイズ 0 (不可)');
     this.callButtonView.changeText('チェック');
   }
@@ -159,6 +207,8 @@ export default class MyPlayerView extends PlayerView {
     this.foldButtonView.hideAll();
     this.callButtonView.hideAll();
     this.raiseButtonView.hideAll();
+    this.betUpButtonView.hideAll();
+    this.betDownButtonView.hideAll();
     this.hideSprite('bet_bar');
     this.hideSprite('bet_slider');
   }
@@ -167,6 +217,8 @@ export default class MyPlayerView extends PlayerView {
     this.foldButtonView.showFirst();
     this.callButtonView.showFirst();
     this.raiseButtonView.showFirst();
+    this.betUpButtonView.showFirst();
+    this.betDownButtonView.showFirst();
     this.showSprite('bet_bar');
     this.showSprite('bet_slider');
   }
