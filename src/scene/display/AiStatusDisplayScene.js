@@ -37,6 +37,7 @@ export default class AiStatusDisplayScene extends BaseScene {
 
   touchEndEvent() {
     if (this.view.isReturnToTitle()) {
+      this.view.playSound('exit');
       GameTitleSceneFactory.generateWithPromise().then(sceneObject => {
         SceneRepository.popScene();
         SceneRepository.pushScene(sceneObject.getScene());

@@ -1,13 +1,15 @@
 import BaseView from '../BaseView';
 import Conf from '../../config/conf.json';
 import SpritesConf from '../../config/display/sprites.json';
+import BgmsConfig from '../../config/display/bgms.json';
+import SoundsConfig from '../../config/display/sounds.json';
 import SceneRepository from '../../repository/SceneRepository';
 
 const NONE_POKER_STYLE = 'None';
 
 export default class AiStatusDisplayView extends BaseView {
   initializeAiStatusDisplayView(player) {
-    return this.initialize(SpritesConf.images).then(() => {
+    return this.initialize(SpritesConf.images, BgmsConfig.bgms[0].path, SoundsConfig.sounds).then(() => {
       return this.initializeProperties(player);
     }).then(() => {
       return this.initializeLabels();

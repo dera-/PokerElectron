@@ -2,6 +2,7 @@ import BaseView from '../BaseView';
 import Conf from '../../config/conf.json';
 import SpritesConf from '../../config/start/sprites.json';
 import SerifsConf from '../../config/start/serifs.json';
+import BgmsConfig from '../../config/start/bgms.json';
 import SoundsConfig from '../../config/start/sounds.json';
 import * as MODE from '../../const/start/Mode';
 import SceneRepository from '../../repository/SceneRepository';
@@ -9,7 +10,7 @@ import SceneRepository from '../../repository/SceneRepository';
 export default class GameTitleView extends BaseView {
   async initializeGameTitleView() {
     this.decidedMode = MODE.NOT_DICIDED;
-    await this.initialize(SpritesConf.images, '', SoundsConfig.sounds);
+    await this.initialize(SpritesConf.images, BgmsConfig.bgms[0].path, SoundsConfig.sounds);
     await this.initializeLabels();
     await this.initializeEvents();
   }

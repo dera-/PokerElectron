@@ -147,6 +147,7 @@ export default class TexasHoldemScene extends BaseScene {
       }
     } else if (status === TexasHoldemStatus.STATUS_SHOWDOWN) {
       // リバーまで行ってショーダウンする場合
+      console.log('ショーダウン');
       const openedCards = this.service.showdown();
       const winners = this.service.getWinners();
       this.service.sharePodToWinners(winners);

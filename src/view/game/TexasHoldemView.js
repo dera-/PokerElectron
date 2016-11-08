@@ -518,9 +518,38 @@ export default class TexasHoldemView extends BaseView {
     }
   }
 
-  playActionSound(action) {}
+  playActionSound(action) {
+    switch(action) {
+      case TexasHoldemAction.ACTION_ALLIN:
+      case TexasHoldemAction.ACTION_RAISE:
+        this.sounds['raise'].play();
+        return;
+      case TexasHoldemAction.ACTION_CALL:
+        this.sounds['call'].play();
+        return;
+      //TODO se変更
+      case TexasHoldemAction.ACTION_CHECK:
+        this.sounds['call'].play();
+        return;
+      case TexasHoldemAction.ACTION_FOLD:
+        this.sounds['fold'].play();
+        return;
+    }
+  }
 
-  playStudySound(studyStatus) {}
+  playStudySound(studyStatus) {
+    switch(studyStatus) {
+      case MachineStudy.STUDY_PRAISE:
+        this.sounds['praise'].play();
+        return;
+      case MachineStudy.STUDY_SCOLD:
+        this.sounds['scold'].play();
+        return;
+      case MachineStudy.STUDY_SKIP:
+        this.sounds['skip'].play();
+        return;
+    }
+  }
 
   setPhaseInformation(phase) {
     this.informationView.changeMainInfoText('現フェーズ：' + phase);
