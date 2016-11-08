@@ -1,10 +1,9 @@
 import GameTitleScene from '../../scene/start/GameTitleScene';
 
 export default class GameTitleSceneFactory {
-  static generateWithPromise() {
-    return new Promise((resolve, reject) => {
-      const gameTitleScene = new GameTitleScene();
-      resolve(gameTitleScene.initializeGameTitleScene())
-    });
+  static async generateWithPromise() {
+    const gameTitleScene = new GameTitleScene();
+    await gameTitleScene.initializeGameTitleScene();
+    return gameTitleScene;
   }
 }

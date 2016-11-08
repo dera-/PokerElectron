@@ -20,7 +20,8 @@ export default class GameTitleScene extends BaseScene {
     });
   }
 
-  start(status) {
+  start() {
+    super.start();
     this.view.resetDicidedMode();
     this.view.show();
   }

@@ -1,6 +1,7 @@
 import BaseView from '../BaseView';
 import Conf from '../../config/conf.json';
 import SpritesConf from '../../config/game/sprites.json';
+import SoundsConfig from '../../config/game/sounds.json';
 import SpriteFactory from '../../factory/SpriteFactory';
 import * as BaseAction from '../../const/BaseAction';
 import * as TexasHoldemAction from '../../const/game/TexasHoldemAction';
@@ -18,29 +19,18 @@ import ButtonView from '../object/ButtonView'
 
 const commonInterval = 0.01 * Conf.main.width;
 export default class TexasHoldemView extends BaseView {
-  initializeTexasHoldemView(players, initialBlind, stageData) {
-    return this.initialize(this.getImages(SpritesConf.images, players)).then(() => {
-      return SpriteFactory.generateWithPromise(0, 0, stageData.back_ground);
-    }).then((backGroundSprite)=>{
-      this.sprites['back_ground'] = backGroundSprite;
-      return this.initializeProperties(players, initialBlind);
-    }).then(initialInformation => {
-      return this.initializeBordView(initialInformation);
-    }).then(initialInformation => {
-      return this.initializePlayerViews(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeInformationView(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeSelectWindowViews(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeStudyView(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeReturnButtonView(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeSaveButtonView(initialInformation);
-    }).then(initialInformation => {
-      return this.initializeWaitingMessageView(initialInformation);
-    });
+  async initializeTexasHoldemView(players, initialBlind, stageData) {
+    await this.initialize(this.getImages(SpritesConf.images, players), stageData.bgm, SoundsConfig.sounds);
+    this.sprites['back_ground'] = await SpriteFactory.generateWithPromise(0, 0, stageData.back_ground);
+    const initialInformation = await this.initializeProperties(players, initialBlind);
+    await this.initializeBordView(initialInformation);
+    await this.initializePlayerViews(initialInformation);
+    await this.initializeInformationView(initialInformation);
+    await this.initializeSelectWindowViews(initialInformation);
+    await this.initializeStudyView(initialInformation);
+    await this.initializeReturnButtonView(initialInformation);
+    await this.initializeSaveButtonView(initialInformation);
+    await this.initializeWaitingMessageView(initialInformation);
   }
 
   getImages(images, players) {
@@ -288,6 +278,8 @@ export default class TexasHoldemView extends BaseView {
         if (player.id === Conf.data.player.id) {
           sprites['bet_bar'] = this.sprites['bet_bar'];
           sprites['bet_slider'] = this.sprites['bet_slider'];
+          sprites['bet_up_button'] = this.sprites['bet_up_button'];
+          sprites['bet_down_button'] = this.sprites['bet_down_button'];
           sprites['fold'] = this.sprites['fold'];
           sprites['call'] = this.sprites['call'];
           sprites['raise'] = this.sprites['raise'];
@@ -420,12 +412,17 @@ export default class TexasHoldemView extends BaseView {
   }
 
   saveDraw() {
-    console.log('セーブ中の画面表示');
+    this.waitingMessageView.changeMainInfoText('学習データをセーブ中です');
+    this.waitingMessageView.changeSubInfoText('少々お待ちください');
     this.waitingMessageView.showFirst();
   }
 
+  saveFinishDraw() {
+    this.waitingMessageView.changeMainInfoText('学習データのセーブが完了しました');
+    this.waitingMessageView.changeSubInfoText('');
+  }
+
   saveDrawErase() {
-    console.log('セーブ中の画面を閉じる');
     this.waitingMessageView.hideAll();
     this.saveLearnDataButtonView.reset();
   }
@@ -518,6 +515,39 @@ export default class TexasHoldemView extends BaseView {
     const myPlayerView = this.getMyPlayerView();
     if (myPlayerView !== null) {
       myPlayerView.setPlayerBetValue();
+    }
+  }
+
+  playActionSound(action) {
+    switch(action) {
+      case TexasHoldemAction.ACTION_ALLIN:
+      case TexasHoldemAction.ACTION_RAISE:
+        this.sounds['raise'].play();
+        return;
+      case TexasHoldemAction.ACTION_CALL:
+        this.sounds['call'].play();
+        return;
+      //TODO se変更
+      case TexasHoldemAction.ACTION_CHECK:
+        this.sounds['call'].play();
+        return;
+      case TexasHoldemAction.ACTION_FOLD:
+        this.sounds['fold'].play();
+        return;
+    }
+  }
+
+  playStudySound(studyStatus) {
+    switch(studyStatus) {
+      case MachineStudy.STUDY_PRAISE:
+        this.sounds['praise'].play();
+        return;
+      case MachineStudy.STUDY_SCOLD:
+        this.sounds['scold'].play();
+        return;
+      case MachineStudy.STUDY_SKIP:
+        this.sounds['skip'].play();
+        return;
     }
   }
 

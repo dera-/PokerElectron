@@ -2,7 +2,9 @@ bower_components
 node_modules
 htdocs/js
 htdocs/image
+htdocs/audio
 src/config
 my_data/*.csv
+test_data/*.csv
 sim_dist/**/*.js
 sim_dist/**/*.js.map
