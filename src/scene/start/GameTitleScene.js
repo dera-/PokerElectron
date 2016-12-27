@@ -4,6 +4,7 @@ import GameTitleView from '../../view/start/GameTitleView';
 import * as MODE from '../../const/start/Mode';
 import TexasHoldemSceneFactory from '../../factory/game/TexasHoldemSceneFactory';
 import AiStatusDisplaySceneFactory from '../../factory/display/AiStatusDisplaySceneFactory';
+import LoginSceneFactory from '../../factory/start/LoginSceneFactory';
 import SceneRepository from '../../repository/SceneRepository';
 
 export default class GameTitleScene extends BaseScene {
@@ -41,6 +42,14 @@ export default class GameTitleScene extends BaseScene {
         new Promise((resolve,reject) => {
           SceneRepository.popScene();
           resolve(AiStatusDisplaySceneFactory.generateWithPromise());
+        }).then(sceneObject => {
+          SceneRepository.pushScene(sceneObject.getScene());
+        });
+        break;
+      case MODE.LOGIN:
+        new Promise((resolve,reject) => {
+          SceneRepository.popScene();
+          resolve(LoginSceneFactory.generateWithPromise());
         }).then(sceneObject => {
           SceneRepository.pushScene(sceneObject.getScene());
         });

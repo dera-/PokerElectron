@@ -31,6 +31,10 @@ export default class GameTitleView extends BaseView {
 
   initializeEvents() {
     return new Promise((resolve, reject) => {
+      this.sprites['mode_login'].addEventListener('touchend',() => {
+        this.sounds['decide'].play();
+        this.decidedMode = MODE.LOGIN;
+      });
       this.sprites['mode_study'].addEventListener('touchend',() => {
         this.sounds['decide'].play();
         this.decidedMode = MODE.STUDY;
