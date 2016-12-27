@@ -1,21 +1,21 @@
 import BaseScene from '../BaseScene';
 import LoginService from '../../service/start/LoginService';
-import LoginView from '../../view/LoginView';
+import LoginView from '../../view/start/LoginView';
 import * as Mode from '../../const/start/Mode';
 import GameTitleSceneFactory from '../../factory/start/GameTitleSceneFactory';
 import SceneRepository from '../../repository/SceneRepository';
 
-class LoginScene extends BaseScene {
-  initializeAiLoginScene(loginData) {
+export default class LoginScene extends BaseScene {
+  initializeLoginScene(loginData) {
     return this.initialize(loginData, loginData).then(() => {
       return this;
     });
   }
 
-  generateLoginService(object) {
+  generateService(object) {
     return Promise.resolve(new LoginService()).then(service => {
-      this.service = service;
-      return this.service.initializeLoginService(object.name, object.access_token);
+      this.service = new LoginService();
+      return this.service.initializeLoginService(object.name, object.serial_code);
     });
   }
 
@@ -32,15 +32,15 @@ class LoginScene extends BaseScene {
 
   touchEndEvent() {
     switch (this.view.getCurrentAction()) {
-      case MODE.LOGIN:
+      case Mode.LOGIN:
         this.view.resetCurrentAction();
         this.login();
         break;
-      case MODE.REGISTER:
+      case Mode.REGISTER:
         this.view.resetCurrentAction();
         this.register();
         break;
-      case MODE.TITLE:
+      case Mode.TITLE:
         GameTitleSceneFactory.generateWithPromise().then(sceneObject => {
           SceneRepository.popScene();
           SceneRepository.pushScene(sceneObject.getScene());

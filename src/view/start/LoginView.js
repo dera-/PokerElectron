@@ -1,14 +1,15 @@
 import BaseView from '../BaseView';
 import Conf from '../../config/conf.json';
+import SpritesConf from '../../config/login/sprites.json';
 import * as MODE from '../../const/start/Mode';
 import SceneRepository from '../../repository/SceneRepository';
 
 export default class LoginView extends BaseView {
-  async initializeLoginView(isRegistered, name = '') {
-    this.isRegistered = isRegistered;
+  async initializeLoginView(name = '') {
+    this.isRegistered = name !== '' ? true : false;
     this.decidedMode = MODE.NOT_DICIDED;
     await this.initialize(SpritesConf.images, '', '');
-    await this.initializeCompornents();
+    await this.initializeComponents(name);
     await this.initializeEvents();
   }
 

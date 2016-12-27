@@ -1,5 +1,5 @@
 import BaseService from '../BaseService';
-import Config from '../../congi/config.json';
+import Config from '../../config/conf.json';
 import FileAccess from '../../process/FileAccess';
 import ReinPokerPlayerApi from '../../infrastructure/api/ReinPokerPlayerApi';
 import ReinPokerPlayerLoginApi from '../../infrastructure/api/ReinPokerPlayerLoginApi';
@@ -36,6 +36,7 @@ export default class LoginService extends BaseService {
 
   async login() {
     const loginApi = new ReinPokerPlayerLoginApi();
+    console.log(this.serialCode);
     loginApi.setSerialCode(this.serialCode);
     try {
       const result = await loginApi.post(this.aiData, this.learningData);
@@ -56,10 +57,11 @@ export default class LoginService extends BaseService {
     try {
       const result = await registerApi.post(this.aiData, this.learningData);
       UserRepository.setUserAccessToken(result.token);
+      FileAccess.writeDataAsync(name + "\n" + serialCode, Config.data.player.dir_path + 'login.txt');
+      return true;
     } catch(err) {
+      console.log(err);
       return false;
     }
-    FileAccess.writeDataAsync(name + "\n" + serialCode, Config.data.player.dir_path + 'login.txt');
-    return true;
   }
 }

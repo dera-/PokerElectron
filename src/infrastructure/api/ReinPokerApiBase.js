@@ -1,4 +1,4 @@
-import config from '../../config/config.json';
+import config from '../../config/conf.json';
 import UserRepository from '../../repository/UserRepository';
 
 export default class ReinPokerApiBase {
@@ -6,16 +6,16 @@ export default class ReinPokerApiBase {
     this.url = this.getBaseUrl() + this.getApiName();
   }
 
-  exec(method, body = '') {
-    return fetch(this.url, {
+  async exec(method, body = '') {
+    const response = await fetch(this.url, {
       method: method,
       headers: this.getHeaders(),
-      body: body,
-    }).then(response => {
-      return response.json()
-    }).catch(err => {
-      throw new Error();
+      body: body
     });
+    if (response.status >= 400) {
+      throw new Error(response.status + ":" + response.statusText);
+    }
+    return response;
   }
 
   getApiName() {
@@ -29,8 +29,8 @@ export default class ReinPokerApiBase {
   getHeaders(){
     return {
       'Content-Type': 'application/json',
-      'x-access-id': config.api.rein_poker.access-id
-      'x-access-token': UserRepository.getUserAccessToken();
-    }
+      'x-access-id': config.api.rein_poker.access_id,
+      'x-access-token': UserRepository.getUserAccessToken()
+    };
   }
 }

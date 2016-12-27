@@ -1,5 +1,5 @@
 import FileAccess from '../process/FileAccess';
-import Config from '../congi/config.json';
+import Config from '../config/conf.json';
 
 let userAccessToken = '';
 

@@ -5,6 +5,7 @@ htdocs/image
 htdocs/audio
 src/config
 my_data/*.csv
+my_data/*.txt
 test_data/*.csv
 sim_dist/**/*.js
 sim_dist/**/*.js.map
