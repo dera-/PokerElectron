@@ -16,7 +16,7 @@
       "back_ground": "back_ground/background002.jpg",
       "bgm": "bgm/battle.mp3"
     },
-    "ai_battle_2":{
+    "ai_battle_0":{
       "players": ["ai", "docile"],
       "big_blind": 50,
       "initial_stack": 1000,
@@ -34,7 +34,7 @@
       "bgm": "bgm/battle.mp3",
       "next": "ai_battle_2"
     },
-    "ai_battle_0":{
+    "ai_battle_2":{
       "players": ["ai", "kyouka"],
       "big_blind": 200,
       "initial_stack": 5000,
