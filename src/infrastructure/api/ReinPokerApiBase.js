@@ -33,6 +33,7 @@ export default class ReinPokerApiBase {
   getHeaders(){
     return {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'x-access-id': config.api.rein_poker.access_id,
       'x-access-token': UserRepository.getUserAccessToken()
     };
