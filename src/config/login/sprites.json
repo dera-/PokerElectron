@@ -10,7 +10,7 @@
     {
       "name": "login_button",
       "x": 0.35,
-      "y": 0.6,
+      "y": 0.5,
       "show": true,
       "image_path": "button/button.png"
     },
