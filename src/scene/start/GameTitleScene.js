@@ -6,6 +6,7 @@ import TexasHoldemSceneFactory from '../../factory/game/TexasHoldemSceneFactory'
 import AiStatusDisplaySceneFactory from '../../factory/display/AiStatusDisplaySceneFactory';
 import LoginSceneFactory from '../../factory/start/LoginSceneFactory';
 import SceneRepository from '../../repository/SceneRepository';
+import UserRepository from '../../repository/UserRepository';
 
 export default class GameTitleScene extends BaseScene {
   initializeGameTitleScene() {
@@ -25,6 +26,9 @@ export default class GameTitleScene extends BaseScene {
     super.start();
     this.view.resetDicidedMode();
     this.view.show();
+    if (UserRepository.isLogin()) {
+      this.view.showLoginInfo(true);
+    }
   }
 
   touchEndEvent() {
@@ -52,6 +56,20 @@ export default class GameTitleScene extends BaseScene {
           resolve(LoginSceneFactory.generateWithPromise());
         }).then(sceneObject => {
           SceneRepository.pushScene(sceneObject.getScene());
+        });
+        break;
+      case MODE.RANDOM_AI_BATTLE:
+        new Promise((resolve,reject) => {
+          SceneRepository.popScene();
+          resolve(TexasHoldemSceneFactory.generateFromApi());
+        }).then(sceneObject => {
+          if (sceneObject === null) {
+            UserRepository.setUserAccessToken('');
+            this.view.resetDicidedMode();
+            this.view.showSessionError();
+          } else {
+            SceneRepository.pushScene(sceneObject.getScene());
+          }
         });
         break;
       case MODE.EXIT:

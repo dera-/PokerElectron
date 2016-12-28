@@ -13,6 +13,11 @@ export default class UserRepository {
     return {name: '', serial_code: ''};
   }
 
+  static isLogin() {
+    // TODO いずれは実際にAPI叩くようにしたいが、今はローカルの値を見るくらいで。。
+    return userAccessToken !== '';
+  }
+
   static setUserAccessToken(token) {
     userAccessToken = token;
   }

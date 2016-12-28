@@ -1,14 +1,17 @@
 import BaseView from '../BaseView';
 import Conf from '../../config/conf.json';
 import SpritesConf from '../../config/login/sprites.json';
+import SoundsConfig from '../../config/login/sounds.json';
 import * as MODE from '../../const/start/Mode';
 import SceneRepository from '../../repository/SceneRepository';
+import UserRepository from '../../repository/UserRepository';
 
 export default class LoginView extends BaseView {
   async initializeLoginView(name = '') {
     this.isRegistered = name !== '' ? true : false;
+    this.isWaitingAction = false;
     this.decidedMode = MODE.NOT_DICIDED;
-    await this.initialize(SpritesConf.images, '', '');
+    await this.initialize(SpritesConf.images, '', SoundsConfig.sounds);
     await this.initializeComponents(name);
     await this.initializeEvents();
   }
@@ -16,13 +19,16 @@ export default class LoginView extends BaseView {
   initializeComponents(name) {
     return new Promise((resolve) => {
       this.labels = {};
-      this.labels['login_user'] = this.getLabel('ユーザー名： ', 0.1 * Conf.main.width, 0.1 * Conf.main.height, '28px sans-serif', 'white');
-      this.labels['login_code'] = this.getLabel('シリアルコード： ', 0.1 * Conf.main.width, 0.3 * Conf.main.height, '28px sans-serif', 'white');
-      this.labels['result'] = this.getLabel('', 0.35 * Conf.main.width, 0.7 * Conf.main.height, '28px sans-serif', 'white');
+      this.labels['login_user'] = this.getLabel('ユーザー名： ', 0.1 * Conf.main.width, 0.1 * Conf.main.height, '32px sans-serif', 'white');
+      this.labels['login_code'] = this.getLabel('シリアルコード： ', 0.1 * Conf.main.width, 0.3 * Conf.main.height, '32px sans-serif', 'white');
+      this.labels['result'] = this.getLabel('', 0.3 * Conf.main.width, 0.7 * Conf.main.height, '28px sans-serif', 'white');
+      this.labels['result'].width = 0.35 * Conf.main.width;
 
       if (this.isRegistered) {
         this.labels['login_user'].text += name;
+        this.labels['login_user'].width = 0.35 * Conf.main.width;
         this.labels['login_code'].text += '*************';
+        this.labels['login_code'].width = 0.35 * Conf.main.width;
       } else {
         this.labels['login_user_input'] = this.generateInputForm('login_user_input', 0.45 * Conf.main.width, 0.1 * Conf.main.height);
         this.labels['login_code_input'] = this.generateInputForm('login_code_input', 0.45 * Conf.main.width, 0.3 * Conf.main.height);
@@ -54,13 +60,22 @@ export default class LoginView extends BaseView {
   initializeEvents() {
     return new Promise((resolve) => {
       this.sprites['login_button'].addEventListener('touchend',() => {
+        if (this.isWaitingAction || UserRepository.isLogin()) {
+          return;
+        }
+        this.sounds['decide'].play();
         if (this.isRegistered) {
           this.decidedMode = MODE.LOGIN;
         } else {
           this.decidedMode = MODE.REGISTER;
         }
+        this.isWaitingAction = true;
       });
       this.sprites['return_to_title'].addEventListener('touchend',() => {
+        if (this.isWaitingAction) {
+          return;
+        }
+        this.sounds['exit'].play();
         this.decidedMode = MODE.TITLE;
       });
       resolve();
@@ -97,6 +112,10 @@ export default class LoginView extends BaseView {
 
   getCurrentAction() {
     return this.decidedMode;
+  }
+
+  finishAction() {
+    this.isWaitingAction = false;
   }
 
   resetCurrentAction() {

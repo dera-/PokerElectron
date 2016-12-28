@@ -100,4 +100,8 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
     super.changeInitialiStack(money);
     this.pokerLearnModel.setInitialStack(money);
   }
+
+  setLearningData(data) {
+    this.pokerLearnModel.setQValueMaps(data);
+  }
 }

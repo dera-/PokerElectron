@@ -56,6 +56,7 @@ export default class LoginScene extends BaseScene {
       resolve(this.service.login());
     }).then((isOk)=>{
       this.view.drawResult(isOk);
+      this.view.finishAction();
     });
   }
 
@@ -66,6 +67,7 @@ export default class LoginScene extends BaseScene {
       resolve(this.service.register(name, code));
     }).then((isOk)=>{
       this.view.drawResult(isOk);
+      this.view.finishAction();
     });
   }
 }

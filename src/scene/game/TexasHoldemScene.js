@@ -23,7 +23,7 @@ export default class TexasHoldemScene extends BaseScene {
       this.studentId = null;
       if (this.gameMode === GameMode.MODE_STUDY) {
         this.studentId = players[1].id;
-      } else if (this.gameMode === GameMode.MODE_AI_BATTLE) {
+      } else if (this.gameMode === GameMode.MODE_AI_BATTLE || this.gameMode === GameMode.MODE_RANDOM_AI_BATTLE) {
         this.studentId = this.allyId;
       }
 

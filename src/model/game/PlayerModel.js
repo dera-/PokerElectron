@@ -100,6 +100,10 @@ export default class PlayerModel {
     this.initialStack = stack;
   }
 
+  setDisplayName(name) {
+    this.characterData.displayName = name;
+  }
+
   resetAll() {
     this.stack = this.initialStack;
     this.hand = [];

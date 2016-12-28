@@ -16,6 +16,18 @@ export default class TexasHoldemSceneFactory {
     });
   }
 
+  static async generateFromApi() {
+    let playerModels = [];
+    playerModels.push(PlayerModelRepository.get("ai", stageData.initial_stack, 0));
+    try {
+      const randomAi = await PlayerModelRepository.getFromRandomApi(stageData.initial_stack, 1);
+      playerModels.push(randomAi);
+    } catch(err) {
+      return null;
+    }
+    return scene.initializeTexasHoldemScene(playerModels, stageData.big_blind, stageData, TexasHoldemSceneFactory.getGameMode(stageKey));
+  }
+
   static getGameMode(stageKey) {
     const stageData = StageConfig.data[stageKey];
     switch (stageData.game_mode) {
@@ -23,6 +35,8 @@ export default class TexasHoldemSceneFactory {
         return GameMode.MODE_STUDY;
       case 'ai_battle':
         return GameMode.MODE_AI_BATTLE;
+      case 'random_ai_battle':
+        return GameMode.MODE_RANDOM_AI_BATTLE;
       default:
         return GameMode.MODE_BATTLE;
     }

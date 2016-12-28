@@ -38,6 +38,13 @@ export default class PokerLearnModel {
     this.riverActionValues = {};
   }
 
+  setQValueMaps(data) {
+    this.preFlopQValueMap = this.getQValueMap(PHASE_PRE_FLOP, data.pre_flop.split("\n"));
+    this.flopQValueMap = this.getQValueMap(PHASE_FLOP, data.flop.split("\n"));
+    this.turnQValueMap = this.getQValueMap(PHASE_TURN, data.turn.split("\n"));
+    this.riverQValueMap = this.getQValueMap(PHASE_RIVER, data.river.split("\n"));
+  }
+
   getQValueMap(phase, data) {
     const qValueFactory = new QValueFactory(phase);
     if (data.length <= 1) {
