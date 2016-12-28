@@ -34,6 +34,7 @@ export default class AiStatusDisplayView extends BaseView {
       this.labels['ai_name'] = this.getValueLabel(0.45 * width, 0.05 * height, this.player.characterData.displayName);
       this.labels['player_type_section'] = this.getSectionLabel('プレイスタイル：', 0.45 * width, 0.15 * height);
       this.labels['player_type_value'] = this.getValueLabel(0.6 * width, 0.2 * height, NONE_POKER_STYLE);
+      this.labels['player_type_value'].width = 0.25 * width;
       this.labels['teached_count_section'] = this.getSectionLabel('教えた数：', 0.45 * width, 0.3 * height);
       this.labels['teached_count_value'] = this.getValueLabel(0.6 * width, 0.35 * height, '0回');
       this.labels['winning_rate_section'] = this.getSectionLabel('ポッド獲得率：', 0.45 * width, 0.45 * height);

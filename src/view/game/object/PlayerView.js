@@ -39,14 +39,15 @@ export default class PlayerView extends ObjectView {
         'player_name_' + playerId,
         elements.x_place + this.sprites[this.player.characterData.getSpriteKey('normal')].width + elements.common_interval,
         elements.y_place,
-        '48px sans-serif',
+        '36px sans-serif',
         'white'
       );
+      this.labels['player_name_' + playerId].width = 0.25 * Conf.main.width;
       this.initializeLabel(
         'player_stack_' + playerId,
-        this.labels['player_name_' + playerId].x + 0.6 * this.labels['player_name_' + playerId].width,
+        this.labels['player_name_' + playerId].x + 0.75 * this.labels['player_name_' + playerId].width,
         elements.y_place,
-        '48px sans-serif',
+        '36px sans-serif',
         'white'
       );
       this.dealerPositionY = this.sprites['player_bet_chip_' + playerId].y + elements.relative_dealer_position_y;

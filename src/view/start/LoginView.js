@@ -98,7 +98,7 @@ export default class LoginView extends BaseView {
 
   drawResult(isOk) {
     if (isOk) {
-      this.labels['result'].text = 'ログイン成功。タイトル画面から「AI対戦」が選べます';
+      this.labels['result'].text = 'ログイン成功。タイトル画面から「ネットAI対戦」が選べます';
     } else {
       this.labels['result'].text = 'ログイン失敗。。';
       if (false === this.isRegistered) {
