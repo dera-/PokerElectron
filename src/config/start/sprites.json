@@ -9,17 +9,17 @@
     },
     {
       "name": "mode_login",
-      "x": 0.36,
-      "y": 0.8,
+      "x": 0.38,
+      "y": 0.74,
       "show": true,
-      "image_path": "button/title_button_grow_ai.png"
+      "image_path": "button/login.png"
     },
     {
       "name": "mode_random_ai_battle",
-      "x": 0.36,
-      "y": 0.91,
+      "x": 0.34,
+      "y": 0.85,
       "show": true,
-      "image_path": "button/title_button_battle_ai.png"
+      "image_path": "button/online_ai_battle.png"
     },
     {
       "name": "mode_study",

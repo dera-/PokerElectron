@@ -16,29 +16,29 @@
     },
     {
       "name": "bet_bar",
-      "x": 0.53,
-      "y": 0.7,
+      "x": 0.55,
+      "y": 0.8,
       "show": true,
       "image_path": "button/bet_value_bar.png"
     },
     {
       "name": "bet_slider",
-      "x": 0.53,
-      "y": 0.67,
+      "x": 0.55,
+      "y": 0.77,
       "show": true,
       "image_path": "button/bet_slider.png"
     },
     {
       "name": "bet_down_button",
-      "x": 0.5,
-      "y": 0.65,
+      "x": 0.51,
+      "y": 0.7685,
       "show": true,
       "image_path": "button/bet_down.png"
     },
     {
       "name": "bet_up_button",
-      "x": 0.87,
-      "y": 0.65,
+      "x": 0.91,
+      "y": 0.7685,
       "show": true,
       "image_path": "button/bet_up.png"
     },
@@ -121,15 +121,15 @@
     },
     {
       "name": "fukidashi_shita",
-      "x": 0.05,
-      "y": 0.58,
+      "x": 0.0085,
+      "y": 0.565,
       "show": false,
       "image_path": "icon/fukidashi_shita.png"
     },
     {
       "name": "fukidashi_ue",
-      "x": 0.15,
-      "y": 0.4,
+      "x": 0.0085,
+      "y": 0.3,
       "show": false,
       "image_path": "icon/fukidashi_ue.png"
     },
@@ -142,8 +142,8 @@
     },
     {
       "name": "save_learn_data",
-      "x": 0.86,
-      "y": 0.12,
+      "x": 0.848,
+      "y": 0.135,
       "show": false,
       "image_path": "button/save.png"
     }

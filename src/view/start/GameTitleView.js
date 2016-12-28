@@ -30,19 +30,19 @@ export default class GameTitleView extends BaseView {
       this.labels['login_info'] = new Label();
       this.labels['login_info'].moveTo(
         0.80 * Conf.main.width,
-        0.05 * Conf.main.height
+        0.015 * Conf.main.height
       );
       this.labels['login_info'].width = 0.18 * Conf.main.width;
-      this.labels['login_info'].font = '28px sans-serif';
+      this.labels['login_info'].font = '32px sans-serif';
       this.labels['login_info'].color = 'white';
 
       this.labels['error_info'] = new Label();
       this.labels['error_info'].moveTo(
-        0.80 * Conf.main.width,
-        0.1 * Conf.main.height
+        0.70 * Conf.main.width,
+        0.007 * Conf.main.height
       );
-      this.labels['error_info'].width = 0.18 * Conf.main.width;
-      this.labels['error_info'].font = '28px sans-serif';
+      this.labels['error_info'].width = 0.28 * Conf.main.width;
+      this.labels['error_info'].font = '32px sans-serif';
       this.labels['error_info'].color = 'white';
 
       resolve();

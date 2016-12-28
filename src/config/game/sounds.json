@@ -29,6 +29,10 @@
       "path": "se/cursor9.mp3"
     },
     {
+      "name": "save",
+      "path": "se/decision4.mp3"
+    },
+    {
       "name": "exit",
       "path": "se/cursor7.mp3"
     }

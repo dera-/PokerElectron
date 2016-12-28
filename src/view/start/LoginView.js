@@ -60,7 +60,12 @@ export default class LoginView extends BaseView {
   initializeEvents() {
     return new Promise((resolve) => {
       this.sprites['login_button'].addEventListener('touchend',() => {
-        if (this.isWaitingAction || UserRepository.isLogin()) {
+        if (this.isWaitingAction) {
+          this.labels['result'].text = 'サーバーと通信中です。少々お待ちください。';
+          return;
+        }
+        if (UserRepository.isLogin()) {
+          this.labels['result'].text = 'ログイン済みです。';
           return;
         }
         this.sounds['decide'].play();
