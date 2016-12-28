@@ -22,7 +22,7 @@ export default class LoginView extends BaseView {
       this.labels['login_user'] = this.getLabel('ユーザー名： ', 0.1 * Conf.main.width, 0.1 * Conf.main.height, '32px sans-serif', 'white');
       this.labels['login_code'] = this.getLabel('シリアルコード： ', 0.1 * Conf.main.width, 0.3 * Conf.main.height, '32px sans-serif', 'white');
       this.labels['result'] = this.getLabel('', 0.3 * Conf.main.width, 0.7 * Conf.main.height, '28px sans-serif', 'white');
-      this.labels['result'].width = 0.35 * Conf.main.width;
+      this.labels['result'].width = 0.45 * Conf.main.width;
 
       if (this.isRegistered) {
         this.labels['login_user'].text += name;
