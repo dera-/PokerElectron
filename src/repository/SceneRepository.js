@@ -11,7 +11,7 @@ export default class SceneRepository {
   static popScene() {
     if (gameObject === null) return;
     drawedEntities = {};
-    gameObject.popScene();
+    return gameObject.popScene();
   }
   static pushScene(scene) {
     if (gameObject === null) return;

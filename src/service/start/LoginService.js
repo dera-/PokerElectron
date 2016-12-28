@@ -40,7 +40,7 @@ export default class LoginService extends BaseService {
     loginApi.setSerialCode(this.serialCode);
     try {
       const result = await loginApi.post(this.aiData, this.learningData);
-      UserRepository.setUserAccessToken(result.token);
+      UserRepository.setUserAccessToken(result.data);
       return true;
     } catch(err) {
       return false;
@@ -56,7 +56,7 @@ export default class LoginService extends BaseService {
     this.aiData.name = name;
     try {
       const result = await registerApi.post(this.aiData, this.learningData);
-      UserRepository.setUserAccessToken(result.token);
+      UserRepository.setUserAccessToken(result.data);
       FileAccess.writeDataAsync(name + "\n" + serialCode, Config.data.player.dir_path + 'login.txt');
       return true;
     } catch(err) {

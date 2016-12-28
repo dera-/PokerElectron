@@ -17,15 +17,14 @@ export default class TexasHoldemSceneFactory {
   }
 
   static async generateFromApi() {
+    const stageData = StageConfig.data['random_ai_battle'];
     let playerModels = [];
-    playerModels.push(PlayerModelRepository.get("ai", stageData.initial_stack, 0));
-    try {
-      const randomAi = await PlayerModelRepository.getFromRandomApi(stageData.initial_stack, 1);
-      playerModels.push(randomAi);
-    } catch(err) {
-      return null;
-    }
-    return scene.initializeTexasHoldemScene(playerModels, stageData.big_blind, stageData, TexasHoldemSceneFactory.getGameMode(stageKey));
+    playerModels.push(PlayerModelRepository.get('ai', stageData.initial_stack, 0));
+    const randomAi = await PlayerModelRepository.getFromRandomApi(stageData.initial_stack, 1);
+    playerModels.push(randomAi);
+    const scene = new TexasHoldemScene();
+    const initializedScene = await scene.initializeTexasHoldemScene(playerModels, stageData.big_blind, stageData, TexasHoldemSceneFactory.getGameMode('random_ai_battle'));
+    return initializedScene;
   }
 
   static getGameMode(stageKey) {

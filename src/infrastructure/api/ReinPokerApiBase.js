@@ -1,5 +1,6 @@
 import config from '../../config/conf.json';
 import UserRepository from '../../repository/UserRepository';
+import ApiError from '../../exception/ApiError';
 
 export default class ReinPokerApiBase {
   constructor(){
@@ -7,15 +8,18 @@ export default class ReinPokerApiBase {
   }
 
   async exec(method, body = '') {
-    const response = await fetch(this.url, {
+    const requestData = {
       method: method,
-      headers: this.getHeaders(),
-      body: body
-    });
-    if (response.status >= 400) {
-      throw new Error(response.status + ":" + response.statusText);
+      headers: this.getHeaders()
+    };
+    if (body !== '') {
+      requestData['body'] = body;
     }
-    return response;
+    const response = await fetch(this.url, requestData);
+    if (response.status >= 400) {
+      throw new ApiError(response.statusText, response.status);
+    }
+    return response.json();
   }
 
   getApiName() {

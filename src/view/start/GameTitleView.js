@@ -35,6 +35,16 @@ export default class GameTitleView extends BaseView {
       this.labels['login_info'].width = 0.18 * Conf.main.width;
       this.labels['login_info'].font = '28px sans-serif';
       this.labels['login_info'].color = 'white';
+
+      this.labels['error_info'] = new Label();
+      this.labels['error_info'].moveTo(
+        0.80 * Conf.main.width,
+        0.1 * Conf.main.height
+      );
+      this.labels['error_info'].width = 0.18 * Conf.main.width;
+      this.labels['error_info'].font = '28px sans-serif';
+      this.labels['error_info'].color = 'white';
+
       resolve();
     });
   }
@@ -97,8 +107,15 @@ export default class GameTitleView extends BaseView {
     }
   }
 
-  showSessionError() {
-    this.labels['login_info'].text = 'セッションが切れました。再ログインしてください。';
+  showError(type) {
+    switch (type) {
+      case 'session':
+        this.labels['error_info'].text = 'セッションが切れました。再ログインしてください。';
+        break;
+      default:
+        this.labels['error_info'].text = 'システムエラーです。';
+        break;
+    }
   }
 
   getCurrentAction() {

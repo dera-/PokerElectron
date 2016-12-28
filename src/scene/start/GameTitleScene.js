@@ -59,16 +59,23 @@ export default class GameTitleScene extends BaseScene {
         });
         break;
       case MODE.RANDOM_AI_BATTLE:
+        let beforeScene = null;
         new Promise((resolve,reject) => {
-          SceneRepository.popScene();
+          beforeScene = SceneRepository.popScene();
           resolve(TexasHoldemSceneFactory.generateFromApi());
         }).then(sceneObject => {
-          if (sceneObject === null) {
+          SceneRepository.pushScene(sceneObject.getScene());
+        }).catch((err)=>{
+          if (beforeScene !== null) {
+            SceneRepository.pushScene(beforeScene);
+          }
+          this.view.resetDicidedMode();
+          if (err.hasOwnProperty('status') && err.status === 401) {
             UserRepository.setUserAccessToken('');
-            this.view.resetDicidedMode();
-            this.view.showSessionError();
+            this.view.showLoginInfo(false);
+            this.view.showError('session');
           } else {
-            SceneRepository.pushScene(sceneObject.getScene());
+            this.view.showError('other');
           }
         });
         break;

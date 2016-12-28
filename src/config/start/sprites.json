@@ -1,0 +1,60 @@
+{
+  "images":[
+    {
+      "name": "background",
+      "x": 0,
+      "y": 0,
+      "show": true,
+      "image_path": "back_ground/title_background.png"
+    },
+    {
+      "name": "mode_login",
+      "x": 0.36,
+      "y": 0.8,
+      "show": true,
+      "image_path": "button/title_button_grow_ai.png"
+    },
+    {
+      "name": "mode_random_ai_battle",
+      "x": 0.36,
+      "y": 0.91,
+      "show": true,
+      "image_path": "button/title_button_battle_ai.png"
+    },
+    {
+      "name": "mode_study",
+      "x": 0.57,
+      "y": 0.47,
+      "show": true,
+      "image_path": "button/title_button_grow_ai.png"
+    },
+    {
+      "name": "mode_battle",
+      "x": 0.57,
+      "y": 0.58,
+      "show": true,
+      "image_path": "button/title_button_battle_ai.png"
+    },
+    {
+      "name": "mode_ai_battle",
+      "x": 0.57,
+      "y": 0.69,
+      "show": true,
+      "image_path": "button/title_button_ai_vs_ai.png"
+    },
+    {
+      "name": "mode_ai_status",
+      "x": 0.57,
+      "y": 0.8,
+      "show": true,
+      "image_path": "button/title_button_status.png"
+    },
+    {
+      "name": "mode_exit",
+      "x": 0.57,
+      "y": 0.91,
+      "show": true,
+      "image_path": "button/title_button_exit.png"
+    }
+  ]
+}

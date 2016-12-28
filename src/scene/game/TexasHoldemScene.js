@@ -244,6 +244,7 @@ export default class TexasHoldemScene extends BaseScene {
       } else if (dicision === PlayerDicision.TITLE) {
         this.returnToTitle();
       } else if (dicision === PlayerDicision.NEXT) {
+        const beforeScene = null;
         new Promise((resolve,reject) => {
           SceneRepository.popScene();
           resolve(TexasHoldemSceneFactory.generateWithPromise(this.nextStageKey));

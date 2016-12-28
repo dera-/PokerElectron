@@ -3,7 +3,7 @@ node_modules
 htdocs/js
 htdocs/image
 htdocs/audio
-src/config
+src/config/conf.json
 my_data/*.csv
 my_data/*.txt
 test_data/*.csv
