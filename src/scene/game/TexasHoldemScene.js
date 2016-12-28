@@ -23,7 +23,7 @@ export default class TexasHoldemScene extends BaseScene {
       this.studentId = null;
       if (this.gameMode === GameMode.MODE_STUDY) {
         this.studentId = players[1].id;
-      } else if (this.gameMode === GameMode.MODE_AI_BATTLE) {
+      } else if (this.gameMode === GameMode.MODE_AI_BATTLE || this.gameMode === GameMode.MODE_RANDOM_AI_BATTLE) {
         this.studentId = this.allyId;
       }
 
@@ -244,6 +244,7 @@ export default class TexasHoldemScene extends BaseScene {
       } else if (dicision === PlayerDicision.TITLE) {
         this.returnToTitle();
       } else if (dicision === PlayerDicision.NEXT) {
+        const beforeScene = null;
         new Promise((resolve,reject) => {
           SceneRepository.popScene();
           resolve(TexasHoldemSceneFactory.generateWithPromise(this.nextStageKey));

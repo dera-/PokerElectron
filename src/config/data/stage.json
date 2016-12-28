@@ -1,0 +1,53 @@
+{
+  "data":{
+    "study":{
+      "players": ["you", "ai"],
+      "big_blind": 50,
+      "initial_stack": 5000,
+      "game_mode": "study",
+      "back_ground": "back_ground/background002.jpg",
+      "bgm": "bgm/practice.mp3"
+    },
+    "battle": {
+      "players": ["you", "ai"],
+      "big_blind": 50,
+      "initial_stack": 5000,
+      "game_mode": "battle",
+      "back_ground": "back_ground/background002.jpg",
+      "bgm": "bgm/battle.mp3"
+    },
+    "ai_battle_0":{
+      "players": ["ai", "docile"],
+      "big_blind": 50,
+      "initial_stack": 1000,
+      "game_mode": "ai_battle",
+      "back_ground": "back_ground/background001.jpg",
+      "bgm": "bgm/battle.mp3",
+      "next": "ai_battle_1"
+    },
+    "ai_battle_1":{
+      "players": ["ai", "any"],
+      "big_blind": 100,
+      "initial_stack": 2000,
+      "game_mode": "ai_battle",
+      "back_ground": "back_ground/background001.jpg",
+      "bgm": "bgm/battle.mp3",
+      "next": "ai_battle_2"
+    },
+    "ai_battle_2":{
+      "players": ["ai", "kyouka"],
+      "big_blind": 200,
+      "initial_stack": 5000,
+      "game_mode": "ai_battle",
+      "back_ground": "back_ground/background003.jpg",
+      "bgm": "bgm/battle.mp3"
+    },
+    "random_ai_battle":{
+      "big_blind": 100,
+      "initial_stack": 5000,
+      "game_mode": "random_ai_battle",
+      "back_ground": "back_ground/background003.jpg",
+      "bgm": "bgm/battle.mp3"
+    }
+  }
+}

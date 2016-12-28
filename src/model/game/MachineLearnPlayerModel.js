@@ -1,15 +1,28 @@
 import AiPlayerModel from './AiPlayerModel';
 import PokerLearnModel from './learn/PokerLearnModel';
+import FileAccess from '../../process/FileAccess';
 
 export default class MachineLearnPlayerModel extends AiPlayerModel {
   constructor(id, money, seatNumber, characterData, dataFilePrefix = '') {
     super(id, money, seatNumber, characterData);
     this.pokerLearnModel = new PokerLearnModel(money, dataFilePrefix);
     this.foldHand = [];
-    this.teachedCount = 0;
-    this.playCount = 0;
-    this.winningCount = 0;
-    this.rightFoldCount = 0;
+    this.dataFilePrefix = dataFilePrefix;
+    const fileContent = FileAccess.readData(this.dataFilePrefix + 'count_data.csv');
+    if (fileContent === '') {
+      this.teachedCount = 0;
+      this.playCount = 0;
+      this.winningCount = 0;
+      this.foldCount = 0;
+      this.rightFoldCount = 0;
+    } else {
+      const data = fileContent.split(',');
+      this.teachedCount = parseInt(data[0], 10);
+      this.playCount = parseInt(data[1], 10);
+      this.winningCount = parseInt(data[2], 10);
+      this.foldCount = parseInt(data[3], 10);
+      this.rightFoldCount = parseInt(data[4], 10);
+    }
   }
 
   // override
@@ -36,6 +49,7 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
     this.pokerLearnModel.updateQValue(actionPhase, chip, isLoose);
     this.pokerLearnModel.deleteHistories();
     this.playCount++;
+    this.foldCount++;
     if (false === isLoose) {
       this.rightFoldCount++;
     }
@@ -60,10 +74,10 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
   }
 
   getRightFoldRate() {
-    if (this.playCount === 0) {
+    if (this.foldCount === 0) {
       return 0;
     }
-    return this.rightFoldCount / this.playCount;
+    return this.rightFoldCount / this.foldCount;
   }
 
   getFavoriteHand() {
@@ -78,10 +92,16 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
 
   save() {
     this.pokerLearnModel.saveQvaluesData();
+    const data = this.teachedCount + ',' + this.playCount + ',' + this.winningCount + ',' + this.foldCount + ',' + this.rightFoldCount;
+    FileAccess.writeDataAsync(data, this.dataFilePrefix + 'count_data.csv');
   }
 
   changeInitialiStack(money) {
     super.changeInitialiStack(money);
     this.pokerLearnModel.setInitialStack(money);
+  }
+
+  setLearningData(data) {
+    this.pokerLearnModel.setQValueMaps(data);
   }
 }

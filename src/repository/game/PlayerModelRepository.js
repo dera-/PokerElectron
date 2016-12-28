@@ -1,4 +1,5 @@
 import PlayerModelFactory from '../../factory/game/PlayerModelFactory';
+import ReinPokerPlayerAiRandomApi from '../../infrastructure/api/ReinPokerPlayerAiRandomApi';
 
 const players = {};
 export default class PlayerModelRepository {
@@ -17,6 +18,16 @@ export default class PlayerModelRepository {
     player.changeInitialiStack(stack);
     player.setStack(stack);
     player.setSeatNumber(seatNumber);
+    return player;
+  }
+
+  static async getFromRandomApi(stack, seatNumber) {
+    const player = PlayerModelRepository.get('online_random_ai', stack, seatNumber);
+    const randomApi = new ReinPokerPlayerAiRandomApi();
+    const response = await randomApi.get();
+    // TODO 戦績が閲覧可能になったら、教えた回数とかも見られるようにする
+    player.setDisplayName(response.data.name);
+    player.setLearningData(response.data);
     return player;
   }
 

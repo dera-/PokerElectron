@@ -1,0 +1,151 @@
+{
+  "images":[
+    {
+      "name": "poker_table",
+      "x": 0.07,
+      "y": 0.087,
+      "show": true,
+      "image_path": "material/poker_table.png"
+    },
+    {
+      "name": "card",
+      "x": 0,
+      "y": 0,
+      "show": false,
+      "image_path": ["trump/c01.png", "trump/c02.png", "trump/c03.png", "trump/c04.png", "trump/c05.png", "trump/c06.png", "trump/c07.png", "trump/c08.png", "trump/c09.png", "trump/c10.png", "trump/c11.png", "trump/c12.png", "trump/c13.png", "trump/d01.png", "trump/d02.png", "trump/d03.png", "trump/d04.png", "trump/d05.png", "trump/d06.png", "trump/d07.png", "trump/d08.png", "trump/d09.png", "trump/d10.png", "trump/d11.png", "trump/d12.png", "trump/d13.png", "trump/h01.png", "trump/h02.png", "trump/h03.png", "trump/h04.png", "trump/h05.png", "trump/h06.png", "trump/h07.png", "trump/h08.png", "trump/h09.png", "trump/h10.png", "trump/h11.png", "trump/h12.png", "trump/h13.png", "trump/s01.png", "trump/s02.png", "trump/s03.png", "trump/s04.png", "trump/s05.png", "trump/s06.png", "trump/s07.png", "trump/s08.png", "trump/s09.png", "trump/s10.png", "trump/s11.png", "trump/s12.png", "trump/s13.png", "trump/z01.png", "trump/z02.png"]
+    },
+    {
+      "name": "bet_bar",
+      "x": 0.55,
+      "y": 0.8,
+      "show": true,
+      "image_path": "button/bet_value_bar.png"
+    },
+    {
+      "name": "bet_slider",
+      "x": 0.55,
+      "y": 0.77,
+      "show": true,
+      "image_path": "button/bet_slider.png"
+    },
+    {
+      "name": "bet_down_button",
+      "x": 0.51,
+      "y": 0.7685,
+      "show": true,
+      "image_path": "button/bet_down.png"
+    },
+    {
+      "name": "bet_up_button",
+      "x": 0.91,
+      "y": 0.7685,
+      "show": true,
+      "image_path": "button/bet_up.png"
+    },
+    {
+      "name": "raise",
+      "x": 0.475,
+      "y": 0.866,
+      "show": true,
+      "image_path": "button/button1.png"
+    },
+    {
+      "name": "call",
+      "x": 0.65,
+      "y": 0.866,
+      "show": true,
+      "image_path": "button/button2.png"
+    },
+    {
+      "name": "fold",
+      "x": 0.825,
+      "y": 0.866,
+      "show": true,
+      "image_path": "button/button3.png"
+    },
+    {
+      "name": "deeler_button",
+      "x": 0,
+      "y": 0,
+      "show": true,
+      "image_path": "material/dealer.png"
+    },
+    {
+      "name": "chip",
+      "x": 0,
+      "y": 0,
+      "show": false,
+      "image_path": "material/chip.png"
+    },
+    {
+      "name": "win_icon",
+      "x": 0.3,
+      "y": 0.3,
+      "show": false,
+      "image_path": "icon/win.png"
+    },
+    {
+      "name": "lose_icon",
+      "x": 0.3,
+      "y": 0.3,
+      "show": false,
+      "image_path": "icon/lose.png"
+    },
+    {
+      "name": "common_select_button",
+      "x": 0,
+      "y": 0,
+      "show": false,
+      "image_path": "button/button.gif"
+    },
+    {
+      "name": "praise",
+      "x": 0.475,
+      "y": 0.866,
+      "show": false,
+      "image_path": "button/homeru.png"
+    },
+    {
+      "name": "scold",
+      "x": 0.65,
+      "y": 0.866,
+      "show": false,
+      "image_path": "button/shikaru.png"
+    },
+    {
+      "name": "skip",
+      "x": 0.825,
+      "y": 0.866,
+      "show": false,
+      "image_path": "button/skip.png"
+    },
+    {
+      "name": "fukidashi_shita",
+      "x": 0.0085,
+      "y": 0.565,
+      "show": false,
+      "image_path": "icon/fukidashi_shita.png"
+    },
+    {
+      "name": "fukidashi_ue",
+      "x": 0.0085,
+      "y": 0.3,
+      "show": false,
+      "image_path": "icon/fukidashi_ue.png"
+    },
+    {
+      "name": "return_to_title",
+      "x": 0.85,
+      "y": 0.03,
+      "show": false,
+      "image_path": "button/home.png"
+    },
+    {
+      "name": "save_learn_data",
+      "x": 0.848,
+      "y": 0.135,
+      "show": false,
+      "image_path": "button/save.png"
+    }
+  ]
+}

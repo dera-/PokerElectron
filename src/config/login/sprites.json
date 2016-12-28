@@ -1,0 +1,25 @@
+{
+  "images":[
+    {
+      "name": "display_background",
+      "x": 0,
+      "y": 0,
+      "show": true,
+      "image_path": "back_ground/background002.jpg"
+    },
+    {
+      "name": "login_button",
+      "x": 0.35,
+      "y": 0.5,
+      "show": true,
+      "image_path": "button/login_button.png"
+    },
+    {
+      "name": "return_to_title",
+      "x": 0.85,
+      "y": 0.03,
+      "show": false,
+      "image_path": "button/home.png"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "sounds":[
+    {
+      "name": "decide",
+      "path": "se/decision8.mp3"
+    },
+    {
+      "name": "exit",
+      "path": "se/cursor7.mp3"
+    }
+  ]
+}

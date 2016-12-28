@@ -1,0 +1,32 @@
+{
+  "images":[
+    {
+      "name": "display_background",
+      "x": 0,
+      "y": 0,
+      "show": true,
+      "image_path": "back_ground/background002.jpg"
+    },
+    {
+      "name": "ai_character",
+      "x": 0.2,
+      "y": 0.1,
+      "show": true,
+      "image_path": "character/ai_normal_all.png"
+    },
+    {
+      "name": "return_to_title",
+      "x": 0.85,
+      "y": 0.03,
+      "show": false,
+      "image_path": "button/home.png"
+    },
+    {
+      "name": "display_card",
+      "x": 0,
+      "y": 0,
+      "show": false,
+      "image_path": ["trump/c01.png", "trump/c02.png", "trump/c03.png", "trump/c04.png", "trump/c05.png", "trump/c06.png", "trump/c07.png", "trump/c08.png", "trump/c09.png", "trump/c10.png", "trump/c11.png", "trump/c12.png", "trump/c13.png", "trump/d01.png", "trump/d02.png", "trump/d03.png", "trump/d04.png", "trump/d05.png", "trump/d06.png", "trump/d07.png", "trump/d08.png", "trump/d09.png", "trump/d10.png", "trump/d11.png", "trump/d12.png", "trump/d13.png", "trump/h01.png", "trump/h02.png", "trump/h03.png", "trump/h04.png", "trump/h05.png", "trump/h06.png", "trump/h07.png", "trump/h08.png", "trump/h09.png", "trump/h10.png", "trump/h11.png", "trump/h12.png", "trump/h13.png", "trump/s01.png", "trump/s02.png", "trump/s03.png", "trump/s04.png", "trump/s05.png", "trump/s06.png", "trump/s07.png", "trump/s08.png", "trump/s09.png", "trump/s10.png", "trump/s11.png", "trump/s12.png", "trump/s13.png", "trump/z01.png", "trump/z02.png"]
+    }
+  ]
+}

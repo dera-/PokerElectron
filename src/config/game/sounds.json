@@ -1,0 +1,40 @@
+{
+  "sounds":[
+    {
+      "name": "decide",
+      "path": "se/decision8.mp3"
+    },
+    {
+      "name": "raise",
+      "path": "se/money-drop2.mp3"
+    },
+    {
+      "name": "call",
+      "path": "se/money-drop1.mp3"
+    },
+    {
+      "name": "fold",
+      "path": "se/wallet-close1.mp3"
+    },
+    {
+      "name": "praise",
+      "path": "se/decision5.mp3"
+    },
+    {
+      "name": "scold",
+      "path": "se/warning2.mp3"
+    },
+    {
+      "name": "skip",
+      "path": "se/cursor9.mp3"
+    },
+    {
+      "name": "save",
+      "path": "se/decision4.mp3"
+    },
+    {
+      "name": "exit",
+      "path": "se/cursor7.mp3"
+    }
+  ]
+}
