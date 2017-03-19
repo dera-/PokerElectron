@@ -1,11 +1,12 @@
-const ipc = window.require('electron').ipcRenderer;
+const {ipcRenderer} = require('electron');
+//const ipc = require('electron').ipcRenderer;//window.require('electron').ipcRenderer;
 
 export default class FileAccess {
   static writeDataAsync(data, filePath) {
-    ipc.send('write-file', data, filePath);
+    ipcRenderer.send('write-file', data, filePath);
   }
 
   static readData(filePath) {
-    return ipc.sendSync('read-file', filePath);
+    return ipcRenderer.sendSync('read-file', filePath);
   }
 }
