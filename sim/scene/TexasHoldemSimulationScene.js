@@ -22,6 +22,7 @@ export default class TexasHoldemSimulationScene {
       this.oneGame(service);
     }
     this.testman.save();
+    this.testman.saveActionRate();
   }
 
   oneGame(gameService) {

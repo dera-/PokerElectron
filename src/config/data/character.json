@@ -16,6 +16,26 @@
         "scold": "あかんね"
       }
     },
+    "testman": {
+      "id":2525345,
+      "name": "testman",
+      "image": "character/ai",
+      "type": "learn",
+      "display_name": "テストマン",
+      "data_file_prefix": "test_data/testman_",
+      "serifs":{
+        "allin": "オールイン",
+        "raise": "レイズ",
+        "call": "コール",
+        "check": "チェック",
+        "fold": "フォールド",
+        "normal": "test",
+        "happy": "テスト♪",
+        "sad": "てすと。。。",
+        "praise": "やったーー",
+        "scold": "ごめんなさい。。。"
+      }
+    },
     "ai": {
       "id":2525,
       "name": "ai",

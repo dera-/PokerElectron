@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import TexasHoldemSimulationScene from './scene/TexasHoldemSimulationScene';
 
 if (process.argv.length !== 6) {

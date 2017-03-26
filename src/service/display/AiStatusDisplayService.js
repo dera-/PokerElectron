@@ -52,6 +52,6 @@ export default class AiStatusDisplayService extends BaseService {
   }
 
   getRaiseRate(rateData) {
-    return rateData.raise / (rateData.raise + rateData.call);
+    return rateData.raise / (rateData.raise + rateData.call + rateData.check);
   }
 }

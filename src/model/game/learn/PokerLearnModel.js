@@ -284,7 +284,7 @@ export default class PokerLearnModel {
 
   getActionValues(map) {
     const values = {};
-    const MAX_THRESHOLD = 10000000;
+    const MAX_THRESHOLD = 100000000;
     values[BIG_RAISE_NUM] = 0;
     values[MIDDLE_RAISE_NUM] = 0;
     values[SMALL_RAISE_NUM] = 0;
@@ -311,14 +311,23 @@ export default class PokerLearnModel {
   }
 
   getActionRate(actionValues) {
-    const actionRate = {raise: 0, call: 0, fold: 0};
+    const actionRate = {big_raise: 0, middle_raise:0, small_raise:0, raise: 0, call: 0, check: 0, fold: 0};
     let total = 0;
     Object.keys(actionValues).forEach(key => {
       total += actionValues[key];
-      if (key == BIG_RAISE_NUM || key == MIDDLE_RAISE_NUM || key == SMALL_RAISE_NUM) {
+      if (key == BIG_RAISE_NUM) {
         actionRate.raise += actionValues[key];
-      } else if (key == CALL_NUM || key == CHECK_NUM) {
+        actionRate.big_raise += actionValues[key];
+      } else if (key == MIDDLE_RAISE_NUM) {
+        actionRate.raise += actionValues[key];
+        actionRate.middle_raise += actionValues[key];
+      } else if (key == SMALL_RAISE_NUM) {
+        actionRate.raise += actionValues[key];
+        actionRate.small_raise += actionValues[key];
+      } else if (key == CALL_NUM) {
         actionRate.call += actionValues[key];
+      } else if (key == CHECK_NUM) {
+        actionRate.check += actionValues[key];
       } else if (key == FOLD_NUM) {
         actionRate.fold += actionValues[key];
       }

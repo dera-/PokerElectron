@@ -41,8 +41,8 @@ export default class QvalueFactory {
   }
 
   getInitialScore(actionId) {
-    if (actionId === MachineActionNumber.ALLIN_NUM || actionId === MachineActionNumber.BIG_RAISE_NUM || actionId === MachineActionNumber.MIDDLE_RAISE_NUM || actionId === MachineActionNumber.SMALL_RAISE_NUM) {
-      return QValueUtil.getDividedScore(0, 4);
+    if (actionId === MachineActionNumber.BIG_RAISE_NUM || actionId === MachineActionNumber.MIDDLE_RAISE_NUM || actionId === MachineActionNumber.SMALL_RAISE_NUM) {
+      return QValueUtil.getDividedScore(0, 3);
     } else {
       return 0;
     }

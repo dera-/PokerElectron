@@ -57,7 +57,7 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
 
   setFoldHand() {
     this.foldHand = [];
-    this.hand.forEach(card=>{
+    this.hand.forEach(card => {
       this.foldHand.push(card);
     })
   }
@@ -94,6 +94,16 @@ export default class MachineLearnPlayerModel extends AiPlayerModel {
     this.pokerLearnModel.saveQvaluesData();
     const data = this.teachedCount + ',' + this.playCount + ',' + this.winningCount + ',' + this.foldCount + ',' + this.rightFoldCount;
     FileAccess.writeDataAsync(data, this.dataFilePrefix + 'count_data.csv');
+  }
+
+  saveActionRate() {
+    this.pokerLearnModel.setActionValues();
+    const rates = this.pokerLearnModel.getActionRates();
+    let data = "phase,big_raise,middle_raise,small_raise,call,check,fold\n";
+    Object.keys(rates).forEach(function (key) {
+      data += key + ',' + rates[key].big_raise + ',' + rates[key].middle_raise + ',' + rates[key].small_raise + ',' + rates[key].call + ',' + rates[key].check + ','+ rates[key].fold + "\n";
+    });
+    FileAccess.writeDataAsync(data, this.dataFilePrefix + 'action_rate.csv');
   }
 
   changeInitialiStack(money) {
